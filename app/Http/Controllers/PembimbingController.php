@@ -94,6 +94,25 @@ class PembimbingController extends Controller
             ->with('status', 'Data pembimbing berhasil dihapus.');
     }
 
+    /**
+     * Buat password acak baru untuk pembimbing ini, tampilkan sekali ke admin.
+     */
+    public function resetPassword(Pembimbing $pembimbing): RedirectResponse
+    {
+        if (! $pembimbing->user_id) {
+            return redirect()->route('pembimbing.index')
+                ->with('status', 'Pembimbing ini belum punya akun login. Isi email & password lewat form Ubah terlebih dahulu.');
+        }
+
+        $passwordBaru = \Illuminate\Support\Str::password(10, symbols: false);
+
+        $pembimbing->user->update(['password' => \Illuminate\Support\Facades\Hash::make($passwordBaru)]);
+
+        return redirect()->route('pembimbing.index')
+            ->with('status', "Password untuk {$pembimbing->nama} berhasil di-reset.")
+            ->with('password_baru', ['nama' => $pembimbing->nama, 'email' => $pembimbing->user->email, 'password' => $passwordBaru]);
+    }
+
     private function validated(Request $request, ?Pembimbing $pembimbing = null): array
     {
         return $request->validate([

@@ -13,9 +13,38 @@
         @csrf
     </form>
 
-    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6">
+    <form
+        method="post"
+        action="{{ route('profile.update') }}"
+        enctype="multipart/form-data"
+        class="mt-6 space-y-6"
+        x-data="{ preview: @js($user->foto_url) }"
+    >
         @csrf
         @method('patch')
+
+        <div>
+            <x-input-label for="foto" value="Foto Profil" />
+
+            <div class="mt-2 flex items-center gap-4">
+                <img x-show="preview" x-bind:src="preview" alt="Foto profil" class="h-20 w-20 rounded-full border border-gray-200 object-cover">
+                <div x-show="!preview" class="flex h-20 w-20 items-center justify-center rounded-full bg-blue-600 text-2xl font-semibold text-white">
+                    {{ strtoupper(substr($user->name ?? 'U', 0, 1)) }}
+                </div>
+
+                <input
+                    id="foto"
+                    name="foto"
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    class="block w-full text-sm text-gray-600 file:mr-4 file:rounded-md file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-blue-700 hover:file:bg-blue-100"
+                    x-on:change="if ($event.target.files[0]) { preview = URL.createObjectURL($event.target.files[0]) }"
+                >
+            </div>
+
+            <p class="mt-1 text-xs text-gray-500">JPG, PNG, atau WEBP. Maksimal 2 MB.</p>
+            <x-input-error class="mt-2" :messages="$errors->get('foto')" />
+        </div>
 
         <div>
             <x-input-label for="name" :value="__('Name')" />

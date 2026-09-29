@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreKelompokRequest;
 use App\Http\Requests\UpdateKelompokRequest;
+use App\Models\CalonAnggotaKelompok;
 use App\Models\Departemen;
 use App\Models\Dosen;
 use App\Models\Kampus;
@@ -21,8 +22,8 @@ class KelompokController extends Controller
 {
     public function index(): View
     {
-        $kelompoks = Kelompok::with([
-                'kampus:id,nama_kampus',
+                $kelompoks = Kelompok::with([
+                'kampus:id,nama_universitas',
                 'dosen:id,nama',
                 'pembimbing:id,nama',
                 'departemen:id,nama_departemen',
@@ -34,7 +35,7 @@ class KelompokController extends Controller
 
         return view('kelompok.index', [
             'kelompoks' => $kelompoks,
-            'kampuses' => Kampus::orderBy('nama_kampus')->get(['id', 'nama_kampus']),
+                        'kampuses' => Kampus::orderBy('nama_universitas')->get(['id', 'nama_universitas']),
             'dosens' => Dosen::orderBy('nama')->get(['id', 'nama']),
             'pembimbings' => Pembimbing::orderBy('nama')->get(['id', 'nama']),
             'departemens' => Departemen::orderBy('nama_departemen')->get(['id', 'nama_departemen']),
@@ -70,15 +71,20 @@ class KelompokController extends Controller
     public function store(StoreKelompokRequest $request): RedirectResponse
     {
         $data = $request->validated();
-        $mahasiswaIds = $data['mahasiswa_ids'];
-        unset($data['mahasiswa_ids']);
+        $namaAnggota = $data['nama_anggota'];
+        unset($data['nama_anggota']);
 
         $data['nama_kelompok'] = $this->generateKodeKelompok($data['tanggal_mulai']);
 
-        DB::transaction(function () use ($data, $mahasiswaIds) {
+        DB::transaction(function () use ($data, $namaAnggota) {
             $kelompok = Kelompok::create($data);
 
-            User::whereIn('id', $mahasiswaIds)->update(['kelompok_id' => $kelompok->id]);
+            foreach ($namaAnggota as $nama) {
+                CalonAnggotaKelompok::create([
+                    'kelompok_id' => $kelompok->id,
+                    'nama' => $nama,
+                ]);
+            }
         });
 
         return redirect()->route('kelompok.index')->with('status', 'Kelompok berhasil ditambahkan.');

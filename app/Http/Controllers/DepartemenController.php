@@ -15,12 +15,16 @@ class DepartemenController extends Controller
         $departemens = Departemen::withCount('kelompoks')
             ->orderBy('nama_departemen')
             ->get();
+
         return view('departemen.index', ['departemens' => $departemens]);
     }
 
-        public function create(): View
+    public function create(): View
     {
-        return view('departemen.create', ['pilihan' => Departemen::PILIHAN]);
+        return view('departemen.create', [
+            'pilihan' => $this->pilihan(),
+            'pilihanPimpinan' => $this->pilihanPimpinan(),
+        ]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -33,7 +37,11 @@ class DepartemenController extends Controller
 
     public function edit(Departemen $departemen): View
     {
-        return view('departemen.edit', ['departemen' => $departemen, 'pilihan' => Departemen::PILIHAN]);
+        return view('departemen.edit', [
+            'departemen' => $departemen,
+            'pilihan' => $this->pilihan(),
+            'pilihanPimpinan' => $this->pilihanPimpinan(),
+        ]);
     }
 
     public function update(Request $request, Departemen $departemen): RedirectResponse
@@ -52,18 +60,49 @@ class DepartemenController extends Controller
             ->with('status', 'Data departemen berhasil dihapus.');
     }
 
-        private function validated(Request $request, ?Departemen $departemen = null): array
+    /**
+     * Gabungan daftar departemen bawaan + nama yang sudah pernah dibuat, tanpa duplikat.
+     *
+     * @return array<int, string>
+     */
+    private function pilihan(): array
+    {
+        $sudahAda = Departemen::pluck('nama_departemen')->all();
+
+        return collect(Departemen::PILIHAN)
+            ->merge($sudahAda)
+            ->unique()
+            ->sort()
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Daftar nama pimpinan yang sudah pernah diisi sebelumnya, tanpa duplikat.
+     *
+     * @return array<int, string>
+     */
+    private function pilihanPimpinan(): array
+    {
+        return Departemen::whereNotNull('nama_pimpinan')
+            ->distinct()
+            ->orderBy('nama_pimpinan')
+            ->pluck('nama_pimpinan')
+            ->all();
+    }
+
+    private function validated(Request $request, ?Departemen $departemen = null): array
     {
         return $request->validate([
             'nama_departemen' => [
                 'required',
-                Rule::in(Departemen::PILIHAN),
+                'string',
+                'max:255',
                 Rule::unique('departemens', 'nama_departemen')->ignore($departemen?->id),
             ],
             'nama_pimpinan' => ['nullable', 'string', 'max:255'],
         ], [
-            'nama_departemen.required' => 'Nama departemen wajib dipilih.',
-            'nama_departemen.in' => 'Pilih departemen dari daftar yang tersedia.',
+            'nama_departemen.required' => 'Nama departemen wajib diisi.',
             'nama_departemen.unique' => 'Departemen ini sudah ada.',
         ]);
     }

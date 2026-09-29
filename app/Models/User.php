@@ -2,10 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable
 {
@@ -24,6 +25,7 @@ class User extends Authenticatable
         'mentor_id',
         'kelompok_id',
         'hp_wa',
+        'kampus',
         'fakultas',
         'prodi',
     ];
@@ -39,6 +41,15 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function getFotoUrlAttribute(): ?string
+    {
+        $disk = Storage::disk('public');
+
+        return $this->foto && $disk->exists($this->foto)
+            ? asset('storage/'.$this->foto)
+            : null;
     }
 
     public function kelompok()
@@ -74,5 +85,15 @@ class User extends Authenticatable
     public function penilaians()
     {
         return $this->hasMany(Penilaian::class, 'mahasiswa_id');
+    }
+
+    public function laporanAkhir(): HasOne
+    {
+        return $this->hasOne(LaporanAkhir::class, 'mahasiswa_id');
+    }
+
+    public function nilaiAkademik(): HasOne
+    {
+        return $this->hasOne(NilaiAkademik::class, 'mahasiswa_id');
     }
 }

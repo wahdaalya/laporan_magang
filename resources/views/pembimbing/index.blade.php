@@ -43,6 +43,16 @@ ubah(d) {
                         </div>
                     @endif
 
+                    @if (session('password_baru'))
+                        <div class="mb-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                            <p class="font-semibold">⚠️ Catat/kirim sekarang — password ini tidak akan ditampilkan lagi setelah halaman ini ditutup/di-refresh.</p>
+                            <p class="mt-1">
+                                <strong>{{ session('password_baru')['nama'] }}</strong> ({{ session('password_baru')['email'] }})
+                                — Password: <code class="rounded bg-amber-100 px-2 py-0.5 font-mono">{{ session('password_baru')['password'] }}</code>
+                            </p>
+                        </div>
+                    @endif
+
                     <div class="mb-4 flex justify-end">
                         <button type="button" x-on:click="tambah(); $dispatch('open-modal', 'form-pembimbing')" class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700">
                             <i class="fas fa-plus"></i> Tambah Pembimbing
@@ -81,6 +91,10 @@ ubah(d) {
                                             <td class="px-6 py-4">
                                                 <div class="flex items-center gap-3">
                                                     <button type="button" x-on:click="ubah(@js($pembimbing->only(['id', 'nama', 'nip', 'email', 'hp_wa', 'departemen_id']))); $dispatch('open-modal', 'form-pembimbing')" class="inline-flex items-center rounded-md border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition">Ubah</button>
+                                                    <form method="POST" action="{{ route('pembimbing.reset-password', $pembimbing) }}" onsubmit="return confirm('Buat password baru untuk {{ $pembimbing->nama }}? Password lama tidak bisa dipakai lagi.')">
+                                                        @csrf
+                                                        <button type="submit" class="inline-flex items-center rounded-md bg-amber-50 px-3 py-1.5 text-sm font-medium text-amber-700 hover:bg-amber-100 transition">Reset Password</button>
+                                                    </form>
                                                     <form method="POST" action="{{ route('pembimbing.destroy', $pembimbing) }}" onsubmit="return confirm('Hapus pembimbing ini?')">
                                                         @csrf
                                                         @method('DELETE')

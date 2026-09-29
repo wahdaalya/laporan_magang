@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Kelompok;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -31,18 +32,18 @@ class DashboardTest extends TestCase
     }
 
     #[DataProvider('pembimbingRoles')]
-    public function test_dashboard_redirects_pembimbing_to_pembimbingan_page(string $role): void
+    public function test_dashboard_redirects_supervisor_to_the_role_dashboard(string $role, string $route): void
     {
         $user = User::factory()->role($role)->create();
 
-        $this->actingAs($user)->get('/dashboard')->assertRedirect(route('pembimbingan.index'));
+        $this->actingAs($user)->get('/dashboard')->assertRedirect(route($route));
     }
 
     public static function pembimbingRoles(): array
     {
         return [
-            'DOSEN' => ['DOSEN'],
-            'MENTOR' => ['MENTOR'],
+            'DOSEN' => ['DOSEN', 'dosen.dashboard'],
+            'MENTOR' => ['MENTOR', 'pembimbingan.index'],
         ];
     }
 
@@ -60,11 +61,96 @@ class DashboardTest extends TestCase
         $this->actingAs($user)->get('/admin')->assertForbidden();
     }
 
-    public function test_mahasiswa_dashboard_renders_for_mahasiswa(): void
+    public function test_participant_dashboard_renders_for_mahasiswa_role(): void
     {
         $user = User::factory()->role('MAHASISWA')->create();
 
-        $this->actingAs($user)->get('/mahasiswa/dashboard')->assertOk()->assertSee('Dashboard Mahasiswa');
+        $this->actingAs($user)->get('/mahasiswa/dashboard')
+            ->assertOk()
+            ->assertSee('Dashboard Peserta Magang / PKL')
+            ->assertSee('Lihat Semua Laporan');
+    }
+
+    public function test_dashboard_welcome_banner_shows_participant_name_and_group_duration_progress(): void
+    {
+        $this->travelTo('2026-09-29 12:00:00');
+        $kelompok = Kelompok::create([
+            'nama_kelompok' => 'KEL-2026-002',
+            'tanggal_mulai' => '2026-09-25',
+            'tanggal_selesai' => '2026-09-30',
+        ]);
+        $user = User::factory()->role('MAHASISWA')->create([
+            'name' => 'Wahda Alya',
+            'kelompok_id' => $kelompok->id,
+        ]);
+
+        $this->actingAs($user)->get('/mahasiswa/dashboard')
+            ->assertOk()
+            ->assertSee('Selamat Datang Kembali, Wahda Alya!')
+            ->assertSee('Tetap semangat mencatat kegiatan harianmu hari ini!')
+            ->assertSee('Sisa 1 Hari Lagi')
+            ->assertSee('Masa Magang / PKL Berakhir')
+            ->assertSee('83%')
+            ->assertSee('Dari total durasi 6 hari')
+            ->assertDontSee('KEL-2026-002')
+            ->assertDontSee('Status Periode Selesai')
+            ->assertDontSee('Hari 12 dari 12');
+    }
+
+    public function test_weekly_dashboard_shows_only_weekdays_from_the_selected_group_week(): void
+    {
+        $user = User::factory()->role('MAHASISWA')->create();
+        $kelompok = Kelompok::create([
+            'nama_kelompok' => 'PKL-2026-01',
+            'tanggal_mulai' => '2026-09-01',
+            'tanggal_selesai' => '2026-09-30',
+        ]);
+        $user->update(['kelompok_id' => $kelompok->id]);
+        $user->laporans()->createMany([
+            ['tanggal' => '2026-09-08', 'kegiatan' => 'Laporan minggu terpilih'],
+            ['tanggal' => '2026-09-15', 'kegiatan' => 'Laporan minggu berjalan'],
+            ['tanggal' => '2026-09-12', 'kegiatan' => 'Laporan akhir pekan'],
+        ]);
+
+        $this->actingAs($user)->get('/mahasiswa/dashboard?week=2')
+            ->assertOk()
+            ->assertSee('Minggu 2')
+            ->assertSee('Laporan minggu terpilih')
+            ->assertDontSee('Laporan minggu berjalan')
+            ->assertDontSee('Laporan akhir pekan');
+    }
+
+    public function test_weekly_dashboard_does_not_include_a_weekend_group_start_date(): void
+    {
+        $user = User::factory()->role('MAHASISWA')->create();
+        $kelompok = Kelompok::create([
+            'nama_kelompok' => 'PKL-2026-02',
+            'tanggal_mulai' => '2026-09-06',
+            'tanggal_selesai' => '2026-09-11',
+        ]);
+        $user->update(['kelompok_id' => $kelompok->id]);
+        $user->laporans()->createMany([
+            ['tanggal' => '2026-09-06', 'kegiatan' => 'Laporan hari Minggu'],
+            ['tanggal' => '2026-09-07', 'kegiatan' => 'Laporan hari Senin'],
+        ]);
+
+        $this->actingAs($user)->get('/mahasiswa/dashboard?week=1')
+            ->assertOk()
+            ->assertSee('Laporan hari Senin')
+            ->assertDontSee('Laporan hari Minggu');
+    }
+
+    public function test_all_reports_page_only_shows_the_authenticated_participants_reports(): void
+    {
+        $user = User::factory()->role('MAHASISWA')->create();
+        $otherUser = User::factory()->role('MAHASISWA')->create();
+        $user->laporans()->create(['tanggal' => '2026-09-08', 'kegiatan' => 'Laporan milik saya']);
+        $otherUser->laporans()->create(['tanggal' => '2026-09-08', 'kegiatan' => 'Laporan peserta lain']);
+
+        $this->actingAs($user)->get(route('mahasiswa.laporan.index'))
+            ->assertOk()
+            ->assertSee('Laporan milik saya')
+            ->assertDontSee('Laporan peserta lain');
     }
 
     public function test_mahasiswa_dashboard_forbids_admin_role(): void
@@ -90,7 +176,7 @@ class DashboardTest extends TestCase
             'pembimbing' => ['/pembimbing', 'Data Pembimbing'],
             'departemen' => ['/departemen', 'Data Departemen'],
             'kelompok' => ['/kelompok', 'Data Kelompok'],
-            'mahasiswa' => ['/mahasiswa', 'Data Mahasiswa'],
+            'mahasiswa' => ['/mahasiswa', 'Data Peserta Magang / PKL'],
         ];
     }
 
@@ -112,7 +198,10 @@ class DashboardTest extends TestCase
     {
         $user = User::factory()->role('DOSEN')->create();
 
-        $this->actingAs($user)->get('/pembimbingan')->assertOk()->assertSee('Dashboard Pembimbingan');
+        $this->actingAs($user)->get('/pembimbingan')
+            ->assertOk()
+            ->assertSee('Dashboard Pembimbing Magang / PKL')
+            ->assertSee('Total Peserta Bimbingan');
     }
 
     public function test_pembimbingan_page_forbids_mahasiswa_role(): void

@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreMahasiswaRequest extends FormRequest
 {
@@ -22,9 +23,20 @@ class StoreMahasiswaRequest extends FormRequest
             'password' => ['required', 'string', 'min:8'],
             'nim_nip' => ['nullable', 'string', 'max:50'],
             'hp_wa' => ['nullable', 'string', 'max:30'],
+            'kampus' => ['nullable', 'string', 'max:255'],
             'fakultas' => ['nullable', 'string', 'max:255'],
             'prodi' => ['nullable', 'string', 'max:255'],
+            'foto' => ['nullable', 'image', 'max:2048'],
             'kelompok_id' => ['nullable', 'exists:kelompoks,id'],
+            'calon_anggota_id' => ['nullable', Rule::exists('calon_anggota_kelompoks', 'id')->where(fn ($q) => $q->whereNull('user_id'))],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'foto.image' => 'File harus berupa gambar (jpg, png, dll).',
+            'foto.max' => 'Ukuran foto maksimal 2 MB.',
         ];
     }
 }

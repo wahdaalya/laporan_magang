@@ -26,6 +26,22 @@ class ProfileUpdateRequest extends FormRequest
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
+            'hp_wa' => ['nullable', 'string', 'regex:/^\+?[0-9]{8,15}$/'],
+            'foto' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'foto.image' => 'File harus berupa gambar.',
+            'foto.mimes' => 'Foto harus berformat JPG, PNG, atau WEBP.',
+            'foto.max' => 'Ukuran foto maksimal 2 MB.',
+            'foto.uploaded' => 'Foto gagal diunggah. Coba file yang ukurannya lebih kecil (maks. 2 MB).',
+            'hp_wa.regex' => 'Nomor WhatsApp/telepon hanya boleh angka (boleh diawali +), 8 sampai 15 digit.',
         ];
     }
 }

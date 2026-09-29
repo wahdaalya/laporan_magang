@@ -13,7 +13,8 @@ class DashboardController extends Controller
         return match ($role) {
             'ADMIN' => redirect()->route('admin.index'),
             'MAHASISWA' => redirect()->route('mahasiswa.dashboard'),
-            'DOSEN', 'MENTOR' => redirect()->route('pembimbingan.index'),
+            'DOSEN' => redirect()->route('dosen.dashboard'),
+            'MENTOR' => redirect()->route('pembimbingan.index'),
             default => redirect('/'),
         };
     }

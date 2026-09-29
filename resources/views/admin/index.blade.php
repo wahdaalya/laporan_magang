@@ -9,7 +9,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                    <p class="text-sm text-gray-500">Total Mahasiswa</p>
+                    <p class="text-sm text-gray-500">Total Peserta</p>
                     <p class="text-3xl font-semibold text-gray-900">{{ $statistik['mahasiswa'] }}</p>
                 </div>
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
@@ -38,7 +38,7 @@
                                 <thead class="border-b border-gray-200 text-start text-gray-600">
                                     <tr>
                                         <th class="px-3 py-2 text-start">Tanggal</th>
-                                        <th class="px-3 py-2 text-start">Mahasiswa</th>
+                                        <th class="px-3 py-2 text-start">Peserta</th>
                                         <th class="px-3 py-2 text-start">Kegiatan</th>
                                         <th class="px-3 py-2 text-start">Status</th>
                                     </tr>

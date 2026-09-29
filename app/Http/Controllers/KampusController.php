@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreKampusRequest;
-use App\Http\Requests\UpdateKampusRequest;
 use App\Models\Kampus;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class KampusController extends Controller
 {
@@ -19,33 +19,59 @@ class KampusController extends Controller
         return view('kampus.index', ['kampuses' => $kampuses]);
     }
 
-    /**
-     * Simpan data kampus baru.
-     */
-    public function store(StoreKampusRequest $request): RedirectResponse
+    public function store(Request $request): RedirectResponse
     {
-        Kampus::create($request->validated());
+        Kampus::create($this->validated($request));
 
-        return redirect()->route('kampus.index')->with('status', 'Kampus berhasil ditambahkan.');
+        return redirect()->route('kampus.index')
+            ->with('status', 'Data kampus berhasil ditambahkan.');
     }
 
-    /**
-     * Perbarui data kampus.
-     */
-    public function update(UpdateKampusRequest $request, Kampus $kampus): RedirectResponse
+    public function update(Request $request, Kampus $kampus): RedirectResponse
     {
-        $kampus->update($request->validated());
+        $kampus->update($this->validated($request, $kampus));
 
-        return redirect()->route('kampus.index')->with('status', 'Kampus berhasil diperbarui.');
+        return redirect()->route('kampus.index')
+            ->with('status', 'Data kampus berhasil diperbarui.');
     }
 
-    /**
-     * Hapus data kampus.
-     */
     public function destroy(Kampus $kampus): RedirectResponse
     {
         $kampus->delete();
 
-        return redirect()->route('kampus.index')->with('status', 'Kampus berhasil dihapus.');
+        return redirect()->route('kampus.index')
+            ->with('status', 'Data kampus berhasil dihapus.');
+    }
+
+    /**
+     * Validasi data kampus. Kombinasi Nama Universitas + Alamat + Fakultas + Prodi
+     * harus unik — nama boleh sama asal salah satu kolom lain beda.
+     */
+    private function validated(Request $request, ?Kampus $kampus = null): array
+    {
+        return $request->validate([
+            'nama_universitas' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('kampuses', 'nama_universitas')
+                    ->where(function ($query) use ($request) {
+                        foreach (['alamat', 'fakultas', 'prodi'] as $field) {
+                            $value = $request->input($field);
+
+                            $value === null || $value === ''
+                                ? $query->whereNull($field)
+                                : $query->where($field, $value);
+                        }
+                    })
+                    ->ignore($kampus?->id),
+            ],
+            'alamat' => ['nullable', 'string', 'max:255'],
+            'fakultas' => ['nullable', 'string', 'max:255'],
+            'prodi' => ['nullable', 'string', 'max:255'],
+        ], [
+            'nama_universitas.required' => 'Nama universitas wajib diisi.',
+            'nama_universitas.unique' => 'Data kampus dengan kombinasi Nama Universitas, Alamat, Fakultas, dan Prodi yang sama sudah ada.',
+        ]);
     }
 }

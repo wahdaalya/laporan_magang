@@ -51,4 +51,9 @@ class Kelompok extends Model
     {
         return $this->hasMany(User::class, 'kelompok_id');
     }
+        public function calonAnggotas()
+    {
+        return $this->hasMany(CalonAnggotaKelompok::class);
+    }
 }
+

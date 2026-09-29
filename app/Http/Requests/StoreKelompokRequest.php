@@ -24,10 +24,8 @@ class StoreKelompokRequest extends FormRequest
             'dosen_id' => ['nullable', 'exists:dosens,id'],
             'pembimbing_id' => ['nullable', 'exists:pembimbings,id'],
             'departemen_id' => ['nullable', 'exists:departemens,id'],
-            'mahasiswa_ids' => ['required', 'array', 'min:1'],
-            'mahasiswa_ids.*' => [
-                Rule::exists('users', 'id')->where(fn ($query) => $query->where('role', 'MAHASISWA')->whereNull('kelompok_id')),
-            ],
+            'nama_anggota' => ['required', 'array', 'min:1'],
+            'nama_anggota.*' => ['required', 'string', 'max:255'],
         ];
     }
 
@@ -37,8 +35,8 @@ class StoreKelompokRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'mahasiswa_ids.required' => 'Pilih minimal 1 anggota mahasiswa.',
-            'mahasiswa_ids.min' => 'Pilih minimal 1 anggota mahasiswa.',
+            'nama_anggota.required' => 'Isi minimal 1 nama anggota.',
+            'nama_anggota.min' => 'Isi minimal 1 nama anggota.',
         ];
     }
 }

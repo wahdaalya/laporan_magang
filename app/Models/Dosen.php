@@ -13,6 +13,7 @@ class Dosen extends Model
         'user_id',
         'nama',
         'nidn',
+        'kampus',
         'email',
         'hp_wa',
         'fakultas',

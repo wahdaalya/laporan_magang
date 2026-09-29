@@ -10,9 +10,10 @@ class Kampus extends Model
     use HasFactory;
 
     protected $fillable = [
-        'kode_kampus',
-        'nama_kampus',
-        'alamat_kampus',
+        'nama_universitas',
+        'alamat',
+        'fakultas',
+        'prodi',
     ];
 
     public function kelompoks()

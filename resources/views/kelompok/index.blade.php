@@ -1,13 +1,13 @@
 <x-app-layout>
     <x-slot name="header">
-    <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-        {{ __('Data Kelompok') }}
-    </h2>
-</x-slot>
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Data Kelompok') }}
+        </h2>
+    </x-slot>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-4">
-                                   @if (session('status'))
+            @if (session('status'))
                 <div class="rounded-md bg-green-50 px-4 py-3 text-sm text-green-700">
                     {{ session('status') }}
                 </div>
@@ -20,39 +20,40 @@
                             {{ __('+ Tambah Kelompok') }}
                         </x-primary-button>
                     </div>
+
                     @if ($kelompoks->isEmpty())
                         <p class="text-gray-500">Belum ada data kelompok.</p>
                     @else
                         <div class="overflow-x-auto">
                             <table class="min-w-full text-sm">
-                                <thead class="border-b border-gray-200 text-start text-gray-600">
+                                <thead class="border-b border-gray-200 text-gray-600">
                                     <tr>
-                                        <th class="px-3 py-2 text-start">ID</th>
-                                        <th class="px-3 py-2 text-start">Kode Kelompok</th>
-                                        <th class="px-3 py-2 text-start">Periode</th>
-                                        <th class="px-3 py-2 text-start">Kampus</th>
-                                        <th class="px-3 py-2 text-start">Dosen</th>
-                                        <th class="px-3 py-2 text-start">Pembimbing</th>
-                                        <th class="px-3 py-2 text-start">Departemen</th>
-                                        <th class="px-3 py-2 text-start">Jumlah Anggota</th>
-                                        <th class="px-3 py-2 text-end">Aksi</th>
+                                        <th class="px-5 py-3 text-center align-middle whitespace-nowrap">ID</th>
+                                        <th class="px-5 py-3 text-center align-middle whitespace-nowrap">Kode Kelompok</th>
+                                        <th class="px-5 py-3 text-center align-middle whitespace-nowrap">Periode</th>
+                                        <th class="px-5 py-3 text-center align-middle whitespace-nowrap">Kampus</th>
+                                        <th class="px-5 py-3 text-center align-middle whitespace-nowrap">Dosen</th>
+                                        <th class="px-5 py-3 text-center align-middle whitespace-nowrap">Pembimbing</th>
+                                        <th class="px-5 py-3 text-center align-middle whitespace-nowrap">Departemen</th>
+                                        <th class="px-5 py-3 text-center align-middle whitespace-nowrap">Jumlah Anggota</th>
+                                        <th class="px-5 py-3 text-center align-middle whitespace-nowrap">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach ($kelompoks as $kelompok)
                                         <tr class="border-b border-gray-100">
-                                            <td class="px-3 py-2 text-gray-500">#{{ $kelompok->id }}</td>
-                                            <td class="px-3 py-2 font-medium">{{ $kelompok->nama_kelompok }}</td>
-                                            <td class="px-3 py-2 whitespace-nowrap">
-                                                {{ $kelompok->tanggal_mulai->format('d M Y') }} s/d {{ $kelompok->tanggal_selesai->format('d M Y') }}
+                                            <td class="px-5 py-4 align-middle whitespace-nowrap text-center text-gray-500">#{{ $kelompok->id }}</td>
+                                            <td class="px-5 py-4 align-middle whitespace-nowrap font-medium">{{ $kelompok->nama_kelompok }}</td>
+                                            <td class="px-5 py-4 align-middle whitespace-nowrap">
+                                                {{ $kelompok->tanggal_mulai->format('d M Y') }} - {{ $kelompok->tanggal_selesai->format('d M Y') }}
                                             </td>
-                                            <td class="px-3 py-2">{{ $kelompok->kampus?->nama_kampus ?? '-' }}</td>
-                                            <td class="px-3 py-2">{{ $kelompok->dosen?->nama ?? '-' }}</td>
-                                            <td class="px-3 py-2">{{ $kelompok->pembimbing?->nama ?? '-' }}</td>
-                                            <td class="px-3 py-2">{{ $kelompok->departemen?->nama_departemen ?? '-' }}</td>
-                                            <td class="px-3 py-2">{{ $kelompok->mahasiswas_count }}</td>
-                                            <td class="px-3 py-2 text-end">
-                                                <div class="flex items-center justify-end gap-2">
+                                            <td class="px-5 py-4 align-middle whitespace-nowrap">{{ $kelompok->kampus?->nama_universitas ?? '-' }}</td>
+                                            <td class="px-5 py-4 align-middle whitespace-nowrap">{{ $kelompok->dosen?->nama ?? '-' }}</td>
+                                            <td class="px-5 py-4 align-middle whitespace-nowrap">{{ $kelompok->pembimbing?->nama ?? '-' }}</td>
+                                            <td class="px-5 py-4 align-middle whitespace-nowrap">{{ $kelompok->departemen?->nama_departemen ?? '-' }}</td>
+                                            <td class="px-5 py-4 align-middle whitespace-nowrap text-center">{{ $kelompok->mahasiswas_count }}</td>
+                                            <td class="px-5 py-4 align-middle whitespace-nowrap text-end">
+                                                <div class="flex items-center justify-end gap-3">
                                                     <x-secondary-button type="button" x-data="" x-on:click.prevent="$dispatch('open-modal', 'edit-kelompok-{{ $kelompok->id }}')">
                                                         {{ __('Edit') }}
                                                     </x-secondary-button>
@@ -71,9 +72,9 @@
 
                     @foreach ($kelompoks as $kelompok)
                         <x-modal name="edit-kelompok-{{ $kelompok->id }}">
-                            <form method="post" action="{{ route('kelompok.update', $kelompok) }}" class="p-6">
+                            <form method="POST" action="{{ route('kelompok.update', $kelompok->id, false) }}" class="p-6">
                                 @csrf
-                                @method('put')
+                                @method('PUT')
 
                                 <h2 class="text-lg font-medium text-gray-900">
                                     {{ __('Edit Kelompok') }} #{{ $kelompok->id }}: {{ $kelompok->nama_kelompok }}
@@ -101,14 +102,14 @@
                                             <option value="">{{ __('- Pilih Kampus -') }}</option>
                                             @foreach ($kampuses as $kampus)
                                                 <option value="{{ $kampus->id }}" @selected($kelompok->kampus_id == $kampus->id)>
-                                                    {{ $kampus->nama_kampus }}
+                                                    {{ $kampus->nama_universitas }}
                                                 </option>
                                             @endforeach
                                         </select>
                                     </div>
 
                                     <div>
-                                        <x-input-label for="edit_dosen_id_{{ $kelompok->id }}" value="{{ __('Dosen Pembimbing') }}" />
+                                        <x-input-label for="edit_dosen_id_{{ $kelompok->id }}" value="{{ __('Dosen / Guru Pembimbing') }}" />
                                         <select id="edit_dosen_id_{{ $kelompok->id }}" name="dosen_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                             <option value="">{{ __('- Pilih Dosen -') }}</option>
                                             @foreach ($dosens as $dosen)
@@ -163,7 +164,7 @@
                                 </h2>
 
                                 <p class="mt-1 text-sm text-gray-600">
-                                    {{ __('Kelompok') }} <strong>{{ $kelompok->nama_kelompok }}</strong> {{ __('akan dihapus permanen. Mahasiswa yang tergabung tidak ikut terhapus, tapi kelompoknya jadi kosong.') }}
+                                    {{ __('Kelompok') }} <strong>{{ $kelompok->nama_kelompok }}</strong> {{ __('akan dihapus permanen. Peserta yang tergabung tidak ikut terhapus, tetapi kelompoknya menjadi kosong.') }}
                                 </p>
 
                                 <div class="mt-6 flex justify-end">
@@ -182,6 +183,52 @@
                             </div>
                         </x-modal>
 
+                        <x-modal name="kelola-anggota-{{ $kelompok->id }}" :show="false">
+                            <div class="p-6">
+                                <h2 class="text-lg font-medium text-gray-900">
+                                    {{ __('Anggota') }} {{ $kelompok->nama_kelompok }}
+                                </h2>
+
+                                @if ($kelompok->mahasiswas->isEmpty())
+                                    <p class="mt-4 text-sm text-gray-500">{{ __('Belum ada anggota.') }}</p>
+                                @else
+                                    <ul class="mt-4 divide-y divide-gray-100 rounded-md border border-gray-200">
+                                        @foreach ($kelompok->mahasiswas as $anggota)
+                                            <li class="flex items-center justify-between px-3 py-2 text-sm">
+                                                <span>{{ $anggota->name }}</span>
+                                                <span class="text-gray-500">{{ $anggota->nim_nip ?? '-' }}</span>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                @endif
+
+                                <form method="post" action="{{ route('kelompok.anggota.store', $kelompok) }}" class="mt-4">
+                                    @csrf
+
+                                    <x-input-label for="mahasiswa_id_{{ $kelompok->id }}" value="{{ __('Tambah dari Data Peserta') }}" />
+                                    <select id="mahasiswa_id_{{ $kelompok->id }}" name="mahasiswa_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                                        <option value="">{{ __('- Pilih Peserta -') }}</option>
+                                        @foreach ($mahasiswaBebas as $calon)
+                                            <option value="{{ $calon->id }}">{{ $calon->name }} ({{ $calon->nim_nip ?? '-' }})</option>
+                                        @endforeach
+                                    </select>
+
+                                    @if ($mahasiswaBebas->isEmpty())
+                                        <p class="mt-2 text-sm text-gray-500">{{ __('Semua peserta sudah memiliki kelompok. Tambahkan peserta baru lewat menu Data Peserta.') }}</p>
+                                    @endif
+
+                                    <div class="mt-4 flex justify-end">
+                                        <x-secondary-button type="button" x-on:click="$dispatch('close')">
+                                            {{ __('Tutup') }}
+                                        </x-secondary-button>
+
+                                        <x-primary-button class="ms-3">
+                                            {{ __('Tambahkan') }}
+                                        </x-primary-button>
+                                    </div>
+                                </form>
+                            </div>
+                        </x-modal>
                     @endforeach
                 </div>
             </div>
@@ -194,27 +241,16 @@
             action="{{ route('kelompok.store') }}"
             class="p-6"
             x-data="{
-                search: '',
-                results: [],
-                selected: [],
-                searchTimeout: null,
-                doSearch() {
-                    clearTimeout(this.searchTimeout);
-                    if (this.search.trim() === '') { this.results = []; return; }
-                    this.searchTimeout = setTimeout(async () => {
-                        const res = await fetch('{{ route('kelompok.mahasiswa.search') }}?q=' + encodeURIComponent(this.search));
-                        this.results = await res.json();
-                    }, 300);
+                namaBaru: '',
+                daftar: [],
+                tambah() {
+                    const nama = this.namaBaru.trim();
+                    if (nama === '') { return; }
+                    this.daftar.push(nama);
+                    this.namaBaru = '';
                 },
-                tambah(mhs) {
-                    if (!this.selected.find(a => a.id === mhs.id)) {
-                        this.selected.push(mhs);
-                    }
-                    this.search = '';
-                    this.results = [];
-                },
-                hapus(id) {
-                    this.selected = this.selected.filter(a => a.id !== id);
+                hapus(index) {
+                    this.daftar.splice(index, 1);
                 },
             }"
         >
@@ -242,48 +278,39 @@
                 </div>
 
                 <div class="sm:col-span-2">
-                    <x-input-label value="{{ __('Anggota Kelompok') }}" />
+                    <x-input-label value="{{ __('Nama Anggota') }}" />
 
-                    <div class="relative mt-1">
+                    <div class="mt-1 flex gap-2">
                         <input
                             type="text"
-                            x-model="search"
-                            x-on:input="doSearch()"
+                            x-model="namaBaru"
+                            x-on:keydown.enter.prevent="tambah()"
                             autocomplete="off"
-                            placeholder="{{ __('Ketik nama atau NIM mahasiswa...') }}"
+                            placeholder="{{ __('Ketik nama peserta, lalu klik + Tambah') }}"
                             class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                         >
-
-                        <ul x-show="results.length > 0" class="absolute z-10 mt-1 max-h-48 w-full overflow-auto rounded-md border border-gray-200 bg-white shadow-lg">
-                            <template x-for="mhs in results" :key="mhs.id">
-                                <li x-on:click="tambah(mhs)" class="cursor-pointer px-3 py-2 text-sm hover:bg-gray-100">
-                                    <span x-text="mhs.name"></span>
-                                    <span class="text-gray-500" x-text="'(' + (mhs.nim_nip ?? '-') + ')'"></span>
-                                </li>
-                            </template>
-                        </ul>
+                        <x-secondary-button type="button" x-on:click="tambah()">
+                            {{ __('+ Tambah') }}
+                        </x-secondary-button>
                     </div>
 
-                    <p class="mt-2 text-sm text-gray-500" x-show="selected.length === 0">
-                        {{ __('Belum ada anggota dipilih.') }}
+                    <p class="mt-2 text-sm text-gray-500" x-show="daftar.length === 0">
+                        {{ __('Belum ada nama yang ditambahkan.') }}
                     </p>
 
-                    <ul class="mt-2 divide-y divide-gray-100 rounded-md border border-gray-200" x-show="selected.length > 0">
-                        <template x-for="anggota in selected" :key="anggota.id">
+                    <ul class="mt-2 divide-y divide-gray-100 rounded-md border border-gray-200" x-show="daftar.length > 0">
+                        <template x-for="(nama, index) in daftar" :key="index">
                             <li class="flex items-center justify-between px-3 py-2 text-sm">
-                                <span>
-                                    <span x-text="anggota.name"></span>
-                                    <span class="text-gray-500" x-text="'(' + (anggota.nim_nip ?? '-') + ')'"></span>
-                                </span>
-                                <input type="hidden" name="mahasiswa_ids[]" :value="anggota.id">
-                                <button type="button" x-on:click="hapus(anggota.id)" class="font-medium text-red-600 hover:text-red-800">
+                                <span x-text="nama"></span>
+                                <input type="hidden" name="nama_anggota[]" :value="nama">
+                                <button type="button" x-on:click="hapus(index)" class="font-medium text-red-600 hover:text-red-800">
                                     {{ __('Hapus') }}
                                 </button>
                             </li>
                         </template>
                     </ul>
 
-                    <x-input-error :messages="$errors->get('mahasiswa_ids')" class="mt-2" />
+                    <x-input-error :messages="$errors->get('nama_anggota')" class="mt-2" />
                 </div>
 
                 <div>
@@ -292,7 +319,7 @@
                         <option value="">{{ __('- Pilih Kampus -') }}</option>
                         @foreach ($kampuses as $kampus)
                             <option value="{{ $kampus->id }}" @selected(old('kampus_id') == $kampus->id)>
-                                {{ $kampus->nama_kampus }}
+                                {{ $kampus->nama_universitas }}
                             </option>
                         @endforeach
                     </select>
@@ -300,7 +327,7 @@
                 </div>
 
                 <div>
-                    <x-input-label for="create_dosen_id" value="{{ __('Dosen Pembimbing') }}" />
+                    <x-input-label for="create_dosen_id" value="{{ __('Dosen / Guru Pembimbing') }}" />
                     <select id="create_dosen_id" name="dosen_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                         <option value="">{{ __('- Pilih Dosen -') }}</option>
                         @foreach ($dosens as $dosen)
