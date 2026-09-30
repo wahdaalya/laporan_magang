@@ -25,7 +25,7 @@ class UpdateLaporanRequest extends FormRequest
             'tanggal' => ['required', 'date', 'before_or_equal:today'],
             'kegiatan' => ['required', 'string', 'max:255'],
             'keterangan' => ['nullable', 'string', 'max:2000'],
-            'foto' => ['nullable', 'image', 'max:2048'],
+            'foto' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ];
     }
 
@@ -34,6 +34,7 @@ class UpdateLaporanRequest extends FormRequest
         return [
             'tanggal.before_or_equal' => 'Tanggal tidak boleh lebih dari hari ini.',
             'foto.image' => 'File harus berupa gambar (jpg, png, dll).',
+            'foto.mimes' => 'Format foto harus JPG, JPEG, PNG, atau WEBP.',
             'foto.max' => 'Ukuran foto maksimal 2 MB.',
         ];
     }

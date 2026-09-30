@@ -15,7 +15,7 @@ class LaporanController extends Controller
         $data = $request->validated();
 
         if ($request->hasFile('foto')) {
-            $data['foto'] = $request->file('foto')->store('laporan-foto', 'public');
+            $data['foto'] = $request->file('foto')->store('laporan-foto', 'local');
         }
 
         $request->user()->laporans()->create([
@@ -33,9 +33,9 @@ class LaporanController extends Controller
 
         if ($request->hasFile('foto')) {
             if ($laporan->foto) {
-                Storage::disk('public')->delete($laporan->foto);
+                Storage::disk('local')->delete($laporan->foto);
             }
-            $data['foto'] = $request->file('foto')->store('laporan-foto', 'public');
+            $data['foto'] = $request->file('foto')->store('laporan-foto', 'local');
         } else {
             unset($data['foto']);
         }
@@ -52,7 +52,7 @@ class LaporanController extends Controller
         abort_if($laporan->status !== 'Belum Diperiksa', 403, 'Kegiatan yang sudah diperiksa tidak bisa dihapus.');
 
         if ($laporan->foto) {
-            Storage::disk('public')->delete($laporan->foto);
+            Storage::disk('local')->delete($laporan->foto);
         }
 
         $laporan->delete();

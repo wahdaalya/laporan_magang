@@ -124,9 +124,9 @@
                                     @foreach ($laporans as $laporan)
                                         <tr class="align-middle transition-colors hover:bg-gray-50/50">
                                             <td class="px-0 py-2 text-center align-middle sm:px-2 sm:py-3">
-                                                @if ($laporan->foto)
-                                                    <a href="{{ asset('storage/'.$laporan->foto) }}" target="_blank" class="mx-auto block w-full max-w-12">
-                                                        <img src="{{ asset('storage/'.$laporan->foto) }}" alt="Foto kegiatan: {{ $laporan->kegiatan }}" class="aspect-square w-full rounded-md border border-gray-200 object-cover">
+                                                @if ($laporan->foto_url)
+                                                    <a href="{{ $laporan->foto_url }}" target="_blank" rel="noopener noreferrer" class="mx-auto block w-full max-w-12">
+                                                        <img src="{{ $laporan->foto_url }}" alt="Foto kegiatan: {{ $laporan->kegiatan }}" class="aspect-square w-full rounded-md border border-gray-200 object-cover">
                                                     </a>
                                                 @else
                                                     <span class="text-gray-300">-</span>

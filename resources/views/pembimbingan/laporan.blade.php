@@ -87,9 +87,9 @@
                             </div>
                             <div>
                                 <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">Foto Bukti</p>
-                                @if ($laporan->foto)
-                                    <a href="{{ asset('storage/'.$laporan->foto) }}" target="_blank" rel="noopener" class="block">
-                                        <img src="{{ asset('storage/'.$laporan->foto) }}" alt="Foto kegiatan {{ $laporan->kegiatan }}" class="aspect-[4/3] w-full rounded-lg border border-gray-200 object-cover">
+                                @if ($laporan->foto_url)
+                                    <a href="{{ $laporan->foto_url }}" target="_blank" rel="noopener noreferrer" class="block">
+                                        <img src="{{ $laporan->foto_url }}" alt="Foto kegiatan {{ $laporan->kegiatan }}" class="aspect-[4/3] w-full rounded-lg border border-gray-200 object-cover">
                                     </a>
                                 @else
                                     <div class="flex aspect-[4/3] items-center justify-center rounded-lg border border-dashed border-gray-300 bg-gray-50 text-sm text-gray-500">Tidak ada foto bukti</div>

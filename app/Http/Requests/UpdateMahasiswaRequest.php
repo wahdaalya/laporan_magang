@@ -26,7 +26,7 @@ class UpdateMahasiswaRequest extends FormRequest
             'kampus' => ['nullable', 'string', 'max:255'],
             'fakultas' => ['nullable', 'string', 'max:255'],
             'prodi' => ['nullable', 'string', 'max:255'],
-            'foto' => ['nullable', 'image', 'max:2048'],
+            'foto' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'kelompok_id' => ['nullable', 'exists:kelompoks,id'],
         ];
     }
@@ -35,6 +35,7 @@ class UpdateMahasiswaRequest extends FormRequest
     {
         return [
             'foto.image' => 'File harus berupa gambar (jpg, png, dll).',
+            'foto.mimes' => 'Format foto harus JPG, JPEG, PNG, atau WEBP.',
             'foto.max' => 'Ukuran foto maksimal 2 MB.',
         ];
     }

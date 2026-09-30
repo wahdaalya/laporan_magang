@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
 
 class Penilaian extends Model
 {
@@ -20,10 +19,5 @@ class Penilaian extends Model
     public function mahasiswa()
     {
         return $this->belongsTo(User::class, 'mahasiswa_id');
-    }
-
-    public function getFileUrlAttribute(): ?string
-    {
-        return $this->file ? Storage::disk('public')->url($this->file) : null;
     }
 }

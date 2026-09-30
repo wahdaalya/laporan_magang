@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
 
 class Laporan extends Model
 {
@@ -35,6 +34,6 @@ class Laporan extends Model
 
     public function getFotoUrlAttribute(): ?string
     {
-        return $this->foto ? Storage::disk('public')->url($this->foto) : null;
+        return $this->foto ? route('media.laporan-photo', $this) : null;
     }
 }

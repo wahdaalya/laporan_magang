@@ -15,6 +15,7 @@ use App\Http\Controllers\PembimbinganController;
 use App\Http\Controllers\PembimbingController;
 use App\Http\Controllers\PenilaianMahasiswaController;
 use App\Http\Controllers\PenilaianUploadController;
+use App\Http\Controllers\PrivateMediaController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -31,9 +32,17 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/users/{user}/photo', [PrivateMediaController::class, 'profilePhoto'])
+        ->middleware('throttle:60,1')
+        ->name('media.profile-photo');
+    Route::get('/laporan/{laporan}/photo', [PrivateMediaController::class, 'laporanPhoto'])
+        ->middleware('throttle:60,1')
+        ->name('media.laporan-photo');
+
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->middleware('throttle:10,1')->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->middleware('throttle:5,1')->name('profile.destroy');
 
     Route::get('/admin', [AdminController::class, 'index'])
         ->middleware('role:ADMIN')
@@ -50,7 +59,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/pembimbingan/laporan/setujui-hari-ini', [PembimbinganController::class, 'setujuiHariIni'])->name('pembimbingan.laporan.setujui-hari-ini');
         Route::get('/pembimbingan/peserta', [PembimbinganController::class, 'peserta'])->name('pembimbingan.peserta');
         Route::get('/pembimbing/peserta', [PembimbinganController::class, 'peserta'])->name('pembimbing.peserta');
-        Route::post('/pembimbingan/peserta/{peserta}/penilaian', [PenilaianUploadController::class, 'store'])->name('pembimbingan.penilaian.store');
+        Route::post('/pembimbingan/peserta/{peserta}/penilaian', [PenilaianUploadController::class, 'store'])->middleware('throttle:10,1')->name('pembimbingan.penilaian.store');
     });
 
     Route::middleware('role:DOSEN')->group(function () {
@@ -60,21 +69,25 @@ Route::middleware('auth')->group(function () {
         Route::patch('/dosen/bimbingan-laporan/{laporanAkhir}', [DosenDashboardController::class, 'updateLaporanAkhir'])->name('dosen.laporan-akhir.update');
         Route::get('/dosen/bimbingan-laporan/{laporanAkhir}/unduh', [DosenDashboardController::class, 'downloadLaporanAkhir'])->name('dosen.laporan-akhir.download');
         Route::get('/dosen/penilaian-akhir', [DosenDashboardController::class, 'penilaianAkhir'])->name('dosen.penilaian-akhir.index');
+        Route::get('/dosen/penilaian/{penilaian}/lihat', [DosenDashboardController::class, 'viewPenilaian'])->name('dosen.penilaian.view');
         Route::put('/dosen/penilaian-akhir/{peserta}', [DosenDashboardController::class, 'simpanNilaiAkhir'])->name('dosen.penilaian-akhir.update');
     });
 
     Route::middleware('role:MAHASISWA')->group(function () {
         Route::get('/mahasiswa/dashboard', [MahasiswaController::class, 'dashboard'])->name('mahasiswa.dashboard');
         Route::get('/mahasiswa/laporan', [MahasiswaController::class, 'laporanIndex'])->name('mahasiswa.laporan.index');
-        Route::post('/laporan', [LaporanController::class, 'store'])->name('laporan.store');
-        Route::put('/laporan/{laporan}', [LaporanController::class, 'update'])->name('laporan.update');
+        Route::post('/laporan', [LaporanController::class, 'store'])->middleware('throttle:10,1')->name('laporan.store');
+        Route::put('/laporan/{laporan}', [LaporanController::class, 'update'])->middleware('throttle:10,1')->name('laporan.update');
         Route::delete('/laporan/{laporan}', [LaporanController::class, 'destroy'])->name('laporan.destroy');
         Route::get('/mahasiswa/absensi', [AbsensiController::class, 'index'])->name('mahasiswa.absensi.index');
         Route::get('/mahasiswa/absensi/cetak', [AbsensiController::class, 'cetak'])->name('mahasiswa.absensi.cetak');
         Route::get('/mahasiswa/penilaian', [PenilaianMahasiswaController::class, 'index'])->name('mahasiswa.penilaian.index');
         Route::get('/mahasiswa/penilaian/{penilaian}/unduh', [PenilaianMahasiswaController::class, 'download'])->name('mahasiswa.penilaian.download');
         Route::get('/mahasiswa/laporan-akhir', [LaporanAkhirController::class, 'index'])->name('mahasiswa.laporan-akhir.index');
-        Route::post('/mahasiswa/laporan-akhir', [LaporanAkhirController::class, 'store'])->name('mahasiswa.laporan-akhir.store');
+        Route::get('/mahasiswa/laporan-akhir/cetak', [LaporanAkhirController::class, 'cetak'])->middleware('throttle:10,1')->name('mahasiswa.laporan-akhir.cetak');
+        Route::post('/mahasiswa/laporan-akhir/ajukan', [LaporanAkhirController::class, 'ajukan'])->middleware('throttle:10,1')->name('mahasiswa.laporan-akhir.ajukan');
+        Route::get('/mahasiswa/laporan-akhir/{laporanAkhir}/unduh', [LaporanAkhirController::class, 'download'])->name('mahasiswa.laporan-akhir.download');
+        Route::get('/mahasiswa/penilaian/{penilaian}/lihat', [PenilaianMahasiswaController::class, 'view'])->name('mahasiswa.penilaian.view');
     });
 
     Route::middleware('role:ADMIN')->group(function () {
@@ -82,10 +95,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/kampus', [KampusController::class, 'store'])->name('kampus.store');
         Route::put('/kampus/{kampus}', [KampusController::class, 'update'])->name('kampus.update');
         Route::delete('/kampus/{kampus}', [KampusController::class, 'destroy'])->name('kampus.destroy');
-        Route::resource('dosen', DosenController::class)->parameters(['dosen' => 'dosen'])->except('show');
-        Route::post('/dosen/{dosen}/reset-password', [DosenController::class, 'resetPassword'])->name('dosen.reset-password');
-        Route::resource('pembimbing', PembimbingController::class)->parameters(['pembimbing' => 'pembimbing'])->only(['index', 'store', 'update', 'destroy']);
-        Route::post('/pembimbing/{pembimbing}/reset-password', [PembimbingController::class, 'resetPassword'])->name('pembimbing.reset-password');
+        Route::resource('dosen', DosenController::class)->parameters(['dosen' => 'dosen'])->except('show')->middleware('throttle:60,1');
+        Route::post('/dosen/{dosen}/reset-password', [DosenController::class, 'resetPassword'])->middleware('throttle:5,1')->name('dosen.reset-password');
+        Route::resource('pembimbing', PembimbingController::class)->parameters(['pembimbing' => 'pembimbing'])->only(['index', 'store', 'update', 'destroy'])->middleware('throttle:60,1');
+        Route::post('/pembimbing/{pembimbing}/reset-password', [PembimbingController::class, 'resetPassword'])->middleware('throttle:5,1')->name('pembimbing.reset-password');
         Route::resource('departemen', DepartemenController::class)->parameters(['departemen' => 'departemen'])->except('show');
         Route::get('/kelompok', [KelompokController::class, 'index'])->name('kelompok.index');
         Route::post('/kelompok', [KelompokController::class, 'store'])->name('kelompok.store');
@@ -94,8 +107,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/kelompok/{kelompok}/anggota', [KelompokController::class, 'addAnggota'])->name('kelompok.anggota.store');
         Route::get('/kelompok/cari-mahasiswa', [KelompokController::class, 'searchMahasiswa'])->name('kelompok.mahasiswa.search');
         Route::get('/mahasiswa', [MahasiswaController::class, 'index'])->name('mahasiswa.index');
-        Route::post('/mahasiswa', [MahasiswaController::class, 'store'])->name('mahasiswa.store');
-        Route::put('/mahasiswa/{mahasiswa}', [MahasiswaController::class, 'update'])->name('mahasiswa.update');
+        Route::post('/mahasiswa', [MahasiswaController::class, 'store'])->middleware('throttle:10,1')->name('mahasiswa.store');
+        Route::put('/mahasiswa/{mahasiswa}', [MahasiswaController::class, 'update'])->middleware('throttle:10,1')->name('mahasiswa.update');
         Route::delete('/mahasiswa/{mahasiswa}', [MahasiswaController::class, 'destroy'])->name('mahasiswa.destroy');
     });
 });

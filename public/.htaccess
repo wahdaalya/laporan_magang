@@ -5,6 +5,9 @@
 
     RewriteEngine On
 
+    # Sensitive files and user uploads must not be served from the document root.
+    RewriteRule ^(\.env(\..*)?|vendor(/.*)?|storage(/.*)?)$ - [F,L,NC]
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]

@@ -22,12 +22,6 @@
     <x-input-error class="mt-2" :messages="$errors->get('hp_wa')" />
 </div>
 
-<div class="mt-4">
-    <x-input-label for="fakultas" value="Fakultas (opsional)" />
-    <x-text-input id="fakultas" name="fakultas" type="text" class="mt-1 block w-full" :value="old('fakultas', $dosen->fakultas ?? '')" />
-    <x-input-error class="mt-2" :messages="$errors->get('fakultas')" />
-</div>
-
 <div class="mt-6 flex items-center gap-3">
     <x-primary-button>Simpan</x-primary-button>
     <a href="{{ route('dosen.index') }}" class="text-sm text-gray-600 hover:underline">Batal</a>

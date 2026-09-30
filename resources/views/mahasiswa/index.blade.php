@@ -44,7 +44,11 @@
                                         <tr class="border-b border-gray-100">
                                             <td class="px-3 py-2">
                                                 <p class="font-medium">{{ $mahasiswa->name }}</p>
-                                                <p class="text-gray-500">{{ $mahasiswa->email }}</p>
+                                                @if ($mahasiswa->email)
+                                                    <a href="mailto:{{ $mahasiswa->email }}" class="text-gray-500 hover:text-blue-700 hover:underline">{{ $mahasiswa->email }}</a>
+                                                @else
+                                                    <p class="text-gray-500">-</p>
+                                                @endif
                                             </td>
                                             <td class="px-3 py-2">{{ $mahasiswa->nim_nip ?? '-' }}</td>
                                             <td class="px-3 py-2">{{ $mahasiswa->kampus ?? '-' }}</td>

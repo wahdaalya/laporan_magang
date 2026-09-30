@@ -12,11 +12,9 @@
     x-data="{
         sumber: {
             kampus: @js($kampuses->pluck('nama_universitas')->filter()->unique()->values()),
-            fakultas: @js($kampuses->pluck('fakultas')->filter()->unique()->values()),
-            prodi: @js($kampuses->pluck('prodi')->filter()->unique()->values()),
         },
-        saran: { kampus: [], fakultas: [], prodi: [] },
-        terbuka: { kampus: false, fakultas: false, prodi: false },
+        saran: { kampus: [] },
+        terbuka: { kampus: false },
         cari(field) {
             const q = (this.f[field] ?? '').trim().toLowerCase();
             this.saran[field] = q === ''
@@ -40,8 +38,6 @@
             kampus: @js(old('kampus', '')),
             email: @js(old('email', '')),
             hp_wa: @js(old('hp_wa', '')),
-            fakultas: @js(old('fakultas', '')),
-            prodi: @js(old('prodi', '')),
             password: '',
         },
         get action() {
@@ -50,14 +46,14 @@
         tambah() {
             this.editId = null;
             this.showErrors = false;
-            this.f = { nama: '', nidn: '', kampus: '', email: '', hp_wa: '', fakultas: '', prodi: '', password: '' };
+            this.f = { nama: '', nidn: '', kampus: '', email: '', hp_wa: '', password: '' };
         },
         ubah(d) {
             this.editId = d.id;
             this.showErrors = false;
             this.f = {
                 nama: d.nama ?? '', nidn: d.nidn ?? '', kampus: d.kampus ?? '', email: d.email ?? '',
-                hp_wa: d.hp_wa ?? '', fakultas: d.fakultas ?? '', prodi: d.prodi ?? '', password: '',
+                hp_wa: d.hp_wa ?? '', password: '',
             };
         },
     }">
@@ -71,7 +67,13 @@
         <div class="mb-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">
             <p class="font-semibold">⚠️ Catat/kirim sekarang — password ini tidak akan ditampilkan lagi setelah halaman ini ditutup/di-refresh.</p>
             <p class="mt-1">
-                <strong>{{ session('password_baru')['nama'] }}</strong> ({{ session('password_baru')['email'] }})
+                                <strong>{{ session('password_baru')['nama'] }}</strong> (
+                                @if (session('password_baru')['email'])
+                                    <a href="mailto:{{ session('password_baru')['email'] }}" class="hover:underline">{{ session('password_baru')['email'] }}</a>
+                                @else
+                                    -
+                                @endif
+                                )
                 — Password: <code class="rounded bg-amber-100 px-2 py-0.5 font-mono">{{ session('password_baru')['password'] }}</code>
             </p>
         </div>
@@ -96,8 +98,6 @@
                 <th class="px-6 py-4 text-start">Kampus</th>
                 <th class="px-6 py-4 text-start">Email</th>
                 <th class="px-6 py-4 text-start">HP/WA</th>
-                <th class="px-6 py-4 text-start">Fakultas</th>
-                <th class="px-6 py-4 text-start">Prodi</th>
                 <th class="px-6 py-4 text-start">Jumlah Kelompok</th>
                 <th class="px-6 py-4 text-start">Aksi</th>
             </tr>
@@ -109,14 +109,25 @@
 <td class="px-6 py-4 font-medium text-gray-900">{{ $dosen->nama }}</td>
     <td class="px-6 py-4 text-gray-600">{{ $dosen->nidn ?? '-' }}</td>
     <td class="px-6 py-4 text-gray-600">{{ $dosen->kampus ?? '-' }}</td>
-    <td class="px-6 py-4 text-gray-600">{{ $dosen->email ?? '-' }}</td>
-    <td class="px-6 py-4 text-gray-600">{{ $dosen->hp_wa ?? '-' }}</td>
-    <td class="px-6 py-4 text-gray-600">{{ $dosen->fakultas ?? '-' }}</td>
-    <td class="px-6 py-4 text-gray-600">{{ $dosen->prodi ?? '-' }}</td>
+    <td class="px-6 py-4 text-gray-600">
+        @if ($dosen->email)
+            <a href="mailto:{{ $dosen->email }}" class="hover:text-blue-700 hover:underline">{{ $dosen->email }}</a>
+        @else
+            -
+        @endif
+    </td>
+    <td class="px-6 py-4 text-gray-600">
+        @php($whatsappUrl = \App\Support\ContactLink::whatsappUrl($dosen->hp_wa))
+        @if ($whatsappUrl)
+            <a href="{{ $whatsappUrl }}" target="_blank" rel="noopener noreferrer" class="hover:text-emerald-700 hover:underline">{{ $dosen->hp_wa }}</a>
+        @else
+            -
+        @endif
+    </td>
     <td class="px-6 py-4 text-gray-600">{{ $dosen->kelompoks_count }}</td>
     <td class="px-6 py-4">
         <div class="flex items-center gap-3">
-            <button type="button" x-on:click="ubah(@js($dosen->only(['id', 'nama', 'nidn', 'kampus', 'email', 'hp_wa', 'fakultas', 'prodi']))); $dispatch('open-modal', 'form-dosen')" class="inline-flex items-center rounded-md border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition">Ubah</button>
+            <button type="button" x-on:click="ubah(@js($dosen->only(['id', 'nama', 'nidn', 'kampus', 'email', 'hp_wa']))); $dispatch('open-modal', 'form-dosen')" class="inline-flex items-center rounded-md border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition">Ubah</button>
             <form method="POST" action="{{ route('dosen.reset-password', $dosen) }}" onsubmit="return confirm('Buat password baru untuk {{ $dosen->nama }}? Password lama tidak bisa dipakai lagi.')">
                 @csrf
                 <button type="submit" class="inline-flex items-center rounded-md bg-amber-50 px-3 py-1.5 text-sm font-medium text-amber-700 hover:bg-amber-100 transition">Reset Password</button>

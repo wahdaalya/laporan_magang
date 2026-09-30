@@ -22,7 +22,7 @@ class PembimbinganController extends Controller
             ->with([
                 'kelompok.kampus',
                 'kelompok.departemen',
-                'laporans' => fn (Builder $query) => $query->whereDate('tanggal', $today),
+                'laporans' => fn ($query) => $query->whereDate('tanggal', $today),
             ])
             ->orderBy('name')
             ->get();
@@ -141,7 +141,7 @@ class PembimbinganController extends Controller
     public function peserta(Request $request): View
     {
         $pesertas = $this->pesertaQuery($request->user())
-            ->with(['kelompok.kampus', 'penilaians' => fn (Builder $query) => $query->latest()->limit(1)])
+            ->with(['kelompok.kampus', 'penilaians' => fn ($query) => $query->latest()->limit(1)])
             ->orderBy('name')
             ->get();
 

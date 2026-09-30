@@ -45,10 +45,10 @@ class User extends Authenticatable
 
     public function getFotoUrlAttribute(): ?string
     {
-        $disk = Storage::disk('public');
+        $disk = Storage::disk('local');
 
         return $this->foto && $disk->exists($this->foto)
-            ? asset('storage/'.$this->foto)
+            ? route('media.profile-photo', $this)
             : null;
     }
 

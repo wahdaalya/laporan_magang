@@ -23,6 +23,15 @@ return new class extends Migration
             }
         });
 
+        if (Schema::hasColumn('kampuses', 'kode_kampus')) {
+            try {
+                Schema::table('kampuses', function (Blueprint $table) {
+                    $table->dropUnique('kampuses_kode_kampus_unique');
+                });
+            } catch (Throwable) {
+            }
+        }
+
         $toDrop = array_filter(
             ['kode_kampus', 'nama_kampus', 'alamat_kampus'],
             fn ($col) => Schema::hasColumn('kampuses', $col)

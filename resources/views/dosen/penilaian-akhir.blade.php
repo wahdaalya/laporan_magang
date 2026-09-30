@@ -41,7 +41,7 @@
                             @else
                                 <p class="mt-2 text-sm text-gray-500">Nilai numerik dari Mentor Lapangan belum tersedia.</p>
                                 @if ($mentor)
-                                    <a href="{{ $mentor->file_url }}" target="_blank" rel="noopener" class="mt-2 inline-flex text-sm font-medium text-blue-700 hover:underline">Lihat dokumen PDF Mentor</a>
+                                    <a href="{{ route('dosen.penilaian.view', $mentor) }}" target="_blank" rel="noopener noreferrer" class="mt-2 inline-flex text-sm font-medium text-blue-700 hover:underline">Lihat dokumen PDF Mentor</a>
                                 @endif
                             @endif
                         </div>

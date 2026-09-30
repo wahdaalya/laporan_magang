@@ -15,6 +15,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DosenDashboardController extends Controller
@@ -127,11 +128,32 @@ class DosenDashboardController extends Controller
     {
         abort_unless($this->pesertaQuery($request->user())->whereKey($laporanAkhir->mahasiswa_id)->exists(), 404);
         /** @var FilesystemAdapter $disk */
-        $disk = Storage::disk('public');
-        abort_unless($disk->exists($laporanAkhir->file_path), 404);
+        abort_unless(strtolower(pathinfo($laporanAkhir->file_path, PATHINFO_EXTENSION)) === 'pdf', 404);
+
+        $disk = Storage::disk('local');
+        abort_unless($disk->exists($laporanAkhir->file_path)
+            && $disk->mimeType($laporanAkhir->file_path) === 'application/pdf', 404);
 
         return $disk->download($laporanAkhir->file_path, basename($laporanAkhir->file_path), [
             'Content-Type' => 'application/pdf',
+            'X-Content-Type-Options' => 'nosniff',
+            'Cache-Control' => 'private, no-store, max-age=0',
+        ]);
+    }
+
+    public function viewPenilaian(Request $request, Penilaian $penilaian): BinaryFileResponse
+    {
+        abort_unless($this->pesertaQuery($request->user())->whereKey($penilaian->mahasiswa_id)->exists(), 404);
+        abort_unless(strtolower(pathinfo($penilaian->file, PATHINFO_EXTENSION)) === 'pdf', 404);
+
+        $disk = Storage::disk('local');
+        abort_unless($disk->exists($penilaian->file)
+            && $disk->mimeType($penilaian->file) === 'application/pdf', 404);
+
+        return response()->file($disk->path($penilaian->file), [
+            'Content-Type' => 'application/pdf',
+            'X-Content-Type-Options' => 'nosniff',
+            'Cache-Control' => 'private, no-store, max-age=0',
         ]);
     }
 

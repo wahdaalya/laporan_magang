@@ -169,10 +169,25 @@
                         </a>
                     @endif
 
-                    <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 px-3 py-2 text-sm rounded-lg hover:bg-slate-700 transition font-medium">
-                        <i class="fas fa-user-circle w-5 text-center"></i>
+                    <a href="{{ route('profile.show') }}" @class([
+                        'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition hover:bg-slate-700',
+                        'bg-slate-700 text-white' => request()->routeIs('profile.show'),
+                        'text-slate-200' => ! request()->routeIs('profile.show'),
+                    ]) @if (request()->routeIs('profile.show')) aria-current="page" @endif>
+                        <i class="fas fa-user-circle w-5 text-center" aria-hidden="true"></i>
                         <span>Profil Saya</span>
                     </a>
+
+                    @if (in_array(Auth::user()?->role, ['MAHASISWA', 'DOSEN', 'MENTOR'], true))
+                        <a href="{{ route('profile.edit') }}" @class([
+                            'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition hover:bg-slate-700',
+                            'bg-slate-700 text-white' => request()->routeIs('profile.edit'),
+                            'text-slate-200' => ! request()->routeIs('profile.edit'),
+                        ]) @if (request()->routeIs('profile.edit')) aria-current="page" @endif>
+                            <i class="fas fa-user-edit w-5 text-center" aria-hidden="true"></i>
+                            <span>Edit Profil</span>
+                        </a>
+                    @endif
 
                 </nav>
             </div>
@@ -222,26 +237,22 @@
                                     </div>
                                 </div>
 
-                                <dl class="space-y-3 px-4 py-4 text-sm">
+                                <dl class="px-4 py-4 text-sm">
                                     <div>
                                         <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Email</dt>
-                                        <dd class="mt-0.5 break-all text-gray-800">{{ $profileSummary['email'] }}</dd>
+                                        <dd class="mt-0.5 break-all text-gray-800">
+                                            @if ($profileSummary['email'])
+                                                <a href="mailto:{{ $profileSummary['email'] }}" class="hover:text-blue-700 hover:underline">{{ $profileSummary['email'] }}</a>
+                                            @else
+                                                -
+                                            @endif
+                                        </dd>
                                     </div>
-                                    <div>
-                                        <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Nomor WhatsApp / Telepon</dt>
-                                        <dd class="mt-0.5 text-gray-800">{{ $profileSummary['phone'] }}</dd>
-                                    </div>
-                                    @foreach ($profileSummary['details'] as $detail)
-                                        <div>
-                                            <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">{{ $detail['label'] }}</dt>
-                                            <dd class="mt-0.5 break-words text-gray-800">{{ $detail['value'] }}</dd>
-                                        </div>
-                                    @endforeach
                                 </dl>
 
                                 <div class="flex gap-2 border-t border-gray-100 p-3">
-                                    <a href="{{ route('profile.edit') }}" class="inline-flex flex-1 items-center justify-center gap-2 rounded-md bg-blue-700 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-800">
-                                        <i class="fas fa-pen" aria-hidden="true"></i> Edit Profil
+                                    <a href="{{ route('profile.show') }}" class="inline-flex flex-1 items-center justify-center gap-2 rounded-md bg-blue-700 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-800">
+                                        <i class="fas fa-id-card" aria-hidden="true"></i> Lihat Profil Lengkap
                                     </a>
                                     <form method="POST" action="{{ route('logout') }}">
                                         @csrf

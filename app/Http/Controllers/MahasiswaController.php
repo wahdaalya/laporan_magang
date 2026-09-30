@@ -158,7 +158,7 @@ class MahasiswaController extends Controller
 
         unset($data['foto']);
         if ($request->hasFile('foto')) {
-            $data['foto'] = $request->file('foto')->store('foto-profil', 'public');
+            $data['foto'] = $request->file('foto')->store('foto-profil', 'local');
         }
 
         DB::transaction(function () use ($data, $calonAnggotaId) {
@@ -204,9 +204,9 @@ class MahasiswaController extends Controller
         unset($data['foto']);
         if ($request->hasFile('foto')) {
             if ($mahasiswa->foto) {
-                Storage::disk('public')->delete($mahasiswa->foto);
+                Storage::disk('local')->delete($mahasiswa->foto);
             }
-            $data['foto'] = $request->file('foto')->store('foto-profil', 'public');
+            $data['foto'] = $request->file('foto')->store('foto-profil', 'local');
         }
 
         $mahasiswa->update($data);
@@ -220,7 +220,7 @@ class MahasiswaController extends Controller
     public function destroy(User $mahasiswa): RedirectResponse
     {
         if ($mahasiswa->foto) {
-            Storage::disk('public')->delete($mahasiswa->foto);
+            Storage::disk('local')->delete($mahasiswa->foto);
         }
 
         $mahasiswa->delete();

@@ -2,6 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\Departemen;
+use App\Models\Dosen;
+use App\Models\Kelompok;
+use App\Models\Pembimbing;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
@@ -23,10 +27,10 @@ class ProfileTest extends TestCase
         $response->assertOk();
     }
 
-    public function test_profile_page_displays_photo_when_file_exists_on_public_disk(): void
+    public function test_profile_page_uses_a_private_photo_route_when_photo_exists(): void
     {
-        Storage::fake('public');
-        Storage::disk('public')->put('foto-profil/profile.png', 'image contents');
+        Storage::fake('local');
+        Storage::disk('local')->put('foto-profil/profile.png', 'image contents');
         $user = User::factory()->role('MAHASISWA')->create([
             'foto' => 'foto-profil/profile.png',
         ]);
@@ -37,13 +41,13 @@ class ProfileTest extends TestCase
 
         $response
             ->assertOk()
-            ->assertSee('src="'.asset('storage/foto-profil/profile.png').'"', false)
+            ->assertSee('src="'.route('media.profile-photo', $user).'"', false)
             ->assertSee('alt="Foto profil '.$user->name.'"', false);
     }
 
     public function test_profile_page_displays_fallback_when_photo_file_is_missing(): void
     {
-        Storage::fake('public');
+        Storage::fake('local');
         $user = User::factory()->role('MAHASISWA')->create([
             'foto' => 'foto-profil/missing.png',
         ]);
@@ -58,23 +62,120 @@ class ProfileTest extends TestCase
             ->assertDontSee('missing.png');
     }
 
+    public function test_student_profile_uses_the_group_department(): void
+    {
+        $departemen = Departemen::query()->create([
+            'nama_departemen' => 'Airport Operations',
+        ]);
+        $kelompok = Kelompok::query()->create([
+            'nama_kelompok' => 'KNO-01',
+            'tanggal_mulai' => '2026-01-01',
+            'tanggal_selesai' => '2026-02-01',
+            'departemen_id' => $departemen->id,
+        ]);
+        $mahasiswa = User::factory()->role('MAHASISWA')->create([
+            'kelompok_id' => $kelompok->id,
+        ]);
+
+        $this->actingAs($mahasiswa)->get('/profile')
+            ->assertSee('Departemen Penempatan')
+            ->assertSee('Airport Operations');
+    }
+
+    public function test_dosen_profile_displays_profile_data_and_assigned_group(): void
+    {
+        $user = User::factory()->role('DOSEN')->create();
+        $dosen = Dosen::query()->create([
+            'user_id' => $user->id,
+            'nama' => 'Dosen Uji',
+            'nidn' => '0123456789',
+            'kampus' => 'Universitas Kualanamu',
+            'email' => 'dosen@example.test',
+            'hp_wa' => '081234567890',
+            'fakultas' => 'Teknik',
+            'prodi' => 'Informatika',
+        ]);
+        $kelompok = Kelompok::query()->create([
+            'nama_kelompok' => 'Kelompok Dosen Uji',
+            'tanggal_mulai' => '2026-01-01',
+            'tanggal_selesai' => '2026-02-01',
+            'dosen_id' => $dosen->id,
+        ]);
+        User::factory()->role('MAHASISWA')->create(['kelompok_id' => $kelompok->id]);
+
+        $this->actingAs($user)->get('/profile')
+            ->assertSee('0123456789')
+            ->assertSee('dosen@example.test')
+            ->assertSee('Universitas Kualanamu')
+            ->assertSee('Kelompok Dosen Uji')
+            ->assertSee('1 kelompok')
+            ->assertSee('1 mahasiswa');
+    }
+
+    public function test_mentor_profile_displays_department_manager_and_assigned_group(): void
+    {
+        $user = User::factory()->role('MENTOR')->create();
+        $departemen = Departemen::query()->create([
+            'nama_departemen' => 'Engineering',
+            'nama_pimpinan' => 'Pimpinan Uji',
+        ]);
+        $pembimbing = Pembimbing::query()->create([
+            'user_id' => $user->id,
+            'departemen_id' => $departemen->id,
+            'nama' => 'Mentor Uji',
+            'nip' => '1987654321',
+            'email' => 'mentor@example.test',
+            'hp_wa' => '081298765432',
+        ]);
+        $kelompok = Kelompok::query()->create([
+            'nama_kelompok' => 'Kelompok Mentor Uji',
+            'tanggal_mulai' => '2026-01-01',
+            'tanggal_selesai' => '2026-02-01',
+            'pembimbing_id' => $pembimbing->id,
+        ]);
+        User::factory()->role('MAHASISWA')->create(['kelompok_id' => $kelompok->id]);
+
+        $this->actingAs($user)->get('/profile')
+            ->assertSee('1987654321')
+            ->assertSee('mentor@example.test')
+            ->assertSee('Pimpinan Uji')
+            ->assertSee('Kelompok Mentor Uji')
+            ->assertSee('1 kelompok')
+            ->assertSee('1 peserta');
+    }
+
     #[DataProvider('profileRoles')]
-    public function test_profile_uses_the_shared_banner_layout_for_all_account_roles(string $role, string $roleLabel): void
+    public function test_profile_show_is_read_only_for_all_account_roles(string $role, string $roleLabel): void
     {
         $user = User::factory()->role($role)->create();
 
         $this->actingAs($user)->get('/profile')
             ->assertOk()
-            ->assertSee('Ubah Foto')
             ->assertSee($roleLabel)
+            ->assertSee('Email')
+            ->assertSee('Detail profil pengguna', false)
+            ->assertSee('Lihat Profil Lengkap')
+            ->assertSee('Edit Profil')
+            ->assertSee('Keluar')
+            ->assertDontSee('Ubah Foto')
+            ->assertDontSee('Simpan Perubahan');
+    }
+
+    public function test_edit_profile_page_only_contains_editable_account_fields(): void
+    {
+        $user = User::factory()->role('MAHASISWA')->create();
+
+        $this->actingAs($user)->get('/profile/edit')
+            ->assertOk()
+            ->assertSee('Ubah Foto')
             ->assertSee('Nama Lengkap')
             ->assertSee('Email')
             ->assertSee('Nomor WhatsApp / Telepon')
-            ->assertSee('Detail profil pengguna', false)
-            ->assertSee('Edit Profil')
-            ->assertSee('Keluar')
-            ->assertSee('name="_token"', false)
-            ->assertSee('name="_method" value="PATCH"', false);
+            ->assertSee('Simpan Perubahan')
+            ->assertSee('Ubah Kata Sandi')
+            ->assertSee('Pengelolaan akun')
+            ->assertDontSee('NIM / NISN')
+            ->assertDontSee('Departemen Penempatan');
     }
 
     public static function profileRoles(): array
@@ -101,7 +202,7 @@ class ProfileTest extends TestCase
 
         $response
             ->assertSessionHasNoErrors()
-            ->assertRedirect('/profile');
+            ->assertRedirect(route('profile.show'));
 
         $user->refresh();
 

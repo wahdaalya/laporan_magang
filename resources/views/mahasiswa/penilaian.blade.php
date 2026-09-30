@@ -37,7 +37,7 @@
                             </div>
                         </div>
                         <div class="flex flex-wrap gap-2 sm:shrink-0">
-                            <a href="{{ $penilaian->file_url }}" target="_blank" rel="noopener" class="inline-flex items-center justify-center gap-2 rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            <a href="{{ route('mahasiswa.penilaian.view', $penilaian) }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
                                 <i class="fas fa-eye" aria-hidden="true"></i> Lihat PDF
                             </a>
                             <a href="{{ route('mahasiswa.penilaian.download', $penilaian) }}" class="inline-flex items-center justify-center gap-2 rounded-md bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800">

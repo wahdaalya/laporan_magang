@@ -58,9 +58,18 @@
         {{-- Data diri --}}
         <dl class="grid min-w-0 flex-1 grid-cols-1 gap-x-8 gap-y-1 sm:grid-cols-2">
             @foreach ($data as $label => $nilai)
+                @php($whatsappUrl = $label === 'No. HP/WA' ? \App\Support\ContactLink::whatsappUrl($nilai) : null)
                 <div class="min-w-0 border-b border-gray-100 pb-0.5">
                     <dt class="text-xs font-medium uppercase leading-tight tracking-wide text-gray-500">{{ $label }}</dt>
-                    <dd class="mt-0.5 break-words text-sm font-medium leading-tight text-gray-900">{{ $nilai ?: '-' }}</dd>
+                    <dd class="mt-0.5 break-words text-sm font-medium leading-tight text-gray-900">
+                        @if ($label === 'Email' && $nilai)
+                            <a href="mailto:{{ $nilai }}" class="hover:text-blue-700 hover:underline">{{ $nilai }}</a>
+                        @elseif ($label === 'No. HP/WA' && $whatsappUrl)
+                            <a href="{{ $whatsappUrl }}" target="_blank" rel="noopener noreferrer" class="hover:text-emerald-700 hover:underline">{{ $nilai }}</a>
+                        @else
+                            {{ $nilai ?: '-' }}
+                        @endif
+                    </dd>
                 </div>
             @endforeach
         </dl>

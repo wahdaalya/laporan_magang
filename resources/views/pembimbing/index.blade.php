@@ -47,7 +47,13 @@ ubah(d) {
                         <div class="mb-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">
                             <p class="font-semibold">⚠️ Catat/kirim sekarang — password ini tidak akan ditampilkan lagi setelah halaman ini ditutup/di-refresh.</p>
                             <p class="mt-1">
-                                <strong>{{ session('password_baru')['nama'] }}</strong> ({{ session('password_baru')['email'] }})
+                                <strong>{{ session('password_baru')['nama'] }}</strong> (
+                                @if (session('password_baru')['email'])
+                                    <a href="mailto:{{ session('password_baru')['email'] }}" class="hover:underline">{{ session('password_baru')['email'] }}</a>
+                                @else
+                                    -
+                                @endif
+                                )
                                 — Password: <code class="rounded bg-amber-100 px-2 py-0.5 font-mono">{{ session('password_baru')['password'] }}</code>
                             </p>
                         </div>
@@ -83,8 +89,21 @@ ubah(d) {
                                             <td class="px-6 py-4 text-gray-500">{{ $pembimbing->id }}</td>
                                             <td class="px-6 py-4 font-medium text-gray-900">{{ $pembimbing->nama }}</td>
                                             <td class="px-6 py-4 text-gray-600">{{ $pembimbing->nip ?? '-' }}</td>
-                                            <td class="px-6 py-4 text-gray-600">{{ $pembimbing->email ?? '-' }}</td>
-                                            <td class="px-6 py-4 text-gray-600">{{ $pembimbing->hp_wa ?? '-' }}</td>
+                                            <td class="px-6 py-4 text-gray-600">
+                                                @if ($pembimbing->email)
+                                                    <a href="mailto:{{ $pembimbing->email }}" class="hover:text-blue-700 hover:underline">{{ $pembimbing->email }}</a>
+                                                @else
+                                                    -
+                                                @endif
+                                            </td>
+                                            <td class="px-6 py-4 text-gray-600">
+                                                @php($whatsappUrl = \App\Support\ContactLink::whatsappUrl($pembimbing->hp_wa))
+                                                @if ($whatsappUrl)
+                                                    <a href="{{ $whatsappUrl }}" target="_blank" rel="noopener noreferrer" class="hover:text-emerald-700 hover:underline">{{ $pembimbing->hp_wa }}</a>
+                                                @else
+                                                    -
+                                                @endif
+                                            </td>
                                            <td class="px-6 py-4 text-gray-600">{{ $pembimbing->departemen_id ?? '-' }}</td>
 <td class="px-6 py-4 text-gray-600">{{ $pembimbing->departemen?->nama_departemen ?? '-' }}</td>
                                             <td class="px-6 py-4 text-gray-600">{{ $pembimbing->kelompoks_count }}</td>

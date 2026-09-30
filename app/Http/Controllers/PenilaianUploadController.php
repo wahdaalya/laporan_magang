@@ -41,7 +41,7 @@ class PenilaianUploadController extends Controller
             'nilai_presentasi' => ['nullable', 'numeric', 'min:0', 'max:100'],
         ]);
 
-        $path = $data['file']->store('penilaian', 'public');
+        $path = $data['file']->store('penilaian', 'local');
 
         $peserta->penilaians()->create([
             'file' => $path,

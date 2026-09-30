@@ -41,9 +41,9 @@
                                         <td class="px-4 py-3 align-middle">{{ $laporan->status }}</td>
                                         <td class="max-w-sm break-words px-4 py-3 align-middle">{{ $laporan->catatan_pembimbing ?? '-' }}</td>
                                         <td class="px-4 py-3 align-middle">
-                                            @if ($laporan->foto)
-                                                <a href="{{ asset('storage/'.$laporan->foto) }}" target="_blank" rel="noopener">
-                                                    <img src="{{ asset('storage/'.$laporan->foto) }}" alt="Foto kegiatan: {{ $laporan->kegiatan }}" class="h-14 w-14 rounded-md border border-gray-200 object-cover">
+                                            @if ($laporan->foto_url)
+                                                <a href="{{ $laporan->foto_url }}" target="_blank" rel="noopener noreferrer">
+                                                    <img src="{{ $laporan->foto_url }}" alt="Foto kegiatan: {{ $laporan->kegiatan }}" class="h-14 w-14 rounded-md border border-gray-200 object-cover">
                                                 </a>
                                             @else
                                                 <span class="text-gray-400">-</span>

@@ -36,10 +36,15 @@
                         <h2 class="font-semibold text-gray-900">Pengingat Laporan Hari Ini</h2>
                         <p class="mt-1 text-sm text-gray-500">{{ $totalBelumLapor }} peserta belum mengisi laporan hari ini.</p>
                     </div>
+                    @php($emailPenerima = $belumLaporHariIni->pluck('email')->filter()->implode(','))
                     @if ($belumLaporHariIni->isNotEmpty())
-                        <a href="mailto:{{ $belumLaporHariIni->pluck('email')->implode(',') }}?subject={{ rawurlencode('Pengingat laporan Magang / PKL hari ini') }}&amp;body={{ rawurlencode('Mohon isi laporan kegiatan Magang / PKL hari ini. Terima kasih.') }}" class="inline-flex items-center gap-2 rounded-md bg-rose-700 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-800">
-                            <i class="fas fa-bell" aria-hidden="true"></i> Ingatkan Belum Laporan
-                        </a>
+                        @if ($emailPenerima)
+                            <a href="mailto:{{ $emailPenerima }}?subject={{ rawurlencode('Pengingat laporan Magang / PKL hari ini') }}&amp;body={{ rawurlencode('Mohon isi laporan kegiatan Magang / PKL hari ini. Terima kasih.') }}" class="inline-flex items-center gap-2 rounded-md bg-rose-700 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-800">
+                                <i class="fas fa-bell" aria-hidden="true"></i> Ingatkan Belum Laporan
+                            </a>
+                        @else
+                            <span class="rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-500">-</span>
+                        @endif
                     @else
                         <span class="rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-500">Semua laporan hari ini sudah masuk</span>
                     @endif
@@ -49,7 +54,11 @@
                         @foreach ($belumLaporHariIni as $peserta)
                             <li class="flex flex-wrap items-center justify-between gap-3 px-5 py-3 text-sm">
                                 <span class="font-medium text-gray-900">{{ $peserta->name }}</span>
-                                <a href="mailto:{{ $peserta->email }}?subject={{ rawurlencode('Pengingat laporan Magang / PKL hari ini') }}" class="text-blue-700 hover:underline">{{ $peserta->email }}</a>
+                                @if ($peserta->email)
+                                    <a href="mailto:{{ $peserta->email }}?subject={{ rawurlencode('Pengingat laporan Magang / PKL hari ini') }}" class="text-blue-700 hover:underline">{{ $peserta->email }}</a>
+                                @else
+                                    <span class="text-gray-400">-</span>
+                                @endif
                             </li>
                         @endforeach
                     </ul>

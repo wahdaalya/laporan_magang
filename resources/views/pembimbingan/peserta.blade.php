@@ -41,7 +41,14 @@
                                         <td class="px-4 py-4 font-medium text-gray-900">{{ $peserta->name }}</td>
                                         <td class="whitespace-nowrap px-4 py-4 text-gray-600">{{ $peserta->nim_nip ?? '-' }}</td>
                                         <td class="px-4 py-4 text-gray-600">{{ $peserta->kampus ?? $peserta->kelompok?->kampus?->nama_universitas ?? $peserta->instansi ?? '-' }}</td>
-                                        <td class="whitespace-nowrap px-4 py-4 text-gray-600">{{ $peserta->hp_wa ?? '-' }}</td>
+                                        <td class="whitespace-nowrap px-4 py-4 text-gray-600">
+                                            @php($whatsappUrl = \App\Support\ContactLink::whatsappUrl($peserta->hp_wa))
+                                            @if ($whatsappUrl)
+                                                <a href="{{ $whatsappUrl }}" target="_blank" rel="noopener noreferrer" class="text-emerald-700 hover:text-emerald-800 hover:underline">{{ $peserta->hp_wa }}</a>
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
                                         <td class="px-4 py-4">
                                             @if ($penilaianTerbaru)
                                                 <p class="mb-2 text-xs text-gray-600">Dokumen aktif: {{ basename($penilaianTerbaru->file) }}</p>

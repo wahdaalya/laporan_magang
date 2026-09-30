@@ -20,7 +20,7 @@ class DosenController extends Controller
             ->orderBy('nama')
             ->get();
 
-        $kampuses = Kampus::orderBy('nama_universitas')->get();
+        $kampuses = Kampus::orderBy('nama_universitas')->get(['nama_universitas']);
 
         return view('dosen.index', ['dosens' => $dosens, 'kampuses' => $kampuses]);
     }
@@ -137,8 +137,6 @@ class DosenController extends Controller
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($dosen?->user_id)],
             'password' => [$dosen ? 'nullable' : 'required', 'string', 'min:8'],
             'hp_wa' => ['nullable', 'regex:/^\+?[0-9]{8,15}$/'],
-            'fakultas' => ['nullable', 'string', 'max:255'],
-            'prodi' => ['nullable', 'string', 'max:255'],
         ], [
             'nama.required' => 'Nama dosen wajib diisi.',
             'nidn.digits' => 'NIDN harus terdiri dari 10 angka.',
