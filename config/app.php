@@ -13,7 +13,17 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => env('APP_NAME', 'PT Angkasa Pura Aviasi'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Identitas Statis Penyelenggara Magang (Nomor 7)
+    |--------------------------------------------------------------------------
+    | Data identitas utama penyelenggara bersifat statis / tetap di sistem,
+    | sedangkan data peserta, kampus, fakultas, dan kelompok bersifat dinamis.
+    */
+    'instansi_penyelenggara' => 'PT Angkasa Pura Aviasi',
+    'lokasi_penyelenggara' => 'Bandara Internasional Kualanamu',
 
     /*
     |--------------------------------------------------------------------------

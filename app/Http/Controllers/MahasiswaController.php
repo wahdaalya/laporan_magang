@@ -230,6 +230,9 @@ class MahasiswaController extends Controller
      */
     public function update(UpdateMahasiswaRequest $request, User $mahasiswa): RedirectResponse
     {
+        abort_unless($mahasiswa->role === 'MAHASISWA', 404);
+        abort_if($mahasiswa->role === 'SUPERADMIN', 403, 'Akun Super Admin bersifat statis dan tidak dapat diubah dari form peserta.');
+
         $data = $request->validated();
 
         if (empty($data['password'])) {
