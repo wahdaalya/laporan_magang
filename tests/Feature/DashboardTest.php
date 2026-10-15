@@ -235,11 +235,11 @@ class DashboardTest extends TestCase
         $this->actingAs($user)->get('/kampus')->assertForbidden();
     }
 
-    public function test_mahasiswa_list_page_forbids_mahasiswa_role(): void
+    public function test_mahasiswa_list_page_redirects_mahasiswa_role_to_dashboard(): void
     {
         $user = User::factory()->role('MAHASISWA')->create();
 
-        $this->actingAs($user)->get('/mahasiswa')->assertForbidden();
+        $this->actingAs($user)->get('/mahasiswa')->assertRedirect(route('mahasiswa.dashboard'));
     }
 
     public function test_pembimbingan_page_renders_for_dosen(): void

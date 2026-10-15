@@ -24,6 +24,10 @@ class MahasiswaController extends Controller
      */
     public function index(Request $request): View|RedirectResponse
     {
+        if (strtoupper((string) $request->user()?->role) === 'MAHASISWA') {
+            return redirect()->route('mahasiswa.dashboard');
+        }
+
         $validated = $request->validate([
             'q' => ['nullable', 'string', 'max:255'],
             'tahun' => ['nullable', 'integer', 'between:2000,2100'],

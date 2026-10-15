@@ -113,6 +113,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/mahasiswa/penilaian/{penilaian}/lihat', [PenilaianMahasiswaController::class, 'view'])->name('mahasiswa.penilaian.view');
     });
 
+    Route::get('/mahasiswa', [MahasiswaController::class, 'index'])
+        ->middleware('role:ADMIN,SUPERADMIN,MAHASISWA')
+        ->name('mahasiswa.index');
+
     Route::middleware('role:ADMIN')->group(function () {
         Route::get('/kampus', [KampusController::class, 'index'])->name('kampus.index');
         Route::post('/kampus', [KampusController::class, 'store'])->name('kampus.store');
@@ -130,7 +134,6 @@ Route::middleware('auth')->group(function () {
         Route::post('/kelompok/{kelompok}/anggota', [KelompokController::class, 'addAnggota'])->name('kelompok.anggota.store');
         Route::get('/kelompok/cari-mahasiswa', [KelompokController::class, 'searchMahasiswa'])->name('kelompok.mahasiswa.search');
         Route::get('/kelompok/{kelompok}/pdf', [KelompokController::class, 'exportPdf'])->name('kelompok.pdf');
-        Route::get('/mahasiswa', [MahasiswaController::class, 'index'])->name('mahasiswa.index');
         Route::post('/mahasiswa', [MahasiswaController::class, 'store'])->middleware('throttle:10,1')->name('mahasiswa.store');
         Route::put('/mahasiswa/{mahasiswa}', [MahasiswaController::class, 'update'])->middleware('throttle:10,1')->name('mahasiswa.update');
         Route::delete('/mahasiswa/{mahasiswa}', [MahasiswaController::class, 'destroy'])->name('mahasiswa.destroy');
