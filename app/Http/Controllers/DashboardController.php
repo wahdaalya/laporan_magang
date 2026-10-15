@@ -13,6 +13,7 @@ class DashboardController extends Controller
         return match ($role) {
             'SUPERADMIN' => redirect()->route('superadmin.index'),
             'ADMIN' => redirect()->route('admin.index'),
+            'AUDITOR' => redirect()->route('auditor.index'),
             'MAHASISWA' => redirect()->route('mahasiswa.dashboard'),
             'DOSEN' => redirect()->route('dosen.dashboard'),
             'MENTOR' => redirect()->route('pembimbingan.index'),

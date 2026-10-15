@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AbsensiController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AuditorController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepartemenController;
 use App\Http\Controllers\DosenController;
@@ -45,9 +46,19 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->middleware('throttle:10,1')->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->middleware('throttle:5,1')->name('profile.destroy');
 
-        Route::get('/superadmin', [SuperAdminController::class, 'index'])
+    Route::get('/superadmin', [SuperAdminController::class, 'index'])
         ->middleware('role:SUPERADMIN')
         ->name('superadmin.index');
+
+    // -------------------------------------------------------
+    // Auditor: hanya akses baca (read-only), TANPA aksi tulis
+    // -------------------------------------------------------
+    Route::middleware('role:AUDITOR,SUPERADMIN')->prefix('auditor')->name('auditor.')->group(function () {
+        Route::get('/', [AuditorController::class, 'index'])->name('index');
+        Route::get('/mahasiswa', [AuditorController::class, 'mahasiswa'])->name('mahasiswa');
+        Route::get('/laporan', [AuditorController::class, 'laporanRekap'])->name('laporan');
+        Route::get('/laporan-akhir', [AuditorController::class, 'laporanAkhirRekap'])->name('laporan-akhir');
+    });
 
     Route::get('/admin', [AdminController::class, 'index'])
         ->middleware('role:ADMIN')
@@ -83,10 +94,10 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:MAHASISWA')->group(function () {
         Route::get('/mahasiswa/dashboard', [MahasiswaController::class, 'dashboard'])->name('mahasiswa.dashboard');
         Route::get('/mahasiswa/laporan', [MahasiswaController::class, 'laporanIndex'])->name('mahasiswa.laporan.index');
-        
-    Route::get('/mahasiswa/laporan/unduh-pdf', [LaporanController::class, 'downloadPdf'])
-    ->middleware('throttle:10,1')
-    ->name('mahasiswa.laporan.download-pdf');
+
+        Route::get('/mahasiswa/laporan/unduh-pdf', [LaporanController::class, 'downloadPdf'])
+            ->middleware('throttle:10,1')
+            ->name('mahasiswa.laporan.download-pdf');
 
         Route::post('/laporan', [LaporanController::class, 'store'])->middleware('throttle:10,1')->name('laporan.store');
         Route::put('/laporan/{laporan}', [LaporanController::class, 'update'])->middleware('throttle:10,1')->name('laporan.update');
@@ -123,7 +134,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/mahasiswa', [MahasiswaController::class, 'store'])->middleware('throttle:10,1')->name('mahasiswa.store');
         Route::put('/mahasiswa/{mahasiswa}', [MahasiswaController::class, 'update'])->middleware('throttle:10,1')->name('mahasiswa.update');
         Route::delete('/mahasiswa/{mahasiswa}', [MahasiswaController::class, 'destroy'])->name('mahasiswa.destroy');
-                Route::post('/mahasiswa/{user}/impersonate', [AdminController::class, 'impersonate'])
+        Route::post('/mahasiswa/{user}/impersonate', [AdminController::class, 'impersonate'])
             ->middleware('throttle:10,1')
             ->name('mahasiswa.impersonate');
     });

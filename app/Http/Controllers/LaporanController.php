@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreLaporanRequest;
 use App\Http\Requests\UpdateLaporanRequest;
 use App\Models\Laporan;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
 
@@ -29,6 +30,8 @@ class LaporanController extends Controller
 
     public function update(UpdateLaporanRequest $request, Laporan $laporan): RedirectResponse
     {
+        abort_if($laporan->user_id !== auth()->id(), 403);
+
         $data = $request->validated();
 
         if ($request->hasFile('foto')) {
@@ -64,33 +67,32 @@ class LaporanController extends Controller
         return redirect()->route('mahasiswa.dashboard')
             ->with('status', 'Laporan kegiatan Magang / PKL berhasil dihapus.');
     }
-    
-public function downloadPdf()
-{
-    $mahasiswa = auth()->user();
 
-    // Ambil laporan milik mahasiswa yang sedang login.
-    $laporans = \App\Models\Laporan::where('user_id', $mahasiswa->id)
-        ->orderBy('tanggal')
-->orderBy('id')
-        ->get();
+    public function downloadPdf()
+    {
+        $mahasiswa = auth()->user();
 
-    if ($laporans->isEmpty()) {
-        return redirect()
-            ->route('mahasiswa.laporan.index')
-            ->with('error', 'Belum ada laporan untuk diunduh.');
+        // Ambil laporan milik mahasiswa yang sedang login.
+        $laporans = Laporan::where('user_id', $mahasiswa->id)
+            ->orderBy('tanggal')
+            ->orderBy('id')
+            ->get();
+
+        if ($laporans->isEmpty()) {
+            return redirect()
+                ->route('mahasiswa.laporan.index')
+                ->with('error', 'Belum ada laporan untuk diunduh.');
+        }
+
+        $pdf = Pdf::loadView(
+            'mahasiswa.laporan-arsip-pdf',
+            [
+                'mahasiswa' => $mahasiswa,
+                'laporans' => $laporans,
+                'tanggalCetak' => now()->format('d/m/Y H:i'),
+            ]
+        );
+
+        return $pdf->download('arsip-laporan-magang.pdf');
     }
-
-    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView(
-        'mahasiswa.laporan-arsip-pdf',
-        [
-            'mahasiswa' => $mahasiswa,
-            'laporans' => $laporans,
-            'tanggalCetak' => now()->format('d/m/Y H:i'),
-        ]
-    );
-
-    return $pdf->download('arsip-laporan-magang.pdf');
-}
-
 }

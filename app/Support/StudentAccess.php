@@ -12,7 +12,7 @@ class StudentAccess
             return false;
         }
 
-        if ($viewer->role === 'ADMIN' || $viewer->is($student)) {
+        if (in_array($viewer->role, ['ADMIN', 'SUPERADMIN', 'AUDITOR'], true) || $viewer->is($student)) {
             return true;
         }
 

@@ -47,7 +47,7 @@ class MahasiswaController extends Controller
                         ->orWhereHas('kelompok.kampus', fn (Builder $kampus) => $kampus->where('nama_universitas', 'like', $pattern));
                 });
             })
-                        ->when($tahun, fn (Builder $query) => $query->whereHas('kelompok', fn (Builder $kelompok) => $kelompok->whereYear('tanggal_mulai', $tahun)))
+            ->when($tahun, fn (Builder $query) => $query->whereHas('kelompok', fn (Builder $kelompok) => $kelompok->whereYear('tanggal_mulai', $tahun)))
             ->orderBy('name')
             ->paginate(10)
             ->withQueryString();
@@ -253,6 +253,8 @@ class MahasiswaController extends Controller
     public function destroy(User $mahasiswa): RedirectResponse
     {
         abort_unless($mahasiswa->role === 'MAHASISWA', 404);
+        // Proteksi ekstra: SuperAdmin tidak pernah bisa dihapus melalui endpoint ini
+        abort_if($mahasiswa->role === 'SUPERADMIN', 403, 'Akun Super Admin tidak dapat dihapus.');
 
         $filePaths = DB::transaction(function () use ($mahasiswa): array {
             $filePaths = collect([

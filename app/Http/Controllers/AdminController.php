@@ -38,6 +38,8 @@ class AdminController extends Controller
         abort_unless($request->user()->role === 'ADMIN', 403);
         abort_unless($user->role === 'MAHASISWA', 403, 'Hanya akun mahasiswa yang bisa dimasuki.');
         abort_if(session()->has('admin_impersonator_id'), 403, 'Anda sedang dalam mode impersonate.');
+        // Proteksi ekstra: pastikan target bukan SUPERADMIN
+        abort_if($user->role === 'SUPERADMIN', 403, 'Akun Super Admin tidak dapat dimasuki.');
 
         session(['admin_impersonator_id' => auth()->id()]); // simpan ID admin asli, sebelum login
         Auth::login($user);
