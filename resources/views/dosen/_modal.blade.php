@@ -1,5 +1,5 @@
 <x-modal name="form-dosen" :show="$errors->any()" maxWidth="lg">
-    <form method="POST" x-bind:action="action" class="p-6">
+    <form method="POST" x-bind:action="action" class="p-4 sm:p-6">
         @csrf
         <input type="hidden" name="_method" value="PUT" x-bind:disabled="!editId">
         <input type="hidden" name="_id" x-bind:value="editId">
@@ -33,7 +33,7 @@
                     type="text"
                     autocomplete="off"
                     placeholder="Ketik atau pilih instansi..."
-                    class="block w-full rounded-md border-gray-300 pr-9 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400"
+                    class="block w-full min-w-0 max-w-full rounded-md border-gray-300 pr-9 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400"
                     x-model="f.kampus"
                     x-on:input="cari('kampus')"
                     x-on:focus="bukaDropdown('kampus')"
@@ -43,12 +43,12 @@
                 </button>
             </div>
 
-            <ul x-show="terbuka.kampus" style="background-color: #ffffff;" class="absolute z-50 mt-1 max-h-48 w-full overflow-auto rounded-md border border-gray-200 bg-white text-sm shadow-lg">
+            <ul x-show="terbuka.kampus" style="background-color: #ffffff;" class="absolute inset-x-0 left-0 right-0 z-50 mt-1 max-h-48 w-full min-w-0 max-w-full overflow-y-auto overflow-x-hidden rounded-md border border-gray-200 bg-white text-sm shadow-xl">
                 <template x-if="saran.kampus.length === 0">
-                    <li class="px-3 py-2 text-gray-400">Tidak ada yang cocok — ketik nama instansi baru.</li>
+                    <li class="px-3 py-2.5 text-xs sm:text-sm text-gray-500 italic">Tidak ada yang cocok — ketik nama instansi baru.</li>
                 </template>
                 <template x-for="nama in saran.kampus" :key="nama">
-                    <li x-on:click="pilih('kampus', nama)" x-text="nama" class="cursor-pointer px-3 py-2 hover:bg-indigo-50" :class="nama === f.kampus ? 'bg-indigo-50 font-medium text-indigo-700' : 'text-gray-700'"></li>
+                    <li x-on:click="pilih('kampus', nama)" x-text="nama" class="cursor-pointer px-3 py-2.5 text-left text-sm leading-snug break-words whitespace-normal border-b border-gray-100 last:border-b-0 hover:bg-indigo-50 active:bg-indigo-100 transition-colors" :class="nama === f.kampus ? 'bg-indigo-50 font-medium text-indigo-700' : 'text-gray-700'"></li>
                 </template>
             </ul>
 
