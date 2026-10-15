@@ -188,17 +188,21 @@
 
                     <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
                         <h4 class="text-sm font-semibold text-gray-700">Riwayat Laporan Kegiatan</h4>
-                        <button type="button" x-on:click="tambah(); $dispatch('open-modal', 'form-laporan')" class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700">
-                            <i class="fas fa-plus" aria-hidden="true"></i> Tambah Laporan Kegiatan
-                        </button>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <a href="{{ route('mahasiswa.laporan.download-pdf') }}" class="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-700 transition">
+                                <i class="fas fa-file-pdf" aria-hidden="true"></i> Download Arsip PDF
+                            </a>
+                            <button type="button" x-on:click="tambah(); $dispatch('open-modal', 'form-laporan')" class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 transition">
+                                <i class="fas fa-plus" aria-hidden="true"></i> Tambah Laporan Kegiatan
+                            </button>
+                        </div>
                     </div>
 
                     @if ($laporans->isEmpty())
                         <p class="text-gray-500">Belum ada laporan kegiatan pada minggu ini.</p>
                     @else
                         <div class="w-full overflow-x-auto rounded-xl border border-gray-200">
-    <table class="w-full min-w-[40rem] table-fixed text-xs sm:text-sm">
-                            <table class="w-full table-fixed text-xs sm:text-sm">
+                            <table class="w-full min-w-[40rem] table-fixed text-xs sm:text-sm">
                                 <thead class="bg-gray-50 text-gray-600">
                                     <tr class="align-middle">
                                         <th class="w-[10%] whitespace-nowrap px-0 py-2 text-center text-[9px] font-semibold uppercase tracking-normal sm:px-2 sm:py-3 sm:text-xs sm:tracking-wider">Foto</th>

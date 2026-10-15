@@ -60,6 +60,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/laporan-akhir', [AuditorController::class, 'laporanAkhirRekap'])->name('laporan-akhir');
     });
 
+    Route::get('/laporan/mahasiswa/{user}/unduh-pdf', [LaporanController::class, 'downloadMahasiswaPdf'])
+        ->middleware('role:ADMIN,SUPERADMIN,AUDITOR,DOSEN,MENTOR')
+        ->name('laporan.mahasiswa.download-pdf');
+
+    Route::get('/laporan-akhir/{laporanAkhir}/unduh-admin', [LaporanAkhirController::class, 'downloadAdmin'])
+        ->middleware('role:ADMIN,SUPERADMIN,AUDITOR,DOSEN,MENTOR')
+        ->name('laporan-akhir.download-admin');
+
     Route::get('/admin', [AdminController::class, 'index'])
         ->middleware('role:ADMIN')
         ->name('admin.index');

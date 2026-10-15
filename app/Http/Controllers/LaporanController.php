@@ -8,6 +8,7 @@ use App\Models\Laporan;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class LaporanController extends Controller
 {
@@ -71,6 +72,7 @@ class LaporanController extends Controller
     public function downloadPdf()
     {
         $mahasiswa = auth()->user();
+        $mahasiswa->load(['kelompok.kampus', 'kelompok.departemen', 'kelompok.dosen', 'kelompok.pembimbing', 'laporanAkhir']);
 
         // Ambil laporan milik mahasiswa yang sedang login.
         $laporans = Laporan::where('user_id', $mahasiswa->id)
@@ -91,8 +93,42 @@ class LaporanController extends Controller
                 'laporans' => $laporans,
                 'tanggalCetak' => now()->format('d/m/Y H:i'),
             ]
-        );
+        )->setPaper('a4', 'portrait');
 
-        return $pdf->download('arsip-laporan-magang.pdf');
+        $fileName = 'Arsip-Laporan-'.Str::slug($mahasiswa->name).'.pdf';
+
+        return $pdf->download($fileName);
+    }
+
+    /**
+     * Download arsip laporan mahasiswa untuk Admin, Auditor, Dosen, atau Mentor.
+     */
+    public function downloadMahasiswaPdf(User $user)
+    {
+        abort_unless(in_array(auth()->user()->role, ['ADMIN', 'SUPERADMIN', 'AUDITOR', 'DOSEN', 'MENTOR'], true), 403);
+
+        $user->load(['kelompok.kampus', 'kelompok.departemen', 'kelompok.dosen', 'kelompok.pembimbing', 'laporanAkhir']);
+
+        $laporans = Laporan::where('user_id', $user->id)
+            ->orderBy('tanggal')
+            ->orderBy('id')
+            ->get();
+
+        if ($laporans->isEmpty()) {
+            return back()->with('error', 'Peserta ini belum memiliki laporan untuk diunduh.');
+        }
+
+        $pdf = Pdf::loadView(
+            'mahasiswa.laporan-arsip-pdf',
+            [
+                'mahasiswa' => $user,
+                'laporans' => $laporans,
+                'tanggalCetak' => now()->format('d/m/Y H:i'),
+            ]
+        )->setPaper('a4', 'portrait');
+
+        $fileName = 'Arsip-Laporan-'.Str::slug($user->name).'.pdf';
+
+        return $pdf->download($fileName);
     }
 }

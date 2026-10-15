@@ -39,15 +39,20 @@ class AuditorController extends Controller
     public function mahasiswa(Request $request): View
     {
         $search = trim($request->input('q', ''));
+        $tahun = $request->filled('tahun') ? (int) $request->input('tahun') : null;
+        $daftarTahun = Kelompok::daftarTahunMagang();
+
         $mahasiswas = User::where('role', 'MAHASISWA')
-            ->with(['kelompok.dosen', 'kelompok.pembimbing'])
+            ->with(['kelompok.dosen', 'kelompok.pembimbing', 'kelompok.departemen'])
             ->withCount('laporans')
             ->when($search !== '', fn ($query) => $query->where(function ($q) use ($search) {
                 $pattern = '%'.$search.'%';
                 $q->where('name', 'like', $pattern)
                     ->orWhere('email', 'like', $pattern)
-                    ->orWhere('nim_nip', 'like', $pattern);
+                    ->orWhere('nim_nip', 'like', $pattern)
+                    ->orWhere('kampus', 'like', $pattern);
             }))
+            ->when($tahun, fn ($query) => $query->whereHas('kelompok', fn ($kq) => $kq->whereYear('tanggal_mulai', $tahun)))
             ->orderBy('name')
             ->paginate(15)
             ->withQueryString();
@@ -55,35 +60,96 @@ class AuditorController extends Controller
         return view('auditor.mahasiswa', [
             'mahasiswas' => $mahasiswas,
             'q' => $search,
+            'tahun' => $tahun,
+            'daftarTahun' => $daftarTahun,
         ]);
     }
 
     /**
-     * Rekapitulasi seluruh laporan harian (read-only).
+     * Rekapitulasi seluruh laporan harian (read-only) dengan filter tahun magang.
      */
     public function laporanRekap(Request $request): View
     {
-        $laporans = Laporan::with('mahasiswa:id,name,nim_nip')
-            ->latest('tanggal')
+        $search = trim($request->input('q', ''));
+        $status = $request->input('status');
+        $tahun = $request->filled('tahun') ? (int) $request->input('tahun') : null;
+        $daftarTahun = Kelompok::daftarTahunMagang();
+
+        $query = Laporan::with(['mahasiswa.kelompok.departemen']);
+
+        if ($search !== '') {
+            $query->whereHas('mahasiswa', function ($q) use ($search) {
+                $pattern = '%'.$search.'%';
+                $q->where('name', 'like', $pattern)
+                    ->orWhere('nim_nip', 'like', $pattern);
+            });
+        }
+
+        if ($status) {
+            $query->where('status', $status);
+        }
+
+        if ($tahun) {
+            $query->where(function ($sub) use ($tahun) {
+                $sub->whereYear('tanggal', $tahun)
+                    ->orWhereHas('mahasiswa.kelompok', fn ($kq) => $kq->whereYear('tanggal_mulai', $tahun));
+            });
+        }
+
+        $laporans = $query->latest('tanggal')
             ->paginate(20)
             ->withQueryString();
 
         return view('auditor.laporan-rekap', [
             'laporans' => $laporans,
+            'q' => $search,
+            'status' => $status,
+            'tahun' => $tahun,
+            'daftarTahun' => $daftarTahun,
         ]);
     }
 
     /**
-     * Rekapitulasi laporan akhir semua mahasiswa (read-only).
+     * Rekapitulasi laporan akhir semua mahasiswa (read-only) dengan filter tahun magang.
      */
-    public function laporanAkhirRekap(): View
+    public function laporanAkhirRekap(Request $request): View
     {
-        $laporanAkhirs = LaporanAkhir::with('mahasiswa:id,name,nim_nip')
-            ->latest()
-            ->get();
+        $search = trim($request->input('q', ''));
+        $status = $request->input('status');
+        $tahun = $request->filled('tahun') ? (int) $request->input('tahun') : null;
+        $daftarTahun = Kelompok::daftarTahunMagang();
+
+        $query = LaporanAkhir::with(['mahasiswa.kelompok.departemen', 'dosen']);
+
+        if ($search !== '') {
+            $query->whereHas('mahasiswa', function ($q) use ($search) {
+                $pattern = '%'.$search.'%';
+                $q->where('name', 'like', $pattern)
+                    ->orWhere('nim_nip', 'like', $pattern);
+            });
+        }
+
+        if ($status) {
+            $query->where('status', $status);
+        }
+
+        if ($tahun) {
+            $query->where(function ($sub) use ($tahun) {
+                $sub->whereYear('created_at', $tahun)
+                    ->orWhereHas('mahasiswa.kelompok', fn ($kq) => $kq->whereYear('tanggal_mulai', $tahun));
+            });
+        }
+
+        $laporanAkhirs = $query->latest()
+            ->paginate(20)
+            ->withQueryString();
 
         return view('auditor.laporan-akhir-rekap', [
             'laporanAkhirs' => $laporanAkhirs,
+            'q' => $search,
+            'status' => $status,
+            'tahun' => $tahun,
+            'daftarTahun' => $daftarTahun,
         ]);
     }
 }

@@ -65,17 +65,68 @@
         </div>
     @endforeach
 
-    <table class="signature">
+    <h2 style="margin-top: 30px; page-break-before: auto; page-break-after: avoid; text-align: center;">LEMBAR PENGESAHAN LAPORAN (4 PIHAK)</h2>
+    <p style="text-align: center; font-size: 10pt; color: #555; margin-bottom: 16px;">Telah diverifikasi dan disahkan oleh para pihak terkait secara digital pada sistem Intern Track.</p>
+
+    <table class="signature" style="margin-top: 10px; width: 100%;">
         <tr>
-            <td>
-                <p>Pembimbing Sekolah/Kampus</p>
-                <div class="signature-space"></div>
-                <p><strong><u>{{ $rekap['identitas']['dosen']['nama'] }}</u></strong></p>
+            <td style="width: 50%; padding: 10px 14px; text-align: center; vertical-align: top;">
+                <p style="margin: 0 0 6px; font-weight: bold;">Peserta Magang / PKL</p>
+                <div class="signature-space" style="height: 2cm; padding-top: 10px;">
+                    <div style="display: inline-block; border: 1px dashed #0284c7; background: #f0f9ff; color: #0369a1; padding: 4px 10px; font-size: 8pt; border-radius: 4px;">
+                        <strong>&#10003; TERVERIFIKASI DIGITAL</strong><br>
+                        <span>{{ $rekap['pengesahan']['mahasiswa']['tanggal'] }}</span>
+                    </div>
+                </div>
+                <p style="margin: 4px 0 0;"><strong><u>{{ $rekap['pengesahan']['mahasiswa']['nama'] }}</u></strong></p>
+                <p style="margin: 2px 0 0; font-size: 9.5pt; color: #444;">NIM: {{ $rekap['pengesahan']['mahasiswa']['nomor'] }}</p>
             </td>
-            <td>
-                <p>Pembimbing Lapangan</p>
-                <div class="signature-space"></div>
-                <p><strong><u>{{ $rekap['identitas']['pembimbing']['nama'] }}</u></strong></p>
+            <td style="width: 50%; padding: 10px 14px; text-align: center; vertical-align: top;">
+                <p style="margin: 0 0 6px; font-weight: bold;">Pembimbing Lapangan (Instansi)</p>
+                <div class="signature-space" style="height: 2cm; padding-top: 10px;">
+                    @if (str_contains($rekap['pengesahan']['pembimbing']['status'], 'Terverifikasi'))
+                        <div style="display: inline-block; border: 1px solid #059669; background: #ecfdf5; color: #047857; padding: 4px 10px; font-size: 8pt; border-radius: 4px;">
+                            <strong>&#10003; ACC / MENGETAHUI</strong><br>
+                            <span>{{ $rekap['pengesahan']['pembimbing']['tanggal'] }}</span>
+                        </div>
+                    @else
+                        <div style="height: 1.5cm;"></div>
+                    @endif
+                </div>
+                <p style="margin: 4px 0 0;"><strong><u>{{ $rekap['pengesahan']['pembimbing']['nama'] }}</u></strong></p>
+                <p style="margin: 2px 0 0; font-size: 9.5pt; color: #444;">NIP: {{ $rekap['pengesahan']['pembimbing']['nomor'] }}</p>
+            </td>
+        </tr>
+        <tr>
+            <td style="width: 50%; padding: 20px 14px 10px; text-align: center; vertical-align: top;">
+                <p style="margin: 0 0 6px; font-weight: bold;">Dosen Pembimbing (Sekolah/Kampus)</p>
+                <div class="signature-space" style="height: 2cm; padding-top: 10px;">
+                    @if (str_contains($rekap['pengesahan']['dosen']['status'], 'Disetujui'))
+                        <div style="display: inline-block; border: 1px solid #16a34a; background: #f0fdf4; color: #15803d; padding: 4px 10px; font-size: 8pt; border-radius: 4px;">
+                            <strong>&#10003; DISETUJUI &amp; DISAHKAN</strong><br>
+                            <span>{{ $rekap['pengesahan']['dosen']['tanggal'] }}</span>
+                        </div>
+                    @else
+                        <div style="height: 1.5cm;"></div>
+                    @endif
+                </div>
+                <p style="margin: 4px 0 0;"><strong><u>{{ $rekap['pengesahan']['dosen']['nama'] }}</u></strong></p>
+                <p style="margin: 2px 0 0; font-size: 9.5pt; color: #444;">NIDN / NIP: {{ $rekap['pengesahan']['dosen']['nomor'] }}</p>
+            </td>
+            <td style="width: 50%; padding: 20px 14px 10px; text-align: center; vertical-align: top;">
+                <p style="margin: 0 0 6px; font-weight: bold;">Pimpinan / Kepala Departemen</p>
+                <div class="signature-space" style="height: 2cm; padding-top: 10px;">
+                    @if (str_contains($rekap['pengesahan']['pimpinan']['status'], 'Tersahkan'))
+                        <div style="display: inline-block; border: 1px solid #2563eb; background: #eff6ff; color: #1d4ed8; padding: 4px 10px; font-size: 8pt; border-radius: 4px;">
+                            <strong>&#10003; PENGESAHAN RESMI</strong><br>
+                            <span>{{ $rekap['pengesahan']['pimpinan']['tanggal'] }}</span>
+                        </div>
+                    @else
+                        <div style="height: 1.5cm;"></div>
+                    @endif
+                </div>
+                <p style="margin: 4px 0 0;"><strong><u>{{ $rekap['pengesahan']['pimpinan']['nama'] }}</u></strong></p>
+                <p style="margin: 2px 0 0; font-size: 9.5pt; color: #444;">{{ $rekap['pengesahan']['pimpinan']['nomor'] }}</p>
             </td>
         </tr>
     </table>

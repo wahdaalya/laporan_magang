@@ -93,6 +93,27 @@ class LaporanAkhirController extends Controller
     }
 
     /**
+     * Download laporan akhir untuk Admin, Auditor, Dosen, atau Mentor.
+     */
+    public function downloadAdmin(Request $request, LaporanAkhir $laporanAkhir): StreamedResponse
+    {
+        abort_unless(in_array($request->user()->role, ['ADMIN', 'SUPERADMIN', 'AUDITOR', 'DOSEN', 'MENTOR'], true), 403);
+        abort_unless(strtolower(pathinfo($laporanAkhir->file_path, PATHINFO_EXTENSION)) === 'pdf', 404);
+
+        $disk = Storage::disk('local');
+        abort_unless($disk->exists($laporanAkhir->file_path)
+            && $disk->mimeType($laporanAkhir->file_path) === 'application/pdf', 404);
+
+        $namaFile = 'Laporan-Akhir-'.Str::slug($laporanAkhir->mahasiswa?->name ?? 'Mahasiswa').'.pdf';
+
+        return $disk->download($laporanAkhir->file_path, $namaFile, [
+            'Content-Type' => 'application/pdf',
+            'X-Content-Type-Options' => 'nosniff',
+            'Cache-Control' => 'private, no-store, max-age=0',
+        ]);
+    }
+
+    /**
      * @return array<string, mixed>
      */
     private function buildReportData(User $mahasiswa): array
@@ -102,6 +123,7 @@ class LaporanAkhirController extends Controller
             'kelompok.departemen',
             'kelompok.dosen',
             'kelompok.pembimbing.departemen',
+            'laporanAkhir',
         ]);
 
         $kelompok = $mahasiswa->kelompok;
@@ -146,6 +168,8 @@ class LaporanAkhirController extends Controller
         $kampus = $kelompok?->kampus;
         $dosen = $kelompok?->dosen;
         $pembimbing = $kelompok?->pembimbing;
+        $departemen = $kelompok?->departemen;
+        $laporanAkhir = $mahasiswa->laporanAkhir;
 
         return [
             'siap' => $kelompok !== null && $laporanDisetujui->isNotEmpty(),
@@ -156,7 +180,7 @@ class LaporanAkhirController extends Controller
                 'kampus' => $mahasiswa->kampus ?: ($kampus?->nama_universitas ?: ($mahasiswa->instansi ?: '-')),
                 'fakultas' => $mahasiswa->fakultas ?: ($kampus?->fakultas ?: '-'),
                 'prodi' => $mahasiswa->prodi ?: ($kampus?->prodi ?: '-'),
-                'departemen' => $kelompok?->departemen?->nama_departemen ?: '-',
+                'departemen' => $departemen?->nama_departemen ?: '-',
                 'tanggal_mulai' => $kelompok?->tanggal_mulai?->format('d/m/Y') ?: '-',
                 'tanggal_selesai' => $kelompok?->tanggal_selesai?->format('d/m/Y') ?: '-',
                 'dosen' => [
@@ -167,6 +191,42 @@ class LaporanAkhirController extends Controller
                 'pembimbing' => [
                     'nama' => $pembimbing?->nama ?: '-',
                     'nip' => $pembimbing?->nip ?: '-',
+                ],
+                'pimpinan' => [
+                    'nama' => $departemen?->nama_pimpinan ?: 'Pimpinan Instansi / Perusahaan',
+                    'jabatan' => $departemen?->nama_departemen ?: 'Kepala Departemen',
+                ],
+            ],
+            'pengesahan' => [
+                'mahasiswa' => [
+                    'nama' => $mahasiswa->name,
+                    'nomor' => $mahasiswa->nim_nip ?: '-',
+                    'peran' => 'Peserta Magang / PKL',
+                    'status' => 'Diajukan secara digital',
+                    'tanggal' => $laporanAkhir?->created_at?->format('d/m/Y') ?: now()->format('d/m/Y'),
+                ],
+                'pembimbing' => [
+                    'nama' => $pembimbing?->nama ?: '-',
+                    'nomor' => $pembimbing?->nip ?: '-',
+                    'peran' => 'Pembimbing Lapangan',
+                    'status' => $laporanAkhir?->status_mengetahui ? 'Terverifikasi (Mengetahui)' : 'Menunggu Verifikasi',
+                    'oleh' => $laporanAkhir?->mengetahui_oleh ?: ($pembimbing?->nama ?: null),
+                    'tanggal' => $laporanAkhir?->mengetahui_at?->format('d/m/Y') ?: '-',
+                ],
+                'dosen' => [
+                    'nama' => $dosen?->nama ?: '-',
+                    'nomor' => $dosen?->nidn ?: '-',
+                    'peran' => 'Dosen Pembimbing',
+                    'status' => ($laporanAkhir?->status_setuju || $laporanAkhir?->status === 'Disetujui') ? 'Disetujui (Tanda Tangan Digital)' : 'Menunggu Persetujuan',
+                    'oleh' => $laporanAkhir?->disetujui_oleh ?: ($dosen?->nama ?: null),
+                    'tanggal' => $laporanAkhir?->disetujui_at?->format('d/m/Y') ?: '-',
+                ],
+                'pimpinan' => [
+                    'nama' => $departemen?->nama_pimpinan ?: 'Pimpinan Instansi / Perusahaan',
+                    'nomor' => $departemen?->nama_departemen ?: 'Kepala Departemen',
+                    'peran' => 'Pimpinan Instansi / Mitra',
+                    'status' => ($laporanAkhir?->status === 'Disetujui' || $laporanAkhir?->status_setuju) ? 'Tersahkan secara Resmi' : 'Menunggu Pengesahan',
+                    'tanggal' => $laporanAkhir?->disetujui_at?->format('d/m/Y') ?: '-',
                 ],
             ],
             'ringkasan' => [
