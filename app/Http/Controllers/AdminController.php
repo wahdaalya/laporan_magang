@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Laporan;
+use App\Models\LaporanAkhir;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -19,16 +20,33 @@ class AdminController extends Controller
             'dosen' => User::where('role', 'DOSEN')->count(),
             'mentor' => User::where('role', 'MENTOR')->count(),
             'laporanBelumDiperiksa' => Laporan::where('status', 'Belum Diperiksa')->count(),
+            'laporanAkhirMenunggu' => LaporanAkhir::where('status', 'Menunggu Review')->count(),
+            'laporanHariIni' => Laporan::whereDate('created_at', today())->count(),
+            'totalLaporan' => Laporan::count(),
+            'totalLaporanAkhir' => LaporanAkhir::count(),
         ];
 
-        $laporanTerbaru = Laporan::with('mahasiswa:id,name')
-            ->latest('tanggal')
+        $laporanTerbaru = Laporan::with(['mahasiswa.kelompok.departemen'])
+            ->latest('created_at')
             ->limit(10)
+            ->get();
+
+        $laporanAkhirTerbaru = LaporanAkhir::with(['mahasiswa.kelompok.departemen'])
+            ->latest('updated_at')
+            ->limit(10)
+            ->get();
+
+        $pesertaTerbaru = User::where('role', 'MAHASISWA')
+            ->with(['kelompok.departemen'])
+            ->latest('created_at')
+            ->limit(6)
             ->get();
 
         return view('admin.index', [
             'statistik' => $statistik,
             'laporanTerbaru' => $laporanTerbaru,
+            'laporanAkhirTerbaru' => $laporanAkhirTerbaru,
+            'pesertaTerbaru' => $pesertaTerbaru,
         ]);
     }
 

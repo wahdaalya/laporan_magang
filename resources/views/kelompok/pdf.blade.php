@@ -38,7 +38,9 @@
 <body>
     <table class="kop">
         <tr>
-            @if ($logoPath)
+            @if (!empty($logoDataUri))
+                <td class="logo"><img src="{{ $logoDataUri }}" alt="Logo"></td>
+            @elseif (!empty($logoPath))
                 <td class="logo"><img src="{{ $logoPath }}" alt="Logo"></td>
             @endif
             <td>

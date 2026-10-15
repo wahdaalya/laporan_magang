@@ -64,14 +64,30 @@
                                     @foreach ($mahasiswas as $mahasiswa)
                                         <tr class="bg-white hover:bg-gray-50 dark:bg-slate-800 dark:hover:bg-slate-700/50">
                                             <td class="px-4 py-3 align-middle whitespace-nowrap">
-                                                <p class="font-medium text-gray-900">{{ $mahasiswa->name }}</p>
-                                                @if ($mahasiswa->email)
-                                                    <a href="mailto:{{ $mahasiswa->email }}" class="text-xs text-gray-500 hover:text-blue-700 hover:underline">{{ $mahasiswa->email }}</a>
-                                                @else
-                                                    <p class="text-xs text-gray-500">-</p>
+                                                <div class="flex items-center gap-3">
+                                                    @if ($mahasiswa->foto_url)
+                                                        <img src="{{ $mahasiswa->foto_url }}" alt="Foto {{ $mahasiswa->name }}" class="h-9 w-9 rounded-full object-cover border border-slate-200 shadow-xs">
+                                                    @else
+                                                        <span class="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700">
+                                                            {{ strtoupper(substr($mahasiswa->name, 0, 1)) }}
+                                                        </span>
+                                                    @endif
+                                                    <div>
+                                                        <p class="font-medium text-gray-900">{{ $mahasiswa->name }}</p>
+                                                        @if ($mahasiswa->email)
+                                                            <a href="mailto:{{ $mahasiswa->email }}" class="text-xs text-gray-500 hover:text-blue-700 hover:underline">{{ $mahasiswa->email }}</a>
+                                                        @else
+                                                            <p class="text-xs text-gray-500">-</p>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-4 py-3 align-middle whitespace-nowrap">
+                                                <span class="font-mono text-xs text-slate-700">{{ $mahasiswa->nim_nip ?? '-' }}</span>
+                                                @if ($mahasiswa->hp_wa)
+                                                    <span class="block text-[11px] text-slate-400"><i class="fab fa-whatsapp text-emerald-600 mr-0.5"></i>{{ $mahasiswa->hp_wa }}</span>
                                                 @endif
                                             </td>
-                                            <td class="px-4 py-3 align-middle whitespace-nowrap">{{ $mahasiswa->nim_nip ?? '-' }}</td>
                                             <td class="px-4 py-3 align-middle whitespace-nowrap">{{ $mahasiswa->kampus ?? '-' }}</td>
                                             <td class="whitespace-nowrap px-4 py-3 align-middle">
                                                 @if ($mahasiswa->fakultas || $mahasiswa->prodi)
@@ -80,32 +96,41 @@
                                                     -
                                                 @endif
                                             </td>
-                                            <td class="px-4 py-3 align-middle whitespace-nowrap">{{ $mahasiswa->kelompok?->nama_kelompok ?? '-' }}</td>
-                                            <td class="whitespace-nowrap px-4 py-3 align-middle">{{ $mahasiswa->dosen?->nama ?? '-' }}</td>
-                                            <td class="max-w-[180px] break-words px-4 py-3 align-middle">{{ $mahasiswa->mentor?->nama ?? '-' }}</td>
-                                            <td class="px-4 py-3 align-middle text-center">{{ $mahasiswa->laporans_count }}</td>
+                                            <td class="px-4 py-3 align-middle whitespace-nowrap">
+                                                <span class="inline-flex rounded-md bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700">
+                                                    {{ $mahasiswa->kelompok?->nama_kelompok ?? 'Belum ada kelompok' }}
+                                                </span>
+                                            </td>
+                                            <td class="whitespace-nowrap px-4 py-3 align-middle text-xs">{{ $mahasiswa->dosen?->nama ?? '-' }}</td>
+                                            <td class="max-w-[180px] break-words px-4 py-3 align-middle text-xs">{{ $mahasiswa->mentor?->nama ?? '-' }}</td>
+                                            <td class="px-4 py-3 align-middle text-center font-semibold text-xs">{{ $mahasiswa->laporans_count }}</td>
                                             <td class="px-4 py-3 align-middle whitespace-nowrap text-right">
-    <div class="flex items-center justify-end gap-2">
-        <form method="POST" action="{{ route('mahasiswa.impersonate', $mahasiswa->id) }}">
-            @csrf
-            <x-secondary-button type="submit" title="Masuk sebagai {{ $mahasiswa->name }}">
-                Login sebagai Akun Ini
-            </x-secondary-button>
-        </form>
-        <x-secondary-button type="button" x-data="" x-on:click.prevent="$dispatch('open-modal', 'edit-mahasiswa-{{ $mahasiswa->id }}')">
-            {{ __('Edit') }}
-        </x-secondary-button>
-        <x-danger-button
-            type="button"
-            data-mahasiswa-id="{{ $mahasiswa->id }}"
-            data-mahasiswa-name="{{ $mahasiswa->name }}"
-            x-on:click="hapus($el); $dispatch('open-modal', 'confirm-delete-mahasiswa')"
-            aria-label="Hapus peserta {{ $mahasiswa->name }}"
-        >
-            {{ __('Hapus') }}
-        </x-danger-button>
-    </div>
-</td>
+                                                <div class="flex items-center justify-end gap-1.5">
+                                                    <a href="{{ route('laporan.mahasiswa.download-pdf', $mahasiswa) }}" target="_blank"
+                                                       class="inline-flex items-center gap-1 rounded bg-rose-50 px-2 py-1.5 text-xs font-semibold text-rose-700 hover:bg-rose-100"
+                                                       title="Unduh Arsip Laporan (PDF)">
+                                                        <i class="fa-solid fa-file-pdf"></i>
+                                                    </a>
+                                                    <form method="POST" action="{{ route('mahasiswa.impersonate', $mahasiswa->id) }}">
+                                                        @csrf
+                                                        <x-secondary-button type="submit" title="Masuk sebagai {{ $mahasiswa->name }}">
+                                                            Login
+                                                        </x-secondary-button>
+                                                    </form>
+                                                    <x-secondary-button type="button" x-data="" x-on:click.prevent="$dispatch('open-modal', 'edit-mahasiswa-{{ $mahasiswa->id }}')">
+                                                        {{ __('Edit') }}
+                                                    </x-secondary-button>
+                                                    <x-danger-button
+                                                        type="button"
+                                                        data-mahasiswa-id="{{ $mahasiswa->id }}"
+                                                        data-mahasiswa-name="{{ $mahasiswa->name }}"
+                                                        x-on:click="hapus($el); $dispatch('open-modal', 'confirm-delete-mahasiswa')"
+                                                        aria-label="Hapus peserta {{ $mahasiswa->name }}"
+                                                    >
+                                                        {{ __('Hapus') }}
+                                                    </x-danger-button>
+                                                </div>
+                                            </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -123,6 +148,7 @@
                             <form
                                 method="post"
                                 action="{{ route('mahasiswa.update', $mahasiswa) }}"
+                                enctype="multipart/form-data"
                                 class="p-4 sm:p-6 w-full max-w-full"
                                 x-data="{
                                     sumber: {
@@ -291,6 +317,18 @@
                                             @endforeach
                                         </select>
                                     </div>
+
+                                    <div class="sm:col-span-2 border-t border-gray-100 pt-3">
+                                        <x-input-label for="edit_foto_{{ $mahasiswa->id }}" value="{{ __('Foto Profil Peserta (Opsional)') }}" />
+                                        @if ($mahasiswa->foto_url)
+                                            <div class="mt-2 mb-2 flex items-center gap-3">
+                                                <img src="{{ $mahasiswa->foto_url }}" alt="Foto {{ $mahasiswa->name }}" class="h-10 w-10 rounded-full object-cover border border-slate-200">
+                                                <span class="text-xs text-gray-500">Foto profil terpasang</span>
+                                            </div>
+                                        @endif
+                                        <input id="edit_foto_{{ $mahasiswa->id }}" name="foto" type="file" accept="image/*" class="mt-1 block w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
+                                        <p class="mt-1 text-xs text-gray-500">Format: JPG, JPEG, PNG, WEBP. Maksimal 2 MB.</p>
+                                    </div>
                                 </div>
 
                                 <div class="mt-6 flex justify-end">
@@ -316,6 +354,7 @@
         <form
             method="post"
             action="{{ route('mahasiswa.store') }}"
+            enctype="multipart/form-data"
             class="p-4 sm:p-6 w-full max-w-full"
             x-data="{
                 sumber: {
@@ -520,6 +559,12 @@
                     <x-input-error :messages="$errors->get('prodi')" class="mt-2" />
                 </div>
 
+                <div class="sm:col-span-2 border-t border-gray-100 pt-3">
+                    <x-input-label for="create_foto" value="{{ __('Foto Profil Peserta (Opsional)') }}" />
+                    <input id="create_foto" name="foto" type="file" accept="image/*" class="mt-1 block w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
+                    <p class="mt-1 text-xs text-gray-500">Format: JPG, JPEG, PNG, WEBP. Maksimal 2 MB.</p>
+                    <x-input-error :messages="$errors->get('foto')" class="mt-1" />
+                </div>
             </div>
 
             <div class="mt-6 flex justify-end">

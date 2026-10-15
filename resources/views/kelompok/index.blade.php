@@ -95,8 +95,8 @@
                                 <thead class="border-b border-gray-200 bg-gray-100 text-gray-600 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-300">
                                     <tr>
                                         <th class="px-5 py-3 text-center align-middle whitespace-nowrap">ID</th>
-                                        <th class="px-5 py-3 text-center align-middle whitespace-nowrap">Kode Kelompok</th>
-                                        <th class="px-5 py-3 text-center align-middle whitespace-nowrap">Instansi</th>
+                                        <th class="px-5 py-3 text-left align-middle whitespace-nowrap">Kelompok & Logo</th>
+                                        <th class="px-5 py-3 text-left align-middle whitespace-nowrap">Instansi & Departemen</th>
                                         <th class="px-5 py-3 text-center align-middle whitespace-nowrap">Aksi</th>
                                     </tr>
                                 </thead>
@@ -106,12 +106,31 @@
                                             data-modal="detail-kelompok-{{ $kelompok->id }}"
                                             tabindex="0" role="button"
                                             aria-label="Lihat detail {{ $kelompok->nama_kelompok }}">
-                                            <td class="px-5 py-4 align-middle whitespace-nowrap text-center text-gray-500">#{{ $kelompok->id }}</td>
-                                            <td class="px-5 py-4 align-middle whitespace-nowrap font-medium">{{ $kelompok->nama_kelompok }}</td>
-                                            <td class="px-5 py-4 align-middle whitespace-nowrap">{{ $kelompok->kampus?->nama_universitas ?? '-' }}</td>
+                                            <td class="px-5 py-4 align-middle whitespace-nowrap text-center text-gray-500 font-mono text-xs">#{{ $kelompok->id }}</td>
+                                            <td class="px-5 py-4 align-middle whitespace-nowrap">
+                                                <div class="flex items-center gap-3">
+                                                    @if ($kelompok->logo_url)
+                                                        <img src="{{ $kelompok->logo_url }}" alt="Logo {{ $kelompok->nama_kelompok }}" class="h-9 w-9 shrink-0 rounded-lg object-contain border border-slate-200 bg-white p-0.5 shadow-xs">
+                                                    @else
+                                                        <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-100 text-sm">
+                                                            <i class="fas fa-users"></i>
+                                                        </span>
+                                                    @endif
+                                                    <div>
+                                                        <div class="font-semibold text-slate-900 dark:text-white">{{ $kelompok->nama_kelompok }}</div>
+                                                        <div class="text-xs text-slate-500">
+                                                            <i class="far fa-calendar-alt text-[10px] mr-1"></i>{{ $kelompok->tanggal_mulai->format('d/m/Y') }} — {{ $kelompok->tanggal_selesai->format('d/m/Y') }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-5 py-4 align-middle whitespace-nowrap">
+                                                <div class="font-medium text-slate-800 dark:text-slate-200">{{ $kelompok->kampus?->nama_universitas ?? '-' }}</div>
+                                                <div class="text-xs text-slate-500">{{ $kelompok->departemen?->nama_departemen ?? '-' }}</div>
+                                            </td>
                                             <td class="kolom-aksi px-5 py-4 align-middle whitespace-nowrap text-end">
                                                 <div class="flex items-center justify-end gap-3">
-                                                                                                        <a href="{{ route('kelompok.pdf', $kelompok) }}" class="aksi-ikon" title="Download PDF" aria-label="Download PDF {{ $kelompok->nama_kelompok }}">
+                                                    <a href="{{ route('kelompok.pdf', $kelompok) }}" class="aksi-ikon" title="Download PDF" aria-label="Download PDF {{ $kelompok->nama_kelompok }}">
                                                         <i class="fas fa-file-pdf" aria-hidden="true"></i>
                                                     </a>
                                                     <x-secondary-button type="button" x-data="" x-on:click.prevent="$dispatch('open-modal', 'edit-kelompok-{{ $kelompok->id }}')">
@@ -138,8 +157,24 @@
                     @foreach ($kelompoks as $kelompok)
                         <x-modal name="detail-kelompok-{{ $kelompok->id }}" maxWidth="2xl">
                             <div class="p-6">
-                                <h2 class="text-lg font-semibold text-gray-900">Detail Kelompok</h2>
-                                <p class="mt-1 text-sm text-gray-500">{{ $kelompok->nama_kelompok }} &middot; ID #{{ $kelompok->id }}</p>
+                                <div class="flex items-start justify-between gap-4 border-b border-gray-100 pb-4">
+                                    <div class="flex items-center gap-3">
+                                        @if ($kelompok->logo_url)
+                                            <img src="{{ $kelompok->logo_url }}" alt="Logo {{ $kelompok->nama_kelompok }}" class="h-12 w-12 rounded-xl object-contain border border-slate-200 bg-white p-1 shadow-xs">
+                                        @else
+                                            <span class="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-100 text-lg">
+                                                <i class="fas fa-users"></i>
+                                            </span>
+                                        @endif
+                                        <div>
+                                            <h2 class="text-lg font-bold text-gray-900">{{ $kelompok->nama_kelompok }}</h2>
+                                            <p class="text-xs text-gray-500">ID Kelompok: #{{ $kelompok->id }} &middot; {{ $kelompok->kampus?->nama_universitas ?? 'Instansi Umum' }}</p>
+                                        </div>
+                                    </div>
+                                    <span class="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+                                        {{ $kelompok->mahasiswas_count }} Anggota
+                                    </span>
+                                </div>
 
                                 <dl class="mt-5 grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
                                     <div>
@@ -147,15 +182,15 @@
                                         <dd class="mt-1 text-sm font-medium text-gray-900">{{ $kelompok->nama_kelompok }}</dd>
                                     </div>
                                     <div>
-                                        <dt class="text-xs font-semibold uppercase tracking-wider text-gray-400">Periode</dt>
-                                        <dd class="mt-1 text-sm font-medium text-gray-900">{{ $kelompok->tanggal_mulai->format('d M Y') }} - {{ $kelompok->tanggal_selesai->format('d M Y') }}</dd>
+                                        <dt class="text-xs font-semibold uppercase tracking-wider text-gray-400">Periode Pelaksanaan</dt>
+                                        <dd class="mt-1 text-sm font-medium text-gray-900">{{ $kelompok->tanggal_mulai->format('d M Y') }} — {{ $kelompok->tanggal_selesai->format('d M Y') }}</dd>
                                     </div>
                                     <div>
-                                        <dt class="text-xs font-semibold uppercase tracking-wider text-gray-400">Instansi</dt>
+                                        <dt class="text-xs font-semibold uppercase tracking-wider text-gray-400">Instansi Pendidikan</dt>
                                         <dd class="mt-1 text-sm font-medium text-gray-900">{{ $kelompok->kampus?->nama_universitas ?? '-' }}</dd>
                                     </div>
                                     <div>
-                                        <dt class="text-xs font-semibold uppercase tracking-wider text-gray-400">Departemen</dt>
+                                        <dt class="text-xs font-semibold uppercase tracking-wider text-gray-400">Departemen Instansi</dt>
                                         <dd class="mt-1 text-sm font-medium text-gray-900">{{ $kelompok->departemen?->nama_departemen ?? '-' }}</dd>
                                     </div>
                                     <div>
@@ -186,9 +221,9 @@
 
                                 <div class="mt-6 flex justify-end">
                                     <a href="{{ route('kelompok.pdf', $kelompok) }}" class="mr-3 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white transition hover:bg-blue-700">
-    <i class="fas fa-file-pdf" aria-hidden="true"></i> Download PDF
-</a>
-<x-secondary-button type="button" x-on:click="$dispatch('close')">Tutup</x-secondary-button>
+                                        <i class="fas fa-file-pdf" aria-hidden="true"></i> Download PDF
+                                    </a>
+                                    <x-secondary-button type="button" x-on:click="$dispatch('close')">Tutup</x-secondary-button>
                                 </div>
                             </div>
                         </x-modal>
@@ -196,9 +231,10 @@
 
                     @foreach ($kelompoks as $kelompok)
                         <x-modal name="edit-kelompok-{{ $kelompok->id }}">
-                            <form method="POST" action="{{ route('kelompok.update', $kelompok->id, false) }}" class="p-6">
+                            <form method="POST" action="{{ route('kelompok.update', $kelompok->id, false) }}" enctype="multipart/form-data" class="p-6">
                                 @csrf
                                 @method('PUT')
+                                <input type="hidden" name="nama_kelompok" value="{{ $kelompok->nama_kelompok }}">
 
                                 <h2 class="text-lg font-medium text-gray-900">
                                     {{ __('Edit Kelompok') }} #{{ $kelompok->id }}: {{ $kelompok->nama_kelompok }}
@@ -207,7 +243,7 @@
                                 <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     <div class="sm:col-span-2">
                                         <x-input-label value="{{ __('Kode Kelompok') }}" />
-                                        <x-text-input type="text" class="mt-1 block w-full bg-gray-100" :value="$kelompok->nama_kelompok" disabled />
+                                        <x-text-input type="text" class="mt-1 block w-full bg-gray-100 font-mono text-sm" :value="$kelompok->nama_kelompok" readonly />
                                     </div>
 
                                     <div>
@@ -227,6 +263,18 @@
                                             @foreach ($kampuses as $kampus)
                                                 <option value="{{ $kampus->id }}" @selected($kelompok->kampus_id == $kampus->id)>
                                                     {{ $kampus->nama_universitas }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <x-input-label for="edit_departemen_id_{{ $kelompok->id }}" value="{{ __('Departemen Instansi') }}" />
+                                        <select id="edit_departemen_id_{{ $kelompok->id }}" name="departemen_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400">
+                                            <option value="">{{ __('- Pilih Departemen -') }}</option>
+                                            @foreach ($departemens as $departemen)
+                                                <option value="{{ $departemen->id }}" @selected($kelompok->departemen_id == $departemen->id)>
+                                                    {{ $departemen->nama_departemen }}
                                                 </option>
                                             @endforeach
                                         </select>
@@ -256,16 +304,19 @@
                                         </select>
                                     </div>
 
-                                    <div>
-                                        <x-input-label for="edit_departemen_id_{{ $kelompok->id }}" value="{{ __('Departemen') }}" />
-                                        <select id="edit_departemen_id_{{ $kelompok->id }}" name="departemen_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400">
-                                            <option value="">{{ __('- Pilih Departemen -') }}</option>
-                                            @foreach ($departemens as $departemen)
-                                                <option value="{{ $departemen->id }}" @selected($kelompok->departemen_id == $departemen->id)>
-                                                    {{ $departemen->nama_departemen }}
-                                                </option>
-                                            @endforeach
-                                        </select>
+                                    <div class="sm:col-span-2 border-t border-gray-100 pt-3">
+                                        <x-input-label for="edit_logo_{{ $kelompok->id }}" value="{{ __('Logo Kelompok / Instansi (Opsional)') }}" />
+                                        @if ($kelompok->logo_url)
+                                            <div class="mt-2 mb-3 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 p-2.5">
+                                                <img src="{{ $kelompok->logo_url }}" alt="Logo {{ $kelompok->nama_kelompok }}" class="h-10 w-10 object-contain rounded border border-white bg-white">
+                                                <label class="inline-flex items-center gap-2 text-xs font-medium text-rose-600 cursor-pointer">
+                                                    <input type="checkbox" name="hapus_logo" value="1" class="rounded border-gray-300 text-rose-600 focus:ring-rose-500">
+                                                    Hapus logo ini
+                                                </label>
+                                            </div>
+                                        @endif
+                                        <input id="edit_logo_{{ $kelompok->id }}" name="logo" type="file" accept="image/*" class="mt-1 block w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
+                                        <p class="mt-1 text-xs text-gray-500">Format: PNG, JPG, JPEG, WEBP. Maks 2 MB. Digunakan pada dokumen & lembar pengesahan kelompok.</p>
                                     </div>
                                 </div>
 
@@ -363,6 +414,7 @@
         <form
             method="post"
             action="{{ route('kelompok.store') }}"
+            enctype="multipart/form-data"
             class="p-6"
             x-data="{
                 namaBaru: '',
@@ -438,9 +490,9 @@
                 </div>
 
                 <div>
-                    <x-input-label for="create_kampus_id" value="{{ __('Kampus') }}" />
+                    <x-input-label for="create_kampus_id" value="{{ __('Kampus / Instansi') }}" />
                     <select id="create_kampus_id" name="kampus_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400">
-                        <option value="">{{ __('- Pilih Kampus -') }}</option>
+                        <option value="">{{ __('- Pilih Kampus / Instansi -') }}</option>
                         @foreach ($kampuses as $kampus)
                             <option value="{{ $kampus->id }}" @selected(old('kampus_id') == $kampus->id)>
                                 {{ $kampus->nama_universitas }}
@@ -448,6 +500,19 @@
                         @endforeach
                     </select>
                     <x-input-error :messages="$errors->get('kampus_id')" class="mt-2" />
+                </div>
+
+                <div>
+                    <x-input-label for="create_departemen_id" value="{{ __('Departemen') }}" />
+                    <select id="create_departemen_id" name="departemen_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400">
+                        <option value="">{{ __('- Pilih Departemen -') }}</option>
+                        @foreach ($departemens as $departemen)
+                            <option value="{{ $departemen->id }}" @selected(old('departemen_id') == $departemen->id)>
+                                {{ $departemen->nama_departemen }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <x-input-error :messages="$errors->get('departemen_id')" class="mt-2" />
                 </div>
 
                 <div>
@@ -466,7 +531,7 @@
                 <div>
                     <x-input-label for="create_pembimbing_id" value="{{ __('Pembimbing Lapangan') }}" />
                     <select id="create_pembimbing_id" name="pembimbing_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400">
-                        <option value="">{{ __('- Pilih Pembimbing -') }}</option>
+                        <option value="">{{ __('- Pilih Pembimbing Lapangan -') }}</option>
                         @foreach ($pembimbings as $pembimbing)
                             <option value="{{ $pembimbing->id }}" @selected(old('pembimbing_id') == $pembimbing->id)>
                                 {{ $pembimbing->nama }}
@@ -476,17 +541,11 @@
                     <x-input-error :messages="$errors->get('pembimbing_id')" class="mt-2" />
                 </div>
 
-                <div>
-                    <x-input-label for="create_departemen_id" value="{{ __('Departemen') }}" />
-                    <select id="create_departemen_id" name="departemen_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400">
-                        <option value="">{{ __('- Pilih Departemen -') }}</option>
-                        @foreach ($departemens as $departemen)
-                            <option value="{{ $departemen->id }}" @selected(old('departemen_id') == $departemen->id)>
-                                {{ $departemen->nama_departemen }}
-                            </option>
-                        @endforeach
-                    </select>
-                    <x-input-error :messages="$errors->get('departemen_id')" class="mt-2" />
+                <div class="sm:col-span-2 border-t border-gray-100 pt-3">
+                    <x-input-label for="create_logo" value="{{ __('Logo Kelompok / Instansi (Opsional)') }}" />
+                    <input id="create_logo" name="logo" type="file" accept="image/*" class="mt-1 block w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
+                    <p class="mt-1 text-xs text-gray-500">Format: PNG, JPG, JPEG, WEBP. Maks 2 MB. Digunakan pada header lembar pengesahan kelompok.</p>
+                    <x-input-error :messages="$errors->get('logo')" class="mt-1" />
                 </div>
             </div>
 

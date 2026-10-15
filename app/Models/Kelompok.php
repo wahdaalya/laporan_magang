@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 
 class Kelompok extends Model
 {
@@ -18,7 +19,41 @@ class Kelompok extends Model
         'dosen_id',
         'pembimbing_id',
         'departemen_id',
+        'logo',
     ];
+
+    public function getLogoUrlAttribute(): ?string
+    {
+        $disk = Storage::disk('local');
+
+        return $this->logo && $disk->exists($this->logo)
+            ? route('media.kelompok-logo', $this)
+            : null;
+    }
+
+    /**
+     * Data URI base64 logo untuk rendering PDF DomPDF yang aman.
+     */
+    public function getLogoDataUriAttribute(): ?string
+    {
+        if (! $this->logo) {
+            return null;
+        }
+
+        try {
+            $disk = Storage::disk('local');
+            if (! $disk->exists($this->logo)) {
+                return null;
+            }
+
+            $binary = $disk->get($this->logo);
+            $mime = $disk->mimeType($this->logo) ?: 'image/png';
+
+            return 'data:'.$mime.';base64,'.base64_encode($binary);
+        } catch (\Throwable) {
+            return null;
+        }
+    }
 
     protected function casts(): array
     {
@@ -52,10 +87,11 @@ class Kelompok extends Model
     {
         return $this->hasMany(User::class, 'kelompok_id');
     }
-        public function calonAnggotas()
+
+    public function calonAnggotas()
     {
         return $this->hasMany(CalonAnggotaKelompok::class);
-        }
+    }
 
     /**
      * Daftar tahun magang (berdasarkan tahun tanggal mulai kelompok), terbaru dulu.
@@ -72,6 +108,4 @@ class Kelompok extends Model
             ->sortDesc()
             ->values();
     }
-        }
-
-
+}

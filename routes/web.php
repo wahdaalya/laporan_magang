@@ -40,6 +40,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/laporan/{laporan}/photo', [PrivateMediaController::class, 'laporanPhoto'])
         ->middleware('throttle:60,1')
         ->name('media.laporan-photo');
+    Route::get('/kelompok/{kelompok}/logo', [PrivateMediaController::class, 'kelompokLogo'])
+        ->middleware('throttle:60,1')
+        ->name('media.kelompok-logo');
 
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');

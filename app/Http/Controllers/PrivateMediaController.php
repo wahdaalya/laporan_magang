@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Kelompok;
 use App\Models\Laporan;
 use App\Models\User;
 use App\Support\StudentAccess;
@@ -23,6 +24,13 @@ class PrivateMediaController extends Controller
         abort_unless(StudentAccess::canView($request->user(), $laporan->mahasiswa), 404);
 
         return $this->image($laporan->foto);
+    }
+
+    public function kelompokLogo(Request $request, Kelompok $kelompok): BinaryFileResponse
+    {
+        abort_if(! $kelompok->logo, 404);
+
+        return $this->image($kelompok->logo);
     }
 
     private function image(?string $path): BinaryFileResponse

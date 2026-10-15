@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AddAnggotaKelompokRequest;
 use App\Http\Requests\StoreKelompokRequest;
 use App\Http\Requests\UpdateKelompokRequest;
 use App\Models\CalonAnggotaKelompok;
@@ -20,12 +21,12 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use App\Http\Requests\AddAnggotaKelompokRequest;
 
 class KelompokController extends Controller
 {
-        public function index(Request $request): View|RedirectResponse
+    public function index(Request $request): View|RedirectResponse
     {
         $validated = $request->validate([
             'q' => ['nullable', 'string', 'max:255'],
@@ -33,7 +34,7 @@ class KelompokController extends Controller
         ]);
         $search = trim($validated['q'] ?? '');
         $tahun = $validated['tahun'] ?? null;
-                $bulan = $validated['bulan'] ?? null;
+        $bulan = $validated['bulan'] ?? null;
         $daftarBulan = [
             1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
             5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
@@ -65,7 +66,7 @@ class KelompokController extends Controller
         if ($tahun !== null) {
             $query->whereYear('tanggal_mulai', $tahun);
         }
-        
+
         if ($bulan !== null) {
             $query->whereMonth('tanggal_mulai', $bulan);
         }
@@ -90,7 +91,7 @@ class KelompokController extends Controller
             'dosens' => Dosen::orderBy('nama')->get(['id', 'nama']),
             'pembimbings' => Pembimbing::orderBy('nama')->get(['id', 'nama']),
             'departemens' => Departemen::orderBy('nama_departemen')->get(['id', 'nama_departemen']),
-            'mahasiswaBebas' => User::where('role', 'MAHASISWA')->whereNull('kelompok_id')->orderBy('name')->get(['id', 'name', 'nim_nip'
+            'mahasiswaBebas' => User::where('role', 'MAHASISWA')->whereNull('kelompok_id')->orderBy('name')->get(['id', 'name', 'nim_nip',
             ]),
         ]);
     }
@@ -118,7 +119,7 @@ class KelompokController extends Controller
     }
 
     /**
-     * Simpan data kelompok baru sekaligus anggotanya.
+     * Simpan data kelompok baru sekaligus anggotanya dan logo.
      */
     public function store(StoreKelompokRequest $request): RedirectResponse
     {
@@ -127,6 +128,10 @@ class KelompokController extends Controller
         unset($data['nama_anggota']);
 
         $data['nama_kelompok'] = $this->generateKodeKelompok($data['tanggal_mulai']);
+
+        if ($request->hasFile('logo')) {
+            $data['logo'] = $request->file('logo')->store('logos', 'local');
+        }
 
         DB::transaction(function () use ($data, $namaAnggota) {
             $kelompok = Kelompok::create($data);
@@ -155,25 +160,43 @@ class KelompokController extends Controller
     }
 
     /**
-     * Perbarui data kelompok.
+     * Perbarui data kelompok beserta logo/periode instansi.
      */
     public function update(UpdateKelompokRequest $request, Kelompok $kelompok): RedirectResponse
     {
-        $kelompok->update($request->validated());
+        $data = $request->validated();
+
+        if ($request->boolean('hapus_logo')) {
+            if ($kelompok->logo) {
+                Storage::disk('local')->delete($kelompok->logo);
+            }
+            $data['logo'] = null;
+        } elseif ($request->hasFile('logo')) {
+            if ($kelompok->logo) {
+                Storage::disk('local')->delete($kelompok->logo);
+            }
+            $data['logo'] = $request->file('logo')->store('logos', 'local');
+        }
+
+        $kelompok->update($data);
 
         return back()->with('status', 'Kelompok berhasil diperbarui.');
     }
 
     /**
-     * Hapus data kelompok.
+     * Hapus data kelompok dan file logo jika ada.
      */
-    public function destroy(int $kelompok): RedirectResponse
+    public function destroy(Kelompok $kelompok): RedirectResponse
     {
-        $deleted = Kelompok::whereKey($kelompok)->delete();
+        if ($kelompok->logo) {
+            Storage::disk('local')->delete($kelompok->logo);
+        }
+
+        $kelompok->delete();
 
         return redirect()->route('kelompok.index')->with(
             'status',
-            $deleted ? 'Kelompok berhasil dihapus.' : 'Kelompok sudah tidak ada.'
+            'Kelompok berhasil dihapus.'
         );
     }
 
@@ -195,7 +218,7 @@ class KelompokController extends Controller
 
         return back()->with('status', 'Anggota berhasil ditambahkan.');
     }
-    
+
     /**
      * Unduh detail kelompok magang sebagai file PDF.
      */
@@ -209,14 +232,23 @@ class KelompokController extends Controller
             'mahasiswas' => fn ($query) => $query->orderBy('name'),
         ]);
 
-        // pakai logo yang tersedia di public/images (urutan prioritas)
-        $logoPath = collect(['logo_bandara.png', 'logo_bandara.jpg', 'logo-bintang-kualanamu.png'])
-            ->map(fn (string $file) => public_path('images/'.$file))
-            ->first(fn (string $path) => is_file($path));
+        $disk = Storage::disk('local');
+        $logoPath = null;
+        if ($kelompok->logo && $disk->exists($kelompok->logo)) {
+            $logoPath = $disk->path($kelompok->logo);
+        }
+
+        if (! $logoPath || ! is_file($logoPath)) {
+            // pakai logo default yang tersedia di public/images (urutan prioritas)
+            $logoPath = collect(['logo_bandara.png', 'logo_bandara.jpg', 'logo-bintang-kualanamu.png'])
+                ->map(fn (string $file) => public_path('images/'.$file))
+                ->first(fn (string $path) => is_file($path));
+        }
 
         return Pdf::loadView('kelompok.pdf', [
             'kelompok' => $kelompok,
             'logoPath' => $logoPath,
+            'logoDataUri' => $kelompok->logo_data_uri,
             'dicetakPada' => now(),
         ])
             ->setPaper('a4', 'portrait')
