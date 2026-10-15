@@ -43,7 +43,7 @@
                 </button>
             </div>
 
-            <ul x-show="terbuka.kampus" style="background-color: #ffffff;" class="absolute inset-x-0 left-0 right-0 z-50 mt-1 max-h-48 w-full min-w-0 max-w-full overflow-y-auto overflow-x-hidden rounded-md border border-gray-200 bg-white text-sm shadow-xl">
+            <ul x-show="terbuka.kampus" style="background-color: #ffffff; width: 100%; max-width: 100%; box-sizing: border-box;" class="relative sm:absolute sm:inset-x-0 sm:left-0 sm:right-0 sm:top-full z-50 mt-1 max-h-48 w-full min-w-0 max-w-full overflow-y-auto overflow-x-hidden rounded-md border border-gray-200 bg-white text-sm shadow-md sm:shadow-xl">
                 <template x-if="saran.kampus.length === 0">
                     <li class="px-3 py-2.5 text-xs sm:text-sm text-gray-500 italic">Tidak ada yang cocok — ketik nama instansi baru.</li>
                 </template>

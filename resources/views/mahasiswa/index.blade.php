@@ -123,7 +123,7 @@
                             <form
                                 method="post"
                                 action="{{ route('mahasiswa.update', $mahasiswa) }}"
-                                class="p-6"
+                                class="p-4 sm:p-6 w-full max-w-full"
                                 x-data="{
                                     sumber: {
                                         kampus: @js($kampuses->pluck('nama_universitas')->filter()->unique()->values()),
@@ -181,15 +181,30 @@
                                         <x-text-input id="edit_hp_wa_{{ $mahasiswa->id }}" name="hp_wa" type="text" class="mt-1 block w-full" :value="$mahasiswa->hp_wa" />
                                     </div>
 
-                                    <div class="relative min-w-0" :class="terbuka.kampus ? 'z-30' : 'z-10'" x-on:click.outside="terbuka.kampus = false">
+                                    <div class="relative min-w-0 w-full" :class="terbuka.kampus ? 'z-30' : 'z-10'" x-on:click.outside="terbuka.kampus = false">
                                         <x-input-label for="edit_kampus_{{ $mahasiswa->id }}" value="{{ __('Instansi / Sekolah / Kampus') }}" />
-                                        <div class="relative mt-1">
-                                            <input id="edit_kampus_{{ $mahasiswa->id }}" name="kampus" type="text" autocomplete="off" placeholder="Ketik atau pilih instansi..." class="block w-full rounded-md border-gray-300 pr-9 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400" x-model="nilai.kampus" x-on:input="cari('kampus')" x-on:focus="bukaDropdown('kampus')">
+                                        <div class="relative mt-1 w-full">
+                                            <input id="edit_kampus_{{ $mahasiswa->id }}" name="kampus" type="text" autocomplete="off" placeholder="Ketik atau pilih instansi..." class="block w-full min-w-0 max-w-full rounded-md border-gray-300 pr-9 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400 text-sm" style="width: 100%; max-width: 100%; box-sizing: border-box;" x-model="nilai.kampus" x-on:input="cari('kampus')" x-on:focus="bukaDropdown('kampus')">
                                             <button type="button" x-on:click="terbuka.kampus = !terbuka.kampus; if (terbuka.kampus) bukaDropdown('kampus')" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600">
                                                 <i class="fas fa-chevron-down text-xs"></i>
                                             </button>
                                         </div>
-                                        <ul x-show="terbuka.kampus" style="background-color: #ffffff;" class="absolute inset-x-0 left-0 right-0 z-50 mt-1 max-h-48 w-full min-w-0 max-w-full overflow-y-auto overflow-x-hidden rounded-md border border-gray-200 bg-white text-sm shadow-xl">
+
+                                        <!-- Pilihan Cepat Native Select untuk Mobile -->
+                                        <div class="mt-1.5 block sm:hidden">
+                                            <select
+                                                class="block w-full max-w-full rounded-md border-gray-200 bg-gray-50 text-xs text-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+                                                style="width: 100%; max-width: 100%; box-sizing: border-box;"
+                                                x-on:change="if ($event.target.value) { pilih('kampus', $event.target.value); $event.target.value = ''; }"
+                                            >
+                                                <option value="">{{ __('-- Atau pilih dari daftar instansi --') }}</option>
+                                                @foreach ($kampuses->pluck('nama_universitas')->filter()->unique()->values() as $item)
+                                                    <option value="{{ $item }}">{{ \Illuminate\Support\Str::limit($item, 38) }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        <ul x-show="terbuka.kampus" style="background-color: #ffffff; width: 100%; max-width: 100%; box-sizing: border-box;" class="relative sm:absolute sm:inset-x-0 sm:left-0 sm:right-0 sm:top-full z-50 mt-1 max-h-48 w-full min-w-0 max-w-full overflow-y-auto overflow-x-hidden rounded-md border border-indigo-200 sm:border-gray-200 bg-white text-sm shadow-md sm:shadow-xl">
                                             <template x-if="saran.kampus.length === 0">
                                                 <li class="px-3 py-2.5 text-xs sm:text-sm text-gray-500 italic">Tidak ada yang cocok — ketik nama instansi baru.</li>
                                             </template>
@@ -199,15 +214,30 @@
                                         </ul>
                                     </div>
 
-                                    <div class="relative min-w-0" :class="terbuka.fakultas ? 'z-25' : 'z-10'" x-on:click.outside="terbuka.fakultas = false">
+                                    <div class="relative min-w-0 w-full" :class="terbuka.fakultas ? 'z-25' : 'z-10'" x-on:click.outside="terbuka.fakultas = false">
                                         <x-input-label for="edit_fakultas_{{ $mahasiswa->id }}" value="{{ __('Fakultas') }}" />
-                                        <div class="relative mt-1">
-                                            <input id="edit_fakultas_{{ $mahasiswa->id }}" name="fakultas" type="text" autocomplete="off" placeholder="Ketik atau pilih fakultas..." class="block w-full rounded-md border-gray-300 pr-9 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400" x-model="nilai.fakultas" x-on:input="cari('fakultas')" x-on:focus="bukaDropdown('fakultas')">
+                                        <div class="relative mt-1 w-full">
+                                            <input id="edit_fakultas_{{ $mahasiswa->id }}" name="fakultas" type="text" autocomplete="off" placeholder="Ketik atau pilih fakultas..." class="block w-full min-w-0 max-w-full rounded-md border-gray-300 pr-9 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400 text-sm" style="width: 100%; max-width: 100%; box-sizing: border-box;" x-model="nilai.fakultas" x-on:input="cari('fakultas')" x-on:focus="bukaDropdown('fakultas')">
                                             <button type="button" x-on:click="terbuka.fakultas = !terbuka.fakultas; if (terbuka.fakultas) bukaDropdown('fakultas')" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600">
                                                 <i class="fas fa-chevron-down text-xs"></i>
                                             </button>
                                         </div>
-                                        <ul x-show="terbuka.fakultas" style="background-color: #ffffff;" class="absolute inset-x-0 left-0 right-0 z-50 mt-1 max-h-48 w-full min-w-0 max-w-full overflow-y-auto overflow-x-hidden rounded-md border border-gray-200 bg-white text-sm shadow-xl">
+
+                                        <!-- Pilihan Cepat Native Select untuk Mobile -->
+                                        <div class="mt-1.5 block sm:hidden">
+                                            <select
+                                                class="block w-full max-w-full rounded-md border-gray-200 bg-gray-50 text-xs text-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+                                                style="width: 100%; max-width: 100%; box-sizing: border-box;"
+                                                x-on:change="if ($event.target.value) { pilih('fakultas', $event.target.value); $event.target.value = ''; }"
+                                            >
+                                                <option value="">{{ __('-- Atau pilih dari daftar fakultas --') }}</option>
+                                                @foreach ($kampuses->pluck('fakultas')->filter()->unique()->values() as $item)
+                                                    <option value="{{ $item }}">{{ \Illuminate\Support\Str::limit($item, 38) }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        <ul x-show="terbuka.fakultas" style="background-color: #ffffff; width: 100%; max-width: 100%; box-sizing: border-box;" class="relative sm:absolute sm:inset-x-0 sm:left-0 sm:right-0 sm:top-full z-50 mt-1 max-h-48 w-full min-w-0 max-w-full overflow-y-auto overflow-x-hidden rounded-md border border-indigo-200 sm:border-gray-200 bg-white text-sm shadow-md sm:shadow-xl">
                                             <template x-if="saran.fakultas.length === 0">
                                                 <li class="px-3 py-2.5 text-xs sm:text-sm text-gray-500 italic">Tidak ada yang cocok — ketik fakultas baru.</li>
                                             </template>
@@ -217,15 +247,30 @@
                                         </ul>
                                     </div>
 
-                                    <div class="relative min-w-0" :class="terbuka.prodi ? 'z-20' : 'z-0'" x-on:click.outside="terbuka.prodi = false">
+                                    <div class="relative min-w-0 w-full" :class="terbuka.prodi ? 'z-20' : 'z-0'" x-on:click.outside="terbuka.prodi = false">
                                         <x-input-label for="edit_prodi_{{ $mahasiswa->id }}" value="{{ __('Program Studi') }}" />
-                                        <div class="relative mt-1">
-                                            <input id="edit_prodi_{{ $mahasiswa->id }}" name="prodi" type="text" autocomplete="off" placeholder="Ketik atau pilih program studi..." class="block w-full rounded-md border-gray-300 pr-9 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400" x-model="nilai.prodi" x-on:input="cari('prodi')" x-on:focus="bukaDropdown('prodi')">
+                                        <div class="relative mt-1 w-full">
+                                            <input id="edit_prodi_{{ $mahasiswa->id }}" name="prodi" type="text" autocomplete="off" placeholder="Ketik atau pilih program studi..." class="block w-full min-w-0 max-w-full rounded-md border-gray-300 pr-9 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400 text-sm" style="width: 100%; max-width: 100%; box-sizing: border-box;" x-model="nilai.prodi" x-on:input="cari('prodi')" x-on:focus="bukaDropdown('prodi')">
                                             <button type="button" x-on:click="terbuka.prodi = !terbuka.prodi; if (terbuka.prodi) bukaDropdown('prodi')" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600">
                                                 <i class="fas fa-chevron-down text-xs"></i>
                                             </button>
                                         </div>
-                                        <ul x-show="terbuka.prodi" style="background-color: #ffffff;" class="absolute inset-x-0 left-0 right-0 z-50 mt-1 max-h-48 w-full min-w-0 max-w-full overflow-y-auto overflow-x-hidden rounded-md border border-gray-200 bg-white text-sm shadow-xl">
+
+                                        <!-- Pilihan Cepat Native Select untuk Mobile -->
+                                        <div class="mt-1.5 block sm:hidden">
+                                            <select
+                                                class="block w-full max-w-full rounded-md border-gray-200 bg-gray-50 text-xs text-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+                                                style="width: 100%; max-width: 100%; box-sizing: border-box;"
+                                                x-on:change="if ($event.target.value) { pilih('prodi', $event.target.value); $event.target.value = ''; }"
+                                            >
+                                                <option value="">{{ __('-- Atau pilih dari daftar program studi --') }}</option>
+                                                @foreach ($kampuses->pluck('prodi')->filter()->unique()->values() as $item)
+                                                    <option value="{{ $item }}">{{ \Illuminate\Support\Str::limit($item, 38) }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        <ul x-show="terbuka.prodi" style="background-color: #ffffff; width: 100%; max-width: 100%; box-sizing: border-box;" class="relative sm:absolute sm:inset-x-0 sm:left-0 sm:right-0 sm:top-full z-50 mt-1 max-h-48 w-full min-w-0 max-w-full overflow-y-auto overflow-x-hidden rounded-md border border-indigo-200 sm:border-gray-200 bg-white text-sm shadow-md sm:shadow-xl">
                                             <template x-if="saran.prodi.length === 0">
                                                 <li class="px-3 py-2.5 text-xs sm:text-sm text-gray-500 italic">Tidak ada yang cocok — ketik program studi baru.</li>
                                             </template>
@@ -235,13 +280,13 @@
                                         </ul>
                                     </div>
 
-                                    <div class="min-w-0">
+                                    <div class="min-w-0 w-full">
                                         <x-input-label for="edit_kelompok_id_{{ $mahasiswa->id }}" value="{{ __('Kelompok') }}" />
-                                        <select id="edit_kelompok_id_{{ $mahasiswa->id }}" name="kelompok_id" class="mt-1 block w-full max-w-full min-w-0 truncate text-ellipsis rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400">
+                                        <select id="edit_kelompok_id_{{ $mahasiswa->id }}" name="kelompok_id" class="mt-1 block w-full max-w-full min-w-0 truncate text-ellipsis rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400 text-sm" style="width: 100%; max-width: 100%; box-sizing: border-box;">
                                             <option value="">{{ __('- Belum ada kelompok -') }}</option>
                                             @foreach ($kelompoks as $kelompok)
-                                                <option value="{{ $kelompok->id }}" @selected($mahasiswa->kelompok_id == $kelompok->id)>
-                                                    {{ $kelompok->nama_kelompok }}
+                                                <option value="{{ $kelompok->id }}" @selected($mahasiswa->kelompok_id == $kelompok->id) title="{{ $kelompok->nama_kelompok }}">
+                                                    {{ \Illuminate\Support\Str::limit($kelompok->nama_kelompok, 36) }}
                                                 </option>
                                             @endforeach
                                         </select>
@@ -271,7 +316,7 @@
         <form
             method="post"
             action="{{ route('mahasiswa.store') }}"
-            class="p-6"
+            class="p-4 sm:p-6 w-full max-w-full"
             x-data="{
                 sumber: {
                     kampus: @js($kampuses->pluck('nama_universitas')->filter()->unique()->values()),
@@ -313,17 +358,24 @@
                     },
                 }">
                     <x-input-label for="create_name" value="{{ __('Nama Peserta') }}" />
-                    <select id="create_name" name="name" class="mt-1 block w-full max-w-full min-w-0 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400 truncate text-ellipsis" x-on:change="pilih($event.target)" required>
-                        <option value="">{{ __('- Pilih Nama -') }}</option>
+                    <select
+                        id="create_name"
+                        name="name"
+                        class="mt-1 block w-full max-w-full min-w-0 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400 text-sm truncate"
+                        style="width: 100%; max-width: 100%; box-sizing: border-box;"
+                        x-on:change="pilih($event.target)"
+                        required
+                    >
+                        <option value="">{{ __('- Pilih Nama Peserta -') }}</option>
                         @foreach ($calonAnggotas as $calon)
                             <option
                                 value="{{ $calon->nama }}"
                                 data-id="{{ $calon->id }}"
                                 data-kelompok-id="{{ $calon->kelompok_id }}"
                                 data-kelompok="{{ $calon->kelompok?->nama_kelompok ?? '-' }}"
-                                class="max-w-full truncate"
+                                title="{{ $calon->nama }} ({{ $calon->kelompok?->nama_kelompok ?? '-' }})"
                             >
-                                {{ $calon->nama }} ({{ $calon->kelompok?->nama_kelompok ?? '-' }})
+                                {{ $calon->nama }} {{ $calon->kelompok ? '— ' . \Illuminate\Support\Str::limit($calon->kelompok->nama_kelompok, 24) : '' }}
                             </option>
                         @endforeach
                     </select>
@@ -335,48 +387,63 @@
 
                     <input type="hidden" name="calon_anggota_id" x-ref="calonAnggotaId">
 
-                    <div class="mt-3 min-w-0">
+                    <div class="mt-3 min-w-0 w-full">
                         <x-input-label value="{{ __('Kelompok') }}" />
                         <div class="mt-1 block w-full min-w-0 max-w-full truncate rounded-md border border-gray-300 bg-gray-100 px-3 py-2 text-sm text-gray-700 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200" x-text="kelompokTampil || '{{ __('- Pilih nama dulu -') }}'"></div>
                         <input type="hidden" name="kelompok_id" x-ref="kelompokId">
                     </div>
                 </div>
 
-                <div class="min-w-0">
+                <div class="min-w-0 w-full">
                     <x-input-label for="create_email" value="{{ __('Email') }}" />
                     <x-text-input id="create_email" name="email" type="email" class="mt-1 block w-full min-w-0 max-w-full" :value="old('email')" required />
                     <x-input-error :messages="$errors->get('email')" class="mt-2" />
                 </div>
 
-                <div class="min-w-0">
+                <div class="min-w-0 w-full">
                     <x-input-label for="create_password" value="{{ __('Password') }}" />
                     <x-text-input id="create_password" name="password" type="password" class="mt-1 block w-full min-w-0 max-w-full" required />
                     <x-input-error :messages="$errors->get('password')" class="mt-2" />
                 </div>
 
-                <div class="min-w-0">
+                <div class="min-w-0 w-full">
                     <x-input-label for="create_nim_nip" value="{{ __('NIM / NISN') }}" />
                     <x-text-input id="create_nim_nip" name="nim_nip" type="text" class="mt-1 block w-full min-w-0 max-w-full" :value="old('nim_nip')" />
                     <x-input-error :messages="$errors->get('nim_nip')" class="mt-2" />
                 </div>
 
-                <div class="min-w-0">
+                <div class="min-w-0 w-full">
                     <x-input-label for="create_hp_wa" value="{{ __('HP / WA') }}" />
                     <x-text-input id="create_hp_wa" name="hp_wa" type="text" class="mt-1 block w-full min-w-0 max-w-full" :value="old('hp_wa')" />
                     <x-input-error :messages="$errors->get('hp_wa')" class="mt-2" />
                 </div>
 
-                <div class="relative min-w-0" :class="terbuka.kampus ? 'z-30' : 'z-10'" x-on:click.outside="terbuka.kampus = false">
+                <div class="relative min-w-0 w-full" :class="terbuka.kampus ? 'z-30' : 'z-10'" x-on:click.outside="terbuka.kampus = false">
                     <x-input-label for="create_kampus" value="{{ __('Instansi / Sekolah / Kampus') }}" />
-                    <div class="relative mt-1">
-                        <input id="create_kampus" name="kampus" type="text" autocomplete="off" placeholder="Ketik atau pilih instansi..." class="block w-full min-w-0 max-w-full rounded-md border-gray-300 pr-9 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400" x-model="nilai.kampus" x-on:input="cari('kampus')" x-on:focus="bukaDropdown('kampus')">
+                    <div class="relative mt-1 w-full">
+                        <input id="create_kampus" name="kampus" type="text" autocomplete="off" placeholder="Ketik atau pilih instansi..." class="block w-full min-w-0 max-w-full rounded-md border-gray-300 pr-9 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400 text-sm" style="width: 100%; max-width: 100%; box-sizing: border-box;" x-model="nilai.kampus" x-on:input="cari('kampus')" x-on:focus="bukaDropdown('kampus')">
                         <button type="button" x-on:click="terbuka.kampus = !terbuka.kampus; if (terbuka.kampus) bukaDropdown('kampus')" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600">
                             <i class="fas fa-chevron-down text-xs"></i>
                         </button>
                     </div>
-                    <ul x-show="terbuka.kampus" style="background-color: #ffffff;" class="absolute inset-x-0 left-0 right-0 z-50 mt-1 max-h-48 w-full min-w-0 max-w-full overflow-y-auto overflow-x-hidden rounded-md border border-gray-200 bg-white text-sm shadow-xl">
+
+                    <!-- Pilihan Cepat Native Select untuk Mobile -->
+                    <div class="mt-1.5 block sm:hidden">
+                        <select
+                            class="block w-full max-w-full rounded-md border-gray-200 bg-gray-50 text-xs text-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+                            style="width: 100%; max-width: 100%; box-sizing: border-box;"
+                            x-on:change="if ($event.target.value) { pilih('kampus', $event.target.value); $event.target.value = ''; }"
+                        >
+                            <option value="">{{ __('-- Atau pilih dari daftar instansi --') }}</option>
+                            @foreach ($kampuses->pluck('nama_universitas')->filter()->unique()->values() as $item)
+                                <option value="{{ $item }}">{{ \Illuminate\Support\Str::limit($item, 38) }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <ul x-show="terbuka.kampus" style="background-color: #ffffff; width: 100%; max-width: 100%; box-sizing: border-box;" class="relative sm:absolute sm:inset-x-0 sm:left-0 sm:right-0 sm:top-full z-50 mt-1 max-h-48 w-full min-w-0 max-w-full overflow-y-auto overflow-x-hidden rounded-md border border-indigo-200 sm:border-gray-200 bg-white text-sm shadow-md sm:shadow-xl">
                         <template x-if="saran.kampus.length === 0">
-                            <li class="px-3 py-2.5 text-xs text-gray-400 break-words whitespace-normal">Tidak ada yang cocok — ketik nama instansi baru.</li>
+                            <li class="px-3 py-2.5 text-xs text-gray-400 break-words whitespace-normal italic">Tidak ada yang cocok — ketik nama instansi baru.</li>
                         </template>
                         <template x-for="nama in saran.kampus" :key="nama">
                             <li x-on:click="pilih('kampus', nama)" x-text="nama" class="cursor-pointer px-3 py-2.5 text-left text-sm leading-snug break-words whitespace-normal border-b border-gray-100 last:border-b-0 hover:bg-indigo-50 active:bg-indigo-100 transition-colors" :class="nama === nilai.kampus ? 'bg-indigo-50 font-medium text-indigo-700' : 'text-gray-700'"></li>
@@ -385,17 +452,32 @@
                     <x-input-error :messages="$errors->get('kampus')" class="mt-2" />
                 </div>
 
-                <div class="relative min-w-0" :class="terbuka.fakultas ? 'z-25' : 'z-10'" x-on:click.outside="terbuka.fakultas = false">
+                <div class="relative min-w-0 w-full" :class="terbuka.fakultas ? 'z-25' : 'z-10'" x-on:click.outside="terbuka.fakultas = false">
                     <x-input-label for="create_fakultas" value="{{ __('Fakultas') }}" />
-                    <div class="relative mt-1">
-                        <input id="create_fakultas" name="fakultas" type="text" autocomplete="off" placeholder="Ketik atau pilih fakultas..." class="block w-full min-w-0 max-w-full rounded-md border-gray-300 pr-9 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400" x-model="nilai.fakultas" x-on:input="cari('fakultas')" x-on:focus="bukaDropdown('fakultas')">
+                    <div class="relative mt-1 w-full">
+                        <input id="create_fakultas" name="fakultas" type="text" autocomplete="off" placeholder="Ketik atau pilih fakultas..." class="block w-full min-w-0 max-w-full rounded-md border-gray-300 pr-9 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400 text-sm" style="width: 100%; max-width: 100%; box-sizing: border-box;" x-model="nilai.fakultas" x-on:input="cari('fakultas')" x-on:focus="bukaDropdown('fakultas')">
                         <button type="button" x-on:click="terbuka.fakultas = !terbuka.fakultas; if (terbuka.fakultas) bukaDropdown('fakultas')" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600">
                             <i class="fas fa-chevron-down text-xs"></i>
                         </button>
                     </div>
-                    <ul x-show="terbuka.fakultas" style="background-color: #ffffff;" class="absolute inset-x-0 left-0 right-0 z-50 mt-1 max-h-48 w-full min-w-0 max-w-full overflow-y-auto overflow-x-hidden rounded-md border border-gray-200 bg-white text-sm shadow-xl">
+
+                    <!-- Pilihan Cepat Native Select untuk Mobile -->
+                    <div class="mt-1.5 block sm:hidden">
+                        <select
+                            class="block w-full max-w-full rounded-md border-gray-200 bg-gray-50 text-xs text-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+                            style="width: 100%; max-width: 100%; box-sizing: border-box;"
+                            x-on:change="if ($event.target.value) { pilih('fakultas', $event.target.value); $event.target.value = ''; }"
+                        >
+                            <option value="">{{ __('-- Atau pilih dari daftar fakultas --') }}</option>
+                            @foreach ($kampuses->pluck('fakultas')->filter()->unique()->values() as $item)
+                                <option value="{{ $item }}">{{ \Illuminate\Support\Str::limit($item, 38) }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <ul x-show="terbuka.fakultas" style="background-color: #ffffff; width: 100%; max-width: 100%; box-sizing: border-box;" class="relative sm:absolute sm:inset-x-0 sm:left-0 sm:right-0 sm:top-full z-50 mt-1 max-h-48 w-full min-w-0 max-w-full overflow-y-auto overflow-x-hidden rounded-md border border-indigo-200 sm:border-gray-200 bg-white text-sm shadow-md sm:shadow-xl">
                         <template x-if="saran.fakultas.length === 0">
-                            <li class="px-3 py-2.5 text-xs text-gray-400 break-words whitespace-normal">Tidak ada yang cocok — ketik fakultas baru.</li>
+                            <li class="px-3 py-2.5 text-xs text-gray-400 break-words whitespace-normal italic">Tidak ada yang cocok — ketik fakultas baru.</li>
                         </template>
                         <template x-for="nama in saran.fakultas" :key="nama">
                             <li x-on:click="pilih('fakultas', nama)" x-text="nama" class="cursor-pointer px-3 py-2.5 text-left text-sm leading-snug break-words whitespace-normal border-b border-gray-100 last:border-b-0 hover:bg-indigo-50 active:bg-indigo-100 transition-colors" :class="nama === nilai.fakultas ? 'bg-indigo-50 font-medium text-indigo-700' : 'text-gray-700'"></li>
@@ -404,17 +486,32 @@
                     <x-input-error :messages="$errors->get('fakultas')" class="mt-2" />
                 </div>
 
-                <div class="relative min-w-0 sm:col-span-2" :class="terbuka.prodi ? 'z-20' : 'z-0'" x-on:click.outside="terbuka.prodi = false">
+                <div class="relative min-w-0 sm:col-span-2 w-full" :class="terbuka.prodi ? 'z-20' : 'z-0'" x-on:click.outside="terbuka.prodi = false">
                     <x-input-label for="create_prodi" value="{{ __('Program Studi') }}" />
-                    <div class="relative mt-1">
-                        <input id="create_prodi" name="prodi" type="text" autocomplete="off" placeholder="Ketik atau pilih program studi..." class="block w-full min-w-0 max-w-full rounded-md border-gray-300 pr-9 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400" x-model="nilai.prodi" x-on:input="cari('prodi')" x-on:focus="bukaDropdown('prodi')">
+                    <div class="relative mt-1 w-full">
+                        <input id="create_prodi" name="prodi" type="text" autocomplete="off" placeholder="Ketik atau pilih program studi..." class="block w-full min-w-0 max-w-full rounded-md border-gray-300 pr-9 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400 text-sm" style="width: 100%; max-width: 100%; box-sizing: border-box;" x-model="nilai.prodi" x-on:input="cari('prodi')" x-on:focus="bukaDropdown('prodi')">
                         <button type="button" x-on:click="terbuka.prodi = !terbuka.prodi; if (terbuka.prodi) bukaDropdown('prodi')" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600">
                             <i class="fas fa-chevron-down text-xs"></i>
                         </button>
                     </div>
-                    <ul x-show="terbuka.prodi" style="background-color: #ffffff;" class="absolute inset-x-0 left-0 right-0 z-50 mt-1 max-h-48 w-full min-w-0 max-w-full overflow-y-auto overflow-x-hidden rounded-md border border-gray-200 bg-white text-sm shadow-xl">
+
+                    <!-- Pilihan Cepat Native Select untuk Mobile -->
+                    <div class="mt-1.5 block sm:hidden">
+                        <select
+                            class="block w-full max-w-full rounded-md border-gray-200 bg-gray-50 text-xs text-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+                            style="width: 100%; max-width: 100%; box-sizing: border-box;"
+                            x-on:change="if ($event.target.value) { pilih('prodi', $event.target.value); $event.target.value = ''; }"
+                        >
+                            <option value="">{{ __('-- Atau pilih dari daftar program studi --') }}</option>
+                            @foreach ($kampuses->pluck('prodi')->filter()->unique()->values() as $item)
+                                <option value="{{ $item }}">{{ \Illuminate\Support\Str::limit($item, 38) }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <ul x-show="terbuka.prodi" style="background-color: #ffffff; width: 100%; max-width: 100%; box-sizing: border-box;" class="relative sm:absolute sm:inset-x-0 sm:left-0 sm:right-0 sm:top-full z-50 mt-1 max-h-48 w-full min-w-0 max-w-full overflow-y-auto overflow-x-hidden rounded-md border border-indigo-200 sm:border-gray-200 bg-white text-sm shadow-md sm:shadow-xl">
                         <template x-if="saran.prodi.length === 0">
-                            <li class="px-3 py-2.5 text-xs text-gray-400 break-words whitespace-normal">Tidak ada yang cocok — ketik program studi baru.</li>
+                            <li class="px-3 py-2.5 text-xs text-gray-400 break-words whitespace-normal italic">Tidak ada yang cocok — ketik program studi baru.</li>
                         </template>
                         <template x-for="nama in saran.prodi" :key="nama">
                             <li x-on:click="pilih('prodi', nama)" x-text="nama" class="cursor-pointer px-3 py-2.5 text-left text-sm leading-snug break-words whitespace-normal border-b border-gray-100 last:border-b-0 hover:bg-indigo-50 active:bg-indigo-100 transition-colors" :class="nama === nilai.prodi ? 'bg-indigo-50 font-medium text-indigo-700' : 'text-gray-700'"></li>
