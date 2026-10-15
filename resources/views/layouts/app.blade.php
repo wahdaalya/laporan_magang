@@ -375,10 +375,6 @@ html.dark ::-webkit-scrollbar-thumb:horizontal { background: #4b5563; }
                             <i class="fas fa-file-pdf w-5 text-center"></i>
                             <span>Cetak Absensi</span>
                         </a>
-                        <a href="{{ route('mahasiswa.penilaian.index') }}" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700">
-                            <i class="fas fa-star w-5 text-center"></i>
-                            <span>Penilaian Saya</span>
-                        </a>
                     @endif
 
                     @if (Auth::user()?->role === 'DOSEN')

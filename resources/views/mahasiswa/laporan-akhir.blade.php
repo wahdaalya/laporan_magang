@@ -30,6 +30,18 @@
                 <div>
                     <p class="text-xs font-semibold uppercase tracking-wide">Status Bimbingan</p>
                     <p class="mt-1 text-lg font-bold">{{ $statusBimbingan }}</p>
+                    <div class="mt-2 flex flex-wrap gap-2">
+                        @if ($laporanAkhir?->status_mengetahui)
+                            <span class="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-1 text-xs font-semibold text-blue-800">
+                                <i class="fas fa-eye text-[11px]" aria-hidden="true"></i> Mengetahui: {{ $laporanAkhir->mengetahui_oleh }}
+                            </span>
+                        @endif
+                        @if ($laporanAkhir?->status_setuju)
+                            <span class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">
+                                <i class="fas fa-check text-[11px]" aria-hidden="true"></i> Disetujui: {{ $laporanAkhir->disetujui_oleh }}
+                            </span>
+                        @endif
+                    </div>
                     @if ($statusBimbingan === 'Revisi' && $laporanAkhir?->catatan_revisi)
                         <div class="mt-3 rounded-lg border border-rose-200 bg-white/70 p-3 text-sm">
                             <p class="font-semibold">Catatan Pembimbing Sekolah/Kampus</p>

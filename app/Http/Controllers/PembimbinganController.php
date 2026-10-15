@@ -126,11 +126,30 @@ class PembimbinganController extends Controller
 
         $laporan->update([
             'status' => 'Disetujui',
+            'status_setuju' => true,
+            'disetujui_at' => now(),
             'catatan_pembimbing' => $data['catatan_pembimbing'] ?? null,
             'diperiksa_oleh' => $request->user()->name,
         ]);
 
-        return back()->with('status', 'Laporan peserta berhasil disetujui.');
+        return back()->with('status', 'Laporan peserta berhasil disetujui (Status "Setuju").');
+    }
+
+    public function mengetahui(Request $request, Laporan $laporan): RedirectResponse
+    {
+        $this->authorizeLaporan($request->user(), $laporan);
+        $data = $request->validate([
+            'catatan_pembimbing' => ['nullable', 'string', 'max:5000'],
+        ]);
+
+        $laporan->update([
+            'status_mengetahui' => true,
+            'mengetahui_oleh' => $request->user()->name,
+            'mengetahui_at' => now(),
+            'catatan_pembimbing' => $data['catatan_pembimbing'] ?? $laporan->catatan_pembimbing,
+        ]);
+
+        return back()->with('status', 'Laporan peserta berhasil ditandai sebagai "Mengetahui".');
     }
 
     public function revisi(Request $request, Laporan $laporan): RedirectResponse

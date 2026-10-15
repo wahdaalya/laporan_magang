@@ -14,38 +14,27 @@
                 </div>
 
                 <div class="p-6">
-                @if (! $penilaian)
-                    <div class="rounded-lg border border-amber-200 bg-amber-50 p-5 text-amber-900" role="status">
-                        <div class="flex items-start gap-3">
-                            <i class="fas fa-file-circle-exclamation mt-0.5" aria-hidden="true"></i>
-                            <div>
-                                <h4 class="font-semibold">Lembar Penilaian Belum Tersedia</h4>
-                                <p class="mt-1 text-sm">Pembimbing Lapangan / Pembimbing Sekolah/Kampus belum mengunggah dokumen penilaian.</p>
+                    <div class="rounded-xl border border-blue-200 bg-blue-50/80 p-6 text-slate-800" role="status">
+                        <div class="flex items-start gap-4">
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm">
+                                <i class="fas fa-user-shield text-xl" aria-hidden="true"></i>
+                            </div>
+                            <div class="space-y-2">
+                                <h4 class="text-base font-bold text-blue-950">Dokumen &amp; Nilai Bersifat Rahasia</h4>
+                                <p class="text-sm leading-relaxed text-slate-600">
+                                    Sesuai dengan ketentuan akademik, lembar penilaian, evaluasi performa, serta nilai akhir magang dikirimkan langsung oleh Pembimbing Lapangan kepada <strong>Dosen Pembimbing Sekolah/Kampus</strong> untuk keperluan rekapitulasi nilai akademik resmi.
+                                </p>
+                                <div class="mt-4 rounded-lg border border-blue-200/60 bg-white p-4 text-xs text-slate-500">
+                                    <div class="flex items-center gap-2 font-semibold text-blue-900">
+                                        <i class="fas fa-info-circle text-blue-600"></i> Informasi untuk Mahasiswa:
+                                    </div>
+                                    <p class="mt-1">
+                                        Rincian nilai dan lembar evaluasi tidak ditampilkan di portal mahasiswa. Pengumuman nilai akhir resmi akan disampaikan langsung oleh pihak program studi / kampus Anda setelah proses yudisium selesai.
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>
-                @else
-                    <div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-                        <div class="flex min-w-0 items-center gap-4">
-                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-red-50 text-red-600">
-                                <i class="fas fa-file-pdf text-xl" aria-hidden="true"></i>
-                            </div>
-                            <div class="min-w-0">
-                                <p class="text-xs font-medium uppercase tracking-wide text-gray-500">Nama File</p>
-                                <p class="break-all font-medium text-gray-900">{{ basename($penilaian->file) }}</p>
-                                <p class="mt-1 text-sm text-gray-500">Tanggal Upload: {{ $penilaian->created_at->format('d M Y') }}</p>
-                            </div>
-                        </div>
-                        <div class="flex flex-wrap gap-2 sm:shrink-0">
-                            <a href="{{ route('mahasiswa.penilaian.view', $penilaian) }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
-                                <i class="fas fa-eye" aria-hidden="true"></i> Lihat PDF
-                            </a>
-                            <a href="{{ route('mahasiswa.penilaian.download', $penilaian) }}" class="inline-flex items-center justify-center gap-2 rounded-md bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800">
-                                <i class="fas fa-download" aria-hidden="true"></i> Unduh PDF
-                            </a>
-                        </div>
-                    </div>
-                @endif
                 </div>
             </div>
         </div>

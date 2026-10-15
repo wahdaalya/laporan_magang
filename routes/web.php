@@ -72,6 +72,7 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('role:DOSEN,MENTOR')->group(function () {
         Route::get('/pembimbingan/laporan', [PembimbinganController::class, 'laporan'])->name('pembimbingan.laporan.index');
+        Route::patch('/pembimbingan/laporan/{laporan}/mengetahui', [PembimbinganController::class, 'mengetahui'])->name('pembimbingan.laporan.mengetahui');
         Route::patch('/pembimbingan/laporan/{laporan}/setujui', [PembimbinganController::class, 'setujui'])->name('pembimbingan.laporan.setujui');
         Route::patch('/pembimbingan/laporan/{laporan}/revisi', [PembimbinganController::class, 'revisi'])->name('pembimbingan.laporan.revisi');
         Route::post('/pembimbingan/laporan/setujui-hari-ini', [PembimbinganController::class, 'setujuiHariIni'])->name('pembimbingan.laporan.setujui-hari-ini');

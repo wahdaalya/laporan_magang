@@ -51,7 +51,7 @@ class User extends Authenticatable
             : null;
     }
 
-        /** Nama admin yang selalu ditampilkan di seluruh tampilan. */
+    /** Nama admin yang selalu ditampilkan di seluruh tampilan. */
     public const ADMIN_DISPLAY_NAME = 'Admin Kualanamu';
 
     public function getDisplayNameAttribute(): string
@@ -60,6 +60,26 @@ class User extends Authenticatable
             ? self::ADMIN_DISPLAY_NAME
             : (string) $this->name;
     }
+
+    /**
+     * Memeriksa apakah masa magang mahasiswa telah berakhir (expired).
+     */
+    public function isExpired(): bool
+    {
+        if (strtoupper((string) $this->role) !== 'MAHASISWA') {
+            return false;
+        }
+
+        $this->loadMissing('kelompok');
+        $tanggalSelesai = $this->kelompok?->tanggal_selesai;
+
+        if (! $tanggalSelesai) {
+            return false;
+        }
+
+        return today()->gt($tanggalSelesai);
+    }
+
     public function kelompok()
     {
         return $this->belongsTo(Kelompok::class, 'kelompok_id');

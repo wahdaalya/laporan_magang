@@ -57,7 +57,19 @@
                                 <p class="font-semibold text-gray-900">{{ $laporan->mahasiswa->name }}</p>
                                 <p class="mt-1 text-sm text-gray-500">{{ $laporan->tanggal->format('d M Y') }} · {{ $laporan->mahasiswa->nim_nip ?? 'NIM/NISN tidak tersedia' }}</p>
                             </div>
-                            <span @class(['rounded-full px-2.5 py-1 text-xs font-semibold', 'bg-amber-50 text-amber-800' => $laporan->status === 'Belum Diperiksa', 'bg-emerald-50 text-emerald-800' => $laporan->status === 'Disetujui', 'bg-rose-50 text-rose-800' => in_array($laporan->status, ['Revisi', 'Ditolak'])])>{{ $laporan->status }}</span>
+                            <div class="flex flex-wrap items-center gap-2">
+                                @if ($laporan->status_mengetahui)
+                                    <span class="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-700" title="Diketahui oleh {{ $laporan->mengetahui_oleh }} pada {{ $laporan->mengetahui_at?->format('d/m/Y H:i') }}">
+                                        <i class="fas fa-eye text-[10px]" aria-hidden="true"></i> Mengetahui: {{ $laporan->mengetahui_oleh }}
+                                    </span>
+                                @endif
+                                @if ($laporan->status_setuju)
+                                    <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700" title="Disetujui pada {{ $laporan->disetujui_at?->format('d/m/Y H:i') }}">
+                                        <i class="fas fa-check text-[10px]" aria-hidden="true"></i> Setuju: {{ $laporan->diperiksa_oleh }}
+                                    </span>
+                                @endif
+                                <span @class(['rounded-full px-2.5 py-1 text-xs font-semibold', 'bg-amber-50 text-amber-800' => $laporan->status === 'Belum Diperiksa', 'bg-emerald-50 text-emerald-800' => $laporan->status === 'Disetujui', 'bg-rose-50 text-rose-800' => in_array($laporan->status, ['Revisi', 'Ditolak'])])>{{ $laporan->status }}</span>
+                            </div>
                         </div>
                         <div class="grid gap-5 p-5 lg:grid-cols-[minmax(0,1fr)_14rem]">
                             <div class="space-y-4">
@@ -79,8 +91,15 @@
                                         <label for="catatan-{{ $laporan->id }}" class="block text-sm font-medium text-gray-700">Catatan / Saran Pembimbing</label>
                                         <textarea id="catatan-{{ $laporan->id }}" name="catatan_pembimbing" rows="2" class="block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="Tulis saran atau catatan untuk peserta">{{ old('catatan_pembimbing') }}</textarea>
                                         <div class="flex flex-wrap gap-2">
-                                            <button type="submit" class="inline-flex items-center gap-2 rounded-md bg-emerald-700 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-800"><i class="fas fa-check" aria-hidden="true"></i> Setujui Laporan</button>
-                                            <button type="submit" formaction="{{ route('pembimbingan.laporan.revisi', $laporan) }}" class="inline-flex items-center gap-2 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-900 hover:bg-amber-100"><i class="fas fa-comment-dots" aria-hidden="true"></i> Simpan Catatan / Revisi</button>
+                                            <button type="submit" formaction="{{ route('pembimbingan.laporan.mengetahui', $laporan) }}" class="inline-flex items-center gap-2 rounded-md bg-blue-700 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-800">
+                                                <i class="fas fa-eye" aria-hidden="true"></i> Mengetahui
+                                            </button>
+                                            <button type="submit" class="inline-flex items-center gap-2 rounded-md bg-emerald-700 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-800">
+                                                <i class="fas fa-check" aria-hidden="true"></i> Setuju
+                                            </button>
+                                            <button type="submit" formaction="{{ route('pembimbingan.laporan.revisi', $laporan) }}" class="inline-flex items-center gap-2 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-900 hover:bg-amber-100">
+                                                <i class="fas fa-comment-dots" aria-hidden="true"></i> Simpan Catatan / Revisi
+                                            </button>
                                         </div>
                                     </form>
                                 @endif

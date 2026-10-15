@@ -140,19 +140,35 @@ class DosenDashboardController extends Controller
         $mahasiswa = $laporanAkhir->mahasiswa()->firstOrFail();
 
         $data = $request->validate([
-            'keputusan' => ['required', Rule::in(['revisi', 'setujui'])],
-            'catatan_revisi' => ['required_if:keputusan,revisi', 'string', 'max:5000'],
+            'keputusan' => ['required', Rule::in(['revisi', 'setuju', 'setujui', 'mengetahui'])],
+            'catatan_revisi' => ['required_if:keputusan,revisi', 'nullable', 'string', 'max:5000'],
         ]);
 
-        LaporanAkhir::query()->whereKey($laporanAkhir->id)->update([
-            'status' => $data['keputusan'] === 'setujui' ? 'Disetujui' : 'Revisi',
-            'catatan_revisi' => $data['catatan_revisi'] ?? null,
+        $updateData = [
             'dosen_user_id' => $this->dosenUserIdFor($mahasiswa),
-        ]);
+        ];
 
-        return back()->with('status', $data['keputusan'] === 'setujui'
-            ? 'Laporan akhir berhasil disetujui.'
-            : 'Catatan revisi berhasil disimpan.');
+        if ($data['keputusan'] === 'mengetahui') {
+            $updateData['status_mengetahui'] = true;
+            $updateData['mengetahui_oleh'] = $request->user()->name;
+            $updateData['mengetahui_at'] = now();
+            $pesan = 'Status "Mengetahui" berhasil dicatat untuk laporan akhir '.$mahasiswa->name.'.';
+        } elseif (in_array($data['keputusan'], ['setuju', 'setujui'], true)) {
+            $updateData['status'] = 'Disetujui';
+            $updateData['status_setuju'] = true;
+            $updateData['disetujui_oleh'] = $request->user()->name;
+            $updateData['disetujui_at'] = now();
+            $pesan = 'Laporan akhir berhasil disetujui (Status "Setuju") untuk '.$mahasiswa->name.'.';
+        } else {
+            $updateData['status'] = 'Revisi';
+            $updateData['status_setuju'] = false;
+            $updateData['catatan_revisi'] = $data['catatan_revisi'] ?? null;
+            $pesan = 'Catatan revisi berhasil disimpan.';
+        }
+
+        LaporanAkhir::query()->whereKey($laporanAkhir->id)->update($updateData);
+
+        return back()->with('status', $pesan);
     }
 
     public function downloadLaporanAkhir(Request $request, LaporanAkhir $laporanAkhir): StreamedResponse

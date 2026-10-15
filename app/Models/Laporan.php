@@ -19,12 +19,21 @@ class Laporan extends Model
         'status',
         'catatan_pembimbing',
         'diperiksa_oleh',
+        'status_mengetahui',
+        'mengetahui_oleh',
+        'mengetahui_at',
+        'status_setuju',
+        'disetujui_at',
     ];
 
     protected function casts(): array
     {
         return [
             'tanggal' => 'date',
+            'status_mengetahui' => 'boolean',
+            'status_setuju' => 'boolean',
+            'mengetahui_at' => 'datetime',
+            'disetujui_at' => 'datetime',
         ];
     }
 

@@ -50,6 +50,18 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        $user = Auth::user();
+
+        if ($user && $user->isExpired()) {
+            Auth::logout();
+
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'email' => 'Akun Anda sudah kadaluarsa (masa magang telah berakhir). Akses sistem telah dikunci.',
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 
