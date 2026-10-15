@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 class Kelompok extends Model
 {
@@ -54,6 +55,23 @@ class Kelompok extends Model
         public function calonAnggotas()
     {
         return $this->hasMany(CalonAnggotaKelompok::class);
+        }
+
+    /**
+     * Daftar tahun magang (berdasarkan tahun tanggal mulai kelompok), terbaru dulu.
+     *
+     * @return Collection<int, int>
+     */
+    public static function daftarTahunMagang(): Collection
+    {
+        return static::query()
+            ->pluck('tanggal_mulai')
+            ->map(fn ($tanggal) => (int) $tanggal->format('Y'))
+            ->push((int) now()->format('Y'))
+            ->unique()
+            ->sortDesc()
+            ->values();
     }
-}
+        }
+
 

@@ -1,8 +1,8 @@
 <x-modal name="confirm-delete-kampus" maxWidth="md">
     <div class="p-6">
-        <h2 class="text-lg font-medium text-gray-900">Yakin mau hapus kampus ini?</h2>
+        <h2 class="text-lg font-medium text-gray-900">Yakin mau hapus instansi ini?</h2>
         <p class="mt-1 text-sm text-gray-600">
-            Kampus <strong x-text="deleteNama"></strong> akan dihapus permanen.
+            Instansi <strong x-text="deleteNama"></strong> akan dihapus permanen.
         </p>
 
         <div class="mt-6 flex justify-end gap-3">

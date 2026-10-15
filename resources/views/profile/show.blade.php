@@ -3,7 +3,7 @@
     $roleLabel = match ($role) {
         'ADMIN' => 'Administrator',
         'MENTOR' => 'Pembimbing Lapangan',
-        'DOSEN' => 'Dosen / Guru Pembimbing',
+        'DOSEN' => 'Pembimbing Sekolah/Kampus',
         'MAHASISWA' => 'Peserta Magang / PKL',
         default => 'Pengguna',
     };
@@ -24,7 +24,7 @@
     $displayName = match ($role) {
         'MENTOR' => $pembimbingProfile?->nama ?: $user->name,
         'DOSEN' => $dosenProfile?->nama ?: $user->name,
-        default => $user->name,
+        default => $user->display_name,
     };
     $profileEmail = match ($role) {
         'MENTOR' => $pembimbingProfile?->email ?: $user->email,
@@ -45,9 +45,9 @@
     };
     $subTitle = match ($role) {
         'ADMIN' => 'Administrator Sistem · PT Angkasa Pura Aviasi',
-        'MENTOR' => 'Field Mentor · ' . ($pembimbingProfile?->departemen?->nama_departemen ?: ($user->unit ?: 'Unit Kerja Bandara Kualanamu')),
-        'DOSEN' => 'Pembimbing Akademik · ' . ($dosenProfile?->kampus ?: ($user->kampus ?: ($user->instansi ?: 'Institusi Pendidikan'))),
-        'MAHASISWA' => 'Peserta Magang · ' . ($user->kampus ?: ($user->kelompok?->kampus?->nama_universitas ?: ($user->instansi ?: 'Kampus / Sekolah'))),
+        'MENTOR' => 'Pembimbing Lapangan · ' . ($pembimbingProfile?->departemen?->nama_departemen ?: ($user->unit ?: 'Unit Kerja Bandara Kualanamu')),
+        'DOSEN' => 'Pembimbing Sekolah/Kampus · ' . ($dosenProfile?->kampus ?: ($user->kampus ?: ($user->instansi ?: 'Institusi Pendidikan'))),
+        'MAHASISWA' => 'Peserta Magang / PKL · ' . ($user->kampus ?: ($user->kelompok?->kampus?->nama_universitas ?: ($user->instansi ?: 'Instansi Pendidikan'))),
         default => 'PT Angkasa Pura Aviasi',
     };
 @endphp
@@ -85,7 +85,7 @@
                             </span>
                             @if ($profileIdentifier)
                                 <p class="font-mono text-xs text-slate-300">
-                                    {{ $role === 'DOSEN' ? 'NIDN' : ($role === 'MENTOR' ? 'NIP' : 'NIM / NISN') }}: {{ $profileIdentifier }}
+                                    {{ $role === 'DOSEN' ? 'NIP / NUPTK / ID Pengajar' : ($role === 'MENTOR' ? 'NIP' : 'NIM / NISN') }}: {{ $profileIdentifier }}
                                 </p>
                             @endif
                             <h2 class="break-words text-2xl font-bold text-white">{{ $displayName }}</h2>

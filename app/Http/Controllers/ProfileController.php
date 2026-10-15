@@ -26,17 +26,15 @@ class ProfileController extends Controller
             'kelompok.pembimbing',
             'kelompok.pembimbing.departemen',
             'kelompok.departemen',
-            'dosen',
-            'mentor',
             'laporanAkhir',
         ]);
 
         $dosenProfile = Dosen::query()
-            ->with(['kelompoks.departemen'])
+            ->with(['kelompoks.departemen', 'mahasiswas.kelompok.departemen', 'mahasiswas.kelompok.kampus'])
             ->where('user_id', $user->id)
             ->first();
         $pembimbingProfile = Pembimbing::query()
-            ->with(['departemen', 'kelompoks.departemen'])
+            ->with(['departemen', 'kelompoks.departemen', 'mahasiswas.kelompok.departemen', 'mahasiswas.kelompok.kampus'])
             ->where('user_id', $user->id)
             ->first();
 
@@ -80,14 +78,10 @@ class ProfileController extends Controller
                 'penilaian' => $penilaianTerbaru,
             ];
         } elseif ($user->role === 'DOSEN') {
-            $pesertaBimbingan = User::query()
-                ->where('role', 'MAHASISWA')
-                ->where(function ($query) use ($dosenProfile, $user): void {
-                    $query->when($dosenProfile?->id, fn ($q) => $q->whereHas('kelompok', fn ($k) => $k->where('dosen_id', $dosenProfile->id)))
-                        ->orWhere('dosen_id', $user->id);
-                })
+            $pesertaBimbingan = $dosenProfile?->mahasiswas()
                 ->with(['kelompok.departemen', 'kelompok.kampus'])
-                ->get();
+                ->orderBy('name')
+                ->get() ?? collect();
             $kelompokBimbingan = ($dosenProfile?->kelompoks ?? collect())
                 ->merge($pesertaBimbingan->pluck('kelompok')->filter())
                 ->unique('id')
@@ -100,14 +94,10 @@ class ProfileController extends Controller
                 'totalKelompokBimbingan' => $kelompokBimbingan->count(),
             ];
         } elseif ($user->role === 'MENTOR') {
-            $pesertaBimbingan = User::query()
-                ->where('role', 'MAHASISWA')
-                ->where(function ($query) use ($pembimbingProfile, $user): void {
-                    $query->when($pembimbingProfile?->id, fn ($q) => $q->whereHas('kelompok', fn ($k) => $k->where('pembimbing_id', $pembimbingProfile->id)))
-                        ->orWhere('mentor_id', $user->id);
-                })
+            $pesertaBimbingan = $pembimbingProfile?->mahasiswas()
                 ->with(['kelompok.departemen', 'kelompok.kampus'])
-                ->get();
+                ->orderBy('name')
+                ->get() ?? collect();
             $kelompokBimbingan = ($pembimbingProfile?->kelompoks ?? collect())
                 ->merge($pesertaBimbingan->pluck('kelompok')->filter())
                 ->unique('id')
@@ -147,6 +137,11 @@ class ProfileController extends Controller
 
         $data = $request->validated();
         unset($data['foto']);
+        
+        // Nama akun ADMIN tidak pernah ikut di-update.
+        if ($user->role === 'ADMIN') {
+            unset($data['name']);
+        }
 
         $user->fill($data);
 

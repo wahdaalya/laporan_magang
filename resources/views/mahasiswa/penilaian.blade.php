@@ -20,7 +20,7 @@
                             <i class="fas fa-file-circle-exclamation mt-0.5" aria-hidden="true"></i>
                             <div>
                                 <h4 class="font-semibold">Lembar Penilaian Belum Tersedia</h4>
-                                <p class="mt-1 text-sm">Pembimbing Lapangan / Dosen / Guru Pembimbing belum mengunggah dokumen penilaian.</p>
+                                <p class="mt-1 text-sm">Pembimbing Lapangan / Pembimbing Sekolah/Kampus belum mengunggah dokumen penilaian.</p>
                             </div>
                         </div>
                     </div>

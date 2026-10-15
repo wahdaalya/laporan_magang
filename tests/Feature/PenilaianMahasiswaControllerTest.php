@@ -23,8 +23,8 @@ class PenilaianMahasiswaControllerTest extends TestCase
 
     public function test_latest_available_pdf_is_read_only_and_has_view_and_download_actions(): void
     {
-        Storage::fake('public');
-        Storage::disk('public')->put('penilaian/lembar-akhir.pdf', "%PDF-1.4\nPenilaian peserta\n%%EOF");
+        Storage::fake('local');
+        Storage::disk('local')->put('penilaian/lembar-akhir.pdf', "%PDF-1.4\nPenilaian peserta\n%%EOF");
         $user = User::factory()->role('MAHASISWA')->create();
         $penilaian = $user->penilaians()->create([
             'file' => 'penilaian/lembar-akhir.pdf',
@@ -42,8 +42,8 @@ class PenilaianMahasiswaControllerTest extends TestCase
 
     public function test_participant_can_download_their_own_pdf(): void
     {
-        Storage::fake('public');
-        Storage::disk('public')->put('penilaian/lembar.pdf', "%PDF-1.4\nPenilaian peserta\n%%EOF");
+        Storage::fake('local');
+        Storage::disk('local')->put('penilaian/lembar.pdf', "%PDF-1.4\nPenilaian peserta\n%%EOF");
         $user = User::factory()->role('MAHASISWA')->create();
         $penilaian = $user->penilaians()->create(['file' => 'penilaian/lembar.pdf']);
 
@@ -54,8 +54,8 @@ class PenilaianMahasiswaControllerTest extends TestCase
 
     public function test_participant_cannot_download_another_participants_pdf(): void
     {
-        Storage::fake('public');
-        Storage::disk('public')->put('penilaian/lembar.pdf', "%PDF-1.4\nPenilaian peserta\n%%EOF");
+        Storage::fake('local');
+        Storage::disk('local')->put('penilaian/lembar.pdf', "%PDF-1.4\nPenilaian peserta\n%%EOF");
         $owner = User::factory()->role('MAHASISWA')->create();
         $otherParticipant = User::factory()->role('MAHASISWA')->create();
         $penilaian = $owner->penilaians()->create(['file' => 'penilaian/lembar.pdf']);
@@ -67,8 +67,8 @@ class PenilaianMahasiswaControllerTest extends TestCase
 
     public function test_non_pdf_files_are_not_displayed_as_assessment_documents(): void
     {
-        Storage::fake('public');
-        Storage::disk('public')->put('penilaian/catatan.txt', 'Not a PDF');
+        Storage::fake('local');
+        Storage::disk('local')->put('penilaian/catatan.txt', 'Not a PDF');
         $user = User::factory()->role('MAHASISWA')->create();
         $user->penilaians()->create(['file' => 'penilaian/catatan.txt']);
 

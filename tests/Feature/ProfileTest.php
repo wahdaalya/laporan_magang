@@ -78,7 +78,7 @@ class ProfileTest extends TestCase
         ]);
 
         $this->actingAs($mahasiswa)->get('/profile')
-            ->assertSee('Departemen Penempatan')
+            ->assertSee('Departemen')
             ->assertSee('Airport Operations');
     }
 
@@ -101,7 +101,7 @@ class ProfileTest extends TestCase
             'tanggal_selesai' => '2026-02-01',
             'dosen_id' => $dosen->id,
         ]);
-        User::factory()->role('MAHASISWA')->create(['kelompok_id' => $kelompok->id]);
+        $mahasiswa = User::factory()->role('MAHASISWA')->create(['kelompok_id' => $kelompok->id]);
 
         $this->actingAs($user)->get('/profile')
             ->assertSee('0123456789')
@@ -110,6 +110,8 @@ class ProfileTest extends TestCase
             ->assertSee('Kelompok Dosen Uji')
             ->assertSee('1 kelompok')
             ->assertSee('1 mahasiswa');
+
+        $this->assertSame($mahasiswa->id, $user->mahasiswaBimbinganDosen()->sole()->id);
     }
 
     public function test_mentor_profile_displays_department_manager_and_assigned_group(): void
@@ -133,7 +135,7 @@ class ProfileTest extends TestCase
             'tanggal_selesai' => '2026-02-01',
             'pembimbing_id' => $pembimbing->id,
         ]);
-        User::factory()->role('MAHASISWA')->create(['kelompok_id' => $kelompok->id]);
+        $mahasiswa = User::factory()->role('MAHASISWA')->create(['kelompok_id' => $kelompok->id]);
 
         $this->actingAs($user)->get('/profile')
             ->assertSee('1987654321')
@@ -142,6 +144,8 @@ class ProfileTest extends TestCase
             ->assertSee('Kelompok Mentor Uji')
             ->assertSee('1 kelompok')
             ->assertSee('1 peserta');
+
+        $this->assertSame($mahasiswa->id, $user->mahasiswaBimbinganMentor()->sole()->id);
     }
 
     #[DataProvider('profileRoles')]

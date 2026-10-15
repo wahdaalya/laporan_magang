@@ -11,6 +11,7 @@ class DashboardController extends Controller
         $role = $request->user()->role;
 
         return match ($role) {
+            'SUPERADMIN' => redirect()->route('superadmin.index'),
             'ADMIN' => redirect()->route('admin.index'),
             'MAHASISWA' => redirect()->route('mahasiswa.dashboard'),
             'DOSEN' => redirect()->route('dosen.dashboard'),

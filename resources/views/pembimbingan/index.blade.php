@@ -9,7 +9,7 @@
                 <div class="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800" role="status">{{ session('status') }}</div>
             @endif
 
-            <section class="rounded-xl bg-gradient-to-r from-slate-800 to-slate-700 p-6 text-white shadow-sm sm:p-8">
+            <section class="banner-hero rounded-xl p-6 text-white shadow-sm sm:p-8">
                 <p class="text-sm font-medium text-slate-300">Dashboard Pembimbing Lapangan</p>
                 <h1 class="mt-2 text-2xl font-semibold">Selamat Datang, {{ auth()->user()->name }}!</h1>
                 <p class="mt-1 text-sm text-slate-300">Ringkasan peserta dan laporan Magang / PKL yang Anda bimbing.</p>
@@ -66,66 +66,86 @@
             </section>
 
             <section class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 px-5 py-4">
+                <header class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 px-5 py-4">
                     <div>
-                        <h2 class="font-semibold text-gray-900">Peserta Bimbingan</h2>
-                        <p class="mt-1 text-sm text-gray-500">Kehadiran laporan hari ini dan progress periode Magang / PKL.</p>
+                        <h2 class="font-semibold text-gray-900">Peserta Bimbingan Saya</h2>
+                        <p class="mt-1 text-sm text-gray-500">{{ $jumlahKelompokBimbingan }} kelompok · {{ $jumlahPesertaKelompok }} peserta</p>
                     </div>
-                    <a href="{{ route('pembimbing.peserta') }}" class="text-sm font-medium text-blue-700 hover:underline">Daftar Peserta &amp; Penilaian</a>
-                </div>
+                    <a href="{{ route('pembimbingan.laporan.index') }}" class="text-sm font-medium text-blue-700 hover:underline">Periksa Laporan</a>
+                </header>
 
-                @if ($pesertas->isEmpty())
-                    <p class="px-5 py-8 text-center text-sm text-gray-500">Belum ada peserta yang ditugaskan kepada Anda.</p>
-                @else
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200 text-sm">
-                            <thead class="bg-gray-50 text-xs font-semibold uppercase tracking-wide text-gray-600">
-                                <tr>
-                                    <th class="px-4 py-3 text-left">Peserta</th>
-                                    <th class="px-4 py-3 text-left">Sekolah / Kampus</th>
-                                    <th class="px-4 py-3 text-left">Jurusan / Prodi</th>
-                                    <th class="px-4 py-3 text-center">Laporan Hari Ini</th>
-                                    <th class="px-4 py-3 text-left">Progress Durasi</th>
-                                    <th class="px-4 py-3 text-right">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-100">
-                                @foreach ($pesertas as $peserta)
-                                    <tr class="align-middle hover:bg-gray-50/70">
-                                        <td class="px-4 py-3">
-                                            <div class="flex items-center gap-3">
-                                                @if ($peserta->foto_url)
-                                                    <img src="{{ $peserta->foto_url }}" alt="Foto {{ $peserta->name }}" class="h-10 w-10 rounded-full border border-gray-200 object-cover">
-                                                @else
-                                                    <span class="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 font-semibold text-slate-600">{{ strtoupper(substr($peserta->name, 0, 1)) }}</span>
-                                                @endif
-                                                <div>
-                                                    <p class="font-medium text-gray-900">{{ $peserta->name }}</p>
-                                                    <p class="text-xs text-gray-500">{{ $peserta->nim_nip ?? '-' }}</p>
-                                                </div>
+                @forelse ($kelompoksBimbingan as $kelompok)
+                    <div class="border-b border-gray-200 last:border-b-0">
+                        <div class="flex flex-wrap items-center justify-between gap-3 bg-gray-50 px-5 py-4">
+                            <div>
+                                <h3 class="font-semibold text-gray-900">{{ $kelompok->nama_kelompok }}</h3>
+                                <p class="mt-1 text-xs text-gray-600">
+                                    {{ $kelompok->departemen?->nama_departemen ?: '-' }}
+                                    · {{ $kelompok->tanggal_mulai?->format('d/m/Y') ?: '-' }} - {{ $kelompok->tanggal_selesai?->format('d/m/Y') ?: '-' }}
+                                </p>
+                            </div>
+                            <p class="text-xs text-gray-600">
+                                Dosen:
+                                @if ($kelompok->dosen?->nama)
+                                    <span class="font-medium text-gray-900">{{ $kelompok->dosen->nama }}</span>
+                                    @php($dosenWhatsappUrl = \App\Support\ContactLink::whatsappUrl($kelompok->dosen->hp_wa ?: $kelompok->dosen->user?->hp_wa))
+                                    @if ($dosenWhatsappUrl)
+                                        · <a href="{{ $dosenWhatsappUrl }}" target="_blank" rel="noopener noreferrer" class="text-emerald-700 hover:underline">WhatsApp</a>
+                                    @else
+                                        · -
+                                    @endif
+                                @else
+                                    -
+                                @endif
+                            </p>
+                        </div>
+
+                        @if ($kelompok->mahasiswas->isEmpty())
+                            <p class="px-5 py-5 text-sm text-gray-500">Belum ada peserta pada kelompok ini.</p>
+                        @else
+                            <ul class="max-h-96 divide-y divide-gray-100 overflow-y-auto">
+                                @foreach ($kelompok->mahasiswas as $pesertaKelompok)
+                                    <li class="grid gap-3 px-5 py-4 lg:grid-cols-[minmax(12rem,1.1fr)_minmax(12rem,1fr)_minmax(11rem,.8fr)_auto] lg:items-center">
+                                        <div class="flex min-w-0 items-center gap-3">
+                                            @if ($pesertaKelompok->foto_url)
+                                                <img src="{{ $pesertaKelompok->foto_url }}" alt="Foto {{ $pesertaKelompok->name }}" class="h-10 w-10 shrink-0 rounded-full border border-gray-200 object-cover">
+                                            @else
+                                                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 font-semibold text-amber-800">{{ strtoupper(substr($pesertaKelompok->name, 0, 1)) }}</span>
+                                            @endif
+                                            <div class="min-w-0">
+                                                <p class="truncate font-medium text-gray-900">{{ $pesertaKelompok->name }}</p>
+                                                <p class="text-xs text-gray-500">{{ $pesertaKelompok->nim_nip ?: '-' }}</p>
                                             </div>
-                                        </td>
-                                        <td class="px-4 py-3 text-gray-600">{{ $peserta->instansi_tampil }}</td>
-                                        <td class="px-4 py-3 text-gray-600">{{ $peserta->jurusan_tampil }}</td>
-                                        <td class="px-4 py-3 text-center">
-                                            <span @class(['inline-flex rounded-full px-2.5 py-1 text-xs font-medium', 'bg-emerald-50 text-emerald-700' => $peserta->status_laporan_hari_ini === 'Sudah Mengisi', 'bg-rose-50 text-rose-700' => $peserta->status_laporan_hari_ini === 'Belum Mengisi'])>{{ $peserta->status_laporan_hari_ini }}</span>
-                                        </td>
-                                        <td class="min-w-40 px-4 py-3">
-                                            <div class="flex items-center gap-2">
-                                                <progress class="h-2 w-28 accent-emerald-600" value="{{ $peserta->progress_durasi }}" max="100" aria-label="Progress durasi {{ $peserta->name }}">{{ $peserta->progress_durasi }}%</progress>
-                                                <span class="text-xs text-gray-600">{{ $peserta->progress_durasi }}%</span>
-                                            </div>
-                                        </td>
-                                        <td class="px-4 py-3 text-right">
-                                            <a href="{{ route('pembimbingan.laporan.index', ['peserta' => $peserta->id]) }}" class="inline-flex items-center gap-2 rounded-md border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50">Lihat Detail / Laporan</a>
-                                        </td>
-                                    </tr>
+                                        </div>
+                                        <div class="min-w-0 text-xs text-gray-600">
+                                            <p class="truncate">{{ $pesertaKelompok->kampus ?: ($kelompok->kampus?->nama_universitas ?: ($pesertaKelompok->instansi ?: '-')) }}</p>
+                                            <p class="mt-1 truncate">{{ $pesertaKelompok->prodi ?: ($kelompok->kampus?->prodi ?: '-') }}</p>
+                                        </div>
+                                        <div class="space-y-1 text-xs">
+                                            @php($pesertaWhatsappUrl = \App\Support\ContactLink::whatsappUrl($pesertaKelompok->hp_wa))
+                                            @if ($pesertaWhatsappUrl)
+                                                <a href="{{ $pesertaWhatsappUrl }}" target="_blank" rel="noopener noreferrer" class="text-emerald-700 hover:underline">{{ $pesertaKelompok->hp_wa }}</a>
+                                            @else
+                                                <p class="text-gray-500">WA: -</p>
+                                            @endif
+                                            <p class="text-gray-600">Belum diperiksa: {{ $pesertaKelompok->laporan_belum_diperiksa_count }}</p>
+                                            <p class="text-gray-600">Penilaian: {{ $pesertaKelompok->penilaians_count > 0 ? 'Sudah diunggah' : 'Belum diunggah' }}</p>
+                                        </div>
+                                        @if ($pesertaKelompok->laporan_belum_diperiksa_count > 0)
+                                            <a href="{{ route('pembimbingan.laporan.index', ['peserta' => $pesertaKelompok->id]) }}" class="inline-flex w-fit items-center rounded-md bg-amber-100 px-3 py-1.5 text-xs font-semibold text-amber-900 hover:bg-amber-200">Periksa Laporan</a>
+                                        @else
+                                            <span class="text-xs text-gray-400">-</span>
+                                        @endif
+                                    </li>
                                 @endforeach
-                            </tbody>
-                        </table>
+                            </ul>
+                        @endif
                     </div>
-                @endif
+                @empty
+                    <p class="px-5 py-8 text-center text-sm text-gray-500">Belum ada kelompok bimbingan yang ditetapkan kepada Anda.</p>
+                @endforelse
             </section>
+
         </div>
     </div>
 </x-app-layout>

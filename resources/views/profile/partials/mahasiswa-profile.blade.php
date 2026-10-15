@@ -1,16 +1,16 @@
 @php
     $kelompok = $user->kelompok;
-    $dosenPembimbing = $kelompok?->dosen?->nama ?: ($user->dosen?->name ?: '-');
-    $dosenKampus = $kelompok?->dosen?->kampus ?: ($user->dosen?->kampus ?: '-');
-    $dosenTelepon = $kelompok?->dosen?->hp_wa ?: ($user->dosen?->hp_wa ?: '');
-    $dosenEmail = $kelompok?->dosen?->email ?: ($user->dosen?->email ?: '');
+    $dosenPembimbing = $kelompok?->dosen?->nama ?: '-';
+    $dosenKampus = $kelompok?->dosen?->kampus ?: '-';
+    $dosenTelepon = $kelompok?->dosen?->hp_wa ?: '';
+    $dosenEmail = $kelompok?->dosen?->email ?: '';
     $dosenWhatsappUrl = \App\Support\ContactLink::whatsappUrl($dosenTelepon);
     $dosenNidn = $kelompok?->dosen?->nidn ?: '-';
 
-    $mentorNama = $kelompok?->pembimbing?->nama ?: ($user->mentor?->name ?: '-');
+    $mentorNama = $kelompok?->pembimbing?->nama ?: '-';
     $mentorDepartemen = $kelompok?->pembimbing?->departemen?->nama_departemen ?: ($kelompok?->departemen?->nama_departemen ?: ($user->unit ?: '-'));
-    $mentorTelepon = $kelompok?->pembimbing?->hp_wa ?: ($user->mentor?->hp_wa ?: '');
-    $mentorEmail = $kelompok?->pembimbing?->email ?: ($user->mentor?->email ?: '');
+    $mentorTelepon = $kelompok?->pembimbing?->hp_wa ?: '';
+    $mentorEmail = $kelompok?->pembimbing?->email ?: '';
     $mentorWhatsappUrl = \App\Support\ContactLink::whatsappUrl($mentorTelepon);
     $mentorNip = $kelompok?->pembimbing?->nip ?: '-';
     $mentorPimpinan = $kelompok?->pembimbing?->departemen?->nama_pimpinan ?: '-';
@@ -54,12 +54,12 @@
                     </div>
 
                     <div>
-                        <dt class="text-xs font-semibold uppercase tracking-wider text-gray-400">Program Studi / Jurusan</dt>
+                        <dt class="text-xs font-semibold uppercase tracking-wider text-gray-400">Jurusan / Program Studi</dt>
                         <dd class="mt-1 text-sm font-semibold text-gray-900">{{ $user->prodi ?: ($kelompok?->kampus?->prodi ?: '-') }}</dd>
                     </div>
 
                     <div class="sm:col-span-2">
-                        <dt class="text-xs font-semibold uppercase tracking-wider text-gray-400">Asal Kampus / Sekolah</dt>
+                        <dt class="text-xs font-semibold uppercase tracking-wider text-gray-400">Asal Instansi / Sekolah / Kampus</dt>
                         <dd class="mt-1 text-sm font-medium text-gray-900">
                             {{ $user->kampus ?: ($kelompok?->kampus?->nama_universitas ?: ($user->instansi ?: '-')) }}
                         </dd>
@@ -155,7 +155,7 @@
         </section>
     </div>
 
-    {{-- Card 3: Pembimbing Akademik & Pembimbing Lapangan --}}
+    {{-- Card 3: Pembimbing Sekolah/Kampus & Pembimbing Lapangan --}}
     <section class="overflow-hidden rounded-2xl border border-gray-200/80 bg-white shadow-sm transition hover:shadow-md">
         <header class="border-b border-gray-100 bg-gradient-to-r from-slate-50 to-blue-50/40 px-5 py-4 sm:px-6">
             <div class="flex items-center gap-3">
@@ -164,27 +164,27 @@
                 </span>
                 <div>
                     <h3 class="font-bold text-gray-900">Pembimbing &amp; Mentor Pendamping</h3>
-                    <p class="text-xs text-gray-500">Dosen dari institusi pendidikan dan pembimbing profesional di bandara</p>
+                    <p class="text-xs text-gray-500">Pembimbing dari instansi pendidikan dan pembimbing di tempat kerja</p>
                 </div>
             </div>
         </header>
 
         <div class="grid gap-6 p-5 sm:p-6 md:grid-cols-2">
-            {{-- Dosen Pembimbing --}}
+            {{-- Pembimbing Sekolah/Kampus --}}
             <div class="rounded-xl border border-blue-100 bg-blue-50/30 p-5">
                 <div class="flex items-center gap-3">
                     <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-700">
                         <i class="fas fa-chalkboard-teacher text-lg"></i>
                     </div>
                     <div class="min-w-0">
-                        <p class="text-xs font-semibold uppercase tracking-wider text-blue-700">Dosen / Guru Pembimbing</p>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-blue-700">Pembimbing Sekolah/Kampus</p>
                         <h4 class="truncate text-base font-bold text-gray-900">{{ $dosenPembimbing }}</h4>
                         <p class="truncate text-xs text-gray-500">{{ $dosenKampus }}</p>
                     </div>
                 </div>
 
                 <div class="mt-4 grid gap-2 border-t border-blue-100/70 pt-3 text-xs text-gray-600 sm:grid-cols-2">
-                    <p><span class="text-gray-500">NIDN:</span> <span class="font-semibold text-gray-800">{{ $dosenNidn }}</span></p>
+                    <p><span class="text-gray-500">NIP / NUPTK / ID Pengajar:</span> <span class="font-semibold text-gray-800">{{ $dosenNidn }}</span></p>
                     <p>
                         <span class="text-gray-500">WhatsApp:</span>
                         @if ($dosenWhatsappUrl)
@@ -211,7 +211,7 @@
                         <i class="fas fa-user-tie text-lg"></i>
                     </div>
                     <div class="min-w-0">
-                        <p class="text-xs font-semibold uppercase tracking-wider text-amber-800">Pembimbing Lapangan (Field Mentor)</p>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-amber-800">Pembimbing Lapangan / Mentor</p>
                         <h4 class="truncate text-base font-bold text-gray-900">{{ $mentorNama }}</h4>
                         <p class="truncate text-xs text-gray-500">Unit: {{ $mentorDepartemen }}</p>
                     </div>

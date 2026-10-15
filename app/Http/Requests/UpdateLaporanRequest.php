@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Models\Laporan;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class UpdateLaporanRequest extends FormRequest
 {
@@ -16,6 +17,19 @@ class UpdateLaporanRequest extends FormRequest
             && $laporan->status === 'Belum Diperiksa';
     }
 
+        protected function failedAuthorization(): void
+    {
+        $laporan = $this->route('laporan');
+
+        // laporan milik orang lain: tetap 403
+        abort_unless($laporan instanceof Laporan && $laporan->user_id === $this->user()?->id, 403);
+
+        throw new HttpResponseException(
+            redirect()->route('mahasiswa.dashboard')->with('error', $laporan->isTerkunci()
+                ? 'Laporan ini sudah di-ACC pembimbing dan terkunci, sehingga tidak bisa diubah.'
+                : 'Laporan ini sudah diperiksa pembimbing dan tidak bisa diubah.')
+        );
+    }
     /**
      * @return array<string, mixed>
      */

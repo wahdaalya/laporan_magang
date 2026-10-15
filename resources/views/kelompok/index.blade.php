@@ -14,46 +14,106 @@
             @endif
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    <div class="mb-4 flex justify-end">
-                        <x-primary-button type="button" x-data="" x-on:click.prevent="$dispatch('open-modal', 'create-kelompok')">
-                            {{ __('+ Tambah Kelompok') }}
-                        </x-primary-button>
-                    </div>
+                <div class="text-gray-900" style="padding: 28px 28px 24px;">
 
+                    <!-- Filter, pencarian & tombol -->
+                    <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:16px; margin-bottom:24px; padding-bottom:20px; border-bottom:1px solid #f1f5f9;">
+
+                        <form method="GET" action="{{ route('kelompok.index') }}" style="display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin:0;">
+                            <!-- Input Pencarian -->
+                            <div class="relative">
+                                <input
+                                    type="text"
+                                    name="q"
+                                    value="{{ $q }}"
+                                    placeholder="Cari kelompok..."
+                                    style="height:40px; width:240px;"
+                                    class="rounded-lg border-gray-200 bg-gray-50/50 py-2 pl-3 pr-8 text-sm placeholder-gray-400 focus:border-blue-500 focus:bg-white focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                                >
+                                @if($q)
+                                    <a href="{{ route('kelompok.index', array_filter(['bulan' => $bulan, 'tahun' => $tahun])) }}" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                        <i class="fas fa-times-circle text-xs"></i>
+                                    </a>
+                                @endif
+                            </div>
+
+                            <!-- Dropdown Filter Bulan -->
+                            <select
+                                name="bulan"
+                                onchange="this.form.submit()"
+                                style="height:40px;"
+                                class="rounded-lg border-gray-200 bg-gray-50/50 py-2 pl-3 pr-8 text-sm text-gray-700 focus:border-blue-500 focus:bg-white focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                            >
+                                <option value="">Semua Bulan</option>
+                                @foreach ($daftarBulan as $key => $namaBulan)
+                                    <option value="{{ $key }}" @selected($bulan == $key)>{{ $namaBulan }}</option>
+                                @endforeach
+                            </select>
+
+                            <!-- Dropdown Filter Tahun -->
+                            <select
+                                name="tahun"
+                                onchange="this.form.submit()"
+                                style="height:40px;"
+                                class="rounded-lg border-gray-200 bg-gray-50/50 py-2 pl-3 pr-8 text-sm text-gray-700 focus:border-blue-500 focus:bg-white focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                            >
+                                <option value="">Semua Tahun</option>
+                                @foreach ($daftarTahun as $thn)
+                                    <option value="{{ $thn }}" @selected($tahun == $thn)>Tahun {{ $thn }}</option>
+                                @endforeach
+                            </select>
+
+                            <!-- Tombol Cari -->
+                            <button type="submit" style="height:40px; padding:0 18px;" class="inline-flex items-center gap-1.5 rounded-lg bg-slate-800 text-sm font-medium text-white shadow-sm transition hover:bg-slate-700 focus:outline-none">
+                                <i class="fas fa-search text-xs"></i> Cari
+                            </button>
+
+                            <!-- Tombol Reset Filter -->
+                            @if($q || $bulan || $tahun)
+                                <a href="{{ route('kelompok.index') }}" style="margin-left:4px;" class="inline-flex items-center gap-1 text-xs font-medium text-red-500 hover:text-red-700 transition">
+                                    <i class="fas fa-undo"></i> Reset Filter
+                                </a>
+                            @endif
+                        </form>
+
+                        <!-- Tombol Tambah Kelompok -->
+                        <button type="button" x-data="" x-on:click.prevent="$dispatch('open-modal', 'create-kelompok')" style="height:40px; padding:0 20px;" class="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 focus:outline-none">
+                            <i class="fas fa-plus text-xs"></i> Tambah Kelompok
+                        </button>
+                    </div>
                     @if ($kelompoks->isEmpty())
-                        <p class="text-gray-500">Belum ada data kelompok.</p>
+                        @if ($q !== '' || $tahun)
+                            <div class="text-sm text-gray-600">
+                                <p>Data tidak ditemukan untuk kriteria pencarian/filter ini.</p>
+                            </div>
+                        @else
+                            <p class="text-gray-500">Belum ada data kelompok.</p>
+                        @endif
                     @else
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full text-sm">
-                                <thead class="border-b border-gray-200 text-gray-600">
+                        <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white dark:border-slate-700 dark:bg-slate-800">
+                            <table class="min-w-full border-slate-200 text-sm dark:border-slate-700">
+                                <thead class="border-b border-gray-200 bg-gray-100 text-gray-600 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-300">
                                     <tr>
                                         <th class="px-5 py-3 text-center align-middle whitespace-nowrap">ID</th>
                                         <th class="px-5 py-3 text-center align-middle whitespace-nowrap">Kode Kelompok</th>
-                                        <th class="px-5 py-3 text-center align-middle whitespace-nowrap">Periode</th>
-                                        <th class="px-5 py-3 text-center align-middle whitespace-nowrap">Kampus</th>
-                                        <th class="px-5 py-3 text-center align-middle whitespace-nowrap">Dosen</th>
-                                        <th class="px-5 py-3 text-center align-middle whitespace-nowrap">Pembimbing</th>
-                                        <th class="px-5 py-3 text-center align-middle whitespace-nowrap">Departemen</th>
-                                        <th class="px-5 py-3 text-center align-middle whitespace-nowrap">Jumlah Anggota</th>
+                                        <th class="px-5 py-3 text-center align-middle whitespace-nowrap">Instansi</th>
                                         <th class="px-5 py-3 text-center align-middle whitespace-nowrap">Aksi</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody class="bg-white text-slate-800 dark:bg-slate-800 dark:text-slate-200">
                                     @foreach ($kelompoks as $kelompok)
-                                        <tr class="border-b border-gray-100">
+                                        <tr class="clickable-row border-b border-gray-100 bg-white dark:border-slate-700 dark:bg-slate-800"
+                                            data-modal="detail-kelompok-{{ $kelompok->id }}"
+                                            tabindex="0" role="button"
+                                            aria-label="Lihat detail {{ $kelompok->nama_kelompok }}">
                                             <td class="px-5 py-4 align-middle whitespace-nowrap text-center text-gray-500">#{{ $kelompok->id }}</td>
                                             <td class="px-5 py-4 align-middle whitespace-nowrap font-medium">{{ $kelompok->nama_kelompok }}</td>
-                                            <td class="px-5 py-4 align-middle whitespace-nowrap">
-                                                {{ $kelompok->tanggal_mulai->format('d M Y') }} - {{ $kelompok->tanggal_selesai->format('d M Y') }}
-                                            </td>
                                             <td class="px-5 py-4 align-middle whitespace-nowrap">{{ $kelompok->kampus?->nama_universitas ?? '-' }}</td>
-                                            <td class="px-5 py-4 align-middle whitespace-nowrap">{{ $kelompok->dosen?->nama ?? '-' }}</td>
-                                            <td class="px-5 py-4 align-middle whitespace-nowrap">{{ $kelompok->pembimbing?->nama ?? '-' }}</td>
-                                            <td class="px-5 py-4 align-middle whitespace-nowrap">{{ $kelompok->departemen?->nama_departemen ?? '-' }}</td>
-                                            <td class="px-5 py-4 align-middle whitespace-nowrap text-center">{{ $kelompok->mahasiswas_count }}</td>
-                                            <td class="px-5 py-4 align-middle whitespace-nowrap text-end">
+                                            <td class="kolom-aksi px-5 py-4 align-middle whitespace-nowrap text-end">
                                                 <div class="flex items-center justify-end gap-3">
+                                                                                                        <a href="{{ route('kelompok.pdf', $kelompok) }}" class="aksi-ikon" title="Download PDF" aria-label="Download PDF {{ $kelompok->nama_kelompok }}">
+                                                        <i class="fas fa-file-pdf" aria-hidden="true"></i>
+                                                    </a>
                                                     <x-secondary-button type="button" x-data="" x-on:click.prevent="$dispatch('open-modal', 'edit-kelompok-{{ $kelompok->id }}')">
                                                         {{ __('Edit') }}
                                                     </x-secondary-button>
@@ -69,6 +129,70 @@
                             </table>
                         </div>
                     @endif
+
+                    <div class="mt-4 flex flex-col gap-3 border-t border-gray-100 pt-4 text-sm text-gray-600 sm:flex-row sm:items-center sm:justify-between">
+                        <p>Menampilkan {{ $kelompoks->firstItem() ?? 0 }}-{{ $kelompoks->lastItem() ?? 0 }} dari {{ $kelompoks->total() }} data</p>
+                        <div class="self-start sm:self-auto">{{ $kelompoks->links() }}</div>
+                    </div>
+
+                    @foreach ($kelompoks as $kelompok)
+                        <x-modal name="detail-kelompok-{{ $kelompok->id }}" maxWidth="2xl">
+                            <div class="p-6">
+                                <h2 class="text-lg font-semibold text-gray-900">Detail Kelompok</h2>
+                                <p class="mt-1 text-sm text-gray-500">{{ $kelompok->nama_kelompok }} &middot; ID #{{ $kelompok->id }}</p>
+
+                                <dl class="mt-5 grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
+                                    <div>
+                                        <dt class="text-xs font-semibold uppercase tracking-wider text-gray-400">Kode Kelompok</dt>
+                                        <dd class="mt-1 text-sm font-medium text-gray-900">{{ $kelompok->nama_kelompok }}</dd>
+                                    </div>
+                                    <div>
+                                        <dt class="text-xs font-semibold uppercase tracking-wider text-gray-400">Periode</dt>
+                                        <dd class="mt-1 text-sm font-medium text-gray-900">{{ $kelompok->tanggal_mulai->format('d M Y') }} - {{ $kelompok->tanggal_selesai->format('d M Y') }}</dd>
+                                    </div>
+                                    <div>
+                                        <dt class="text-xs font-semibold uppercase tracking-wider text-gray-400">Instansi</dt>
+                                        <dd class="mt-1 text-sm font-medium text-gray-900">{{ $kelompok->kampus?->nama_universitas ?? '-' }}</dd>
+                                    </div>
+                                    <div>
+                                        <dt class="text-xs font-semibold uppercase tracking-wider text-gray-400">Departemen</dt>
+                                        <dd class="mt-1 text-sm font-medium text-gray-900">{{ $kelompok->departemen?->nama_departemen ?? '-' }}</dd>
+                                    </div>
+                                    <div>
+                                        <dt class="text-xs font-semibold uppercase tracking-wider text-gray-400">Pembimbing Sekolah/Kampus</dt>
+                                        <dd class="mt-1 text-sm font-medium text-gray-900">{{ $kelompok->dosen?->nama ?? '-' }}</dd>
+                                    </div>
+                                    <div>
+                                        <dt class="text-xs font-semibold uppercase tracking-wider text-gray-400">Pembimbing Lapangan</dt>
+                                        <dd class="mt-1 text-sm font-medium text-gray-900">{{ $kelompok->pembimbing?->nama ?? '-' }}</dd>
+                                    </div>
+                                </dl>
+
+                                <div class="mt-6">
+                                    <h3 class="text-xs font-semibold uppercase tracking-wider text-gray-400">Daftar Anggota ({{ $kelompok->mahasiswas_count }})</h3>
+                                    @if ($kelompok->mahasiswas->isEmpty())
+                                        <p class="mt-2 text-sm text-gray-500">Belum ada anggota di kelompok ini.</p>
+                                    @else
+                                        <ul class="mt-2 max-h-56 divide-y divide-gray-100 overflow-y-auto rounded-lg border border-gray-200">
+                                            @foreach ($kelompok->mahasiswas as $mahasiswa)
+                                                <li class="flex items-center justify-between gap-4 px-3 py-2 text-sm">
+                                                    <span class="font-medium text-gray-900">{{ $mahasiswa->name }}</span>
+                                                    <span class="text-gray-500">{{ $mahasiswa->nim_nip ?? '-' }}</span>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    @endif
+                                </div>
+
+                                <div class="mt-6 flex justify-end">
+                                    <a href="{{ route('kelompok.pdf', $kelompok) }}" class="mr-3 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white transition hover:bg-blue-700">
+    <i class="fas fa-file-pdf" aria-hidden="true"></i> Download PDF
+</a>
+<x-secondary-button type="button" x-on:click="$dispatch('close')">Tutup</x-secondary-button>
+                                </div>
+                            </div>
+                        </x-modal>
+                    @endforeach
 
                     @foreach ($kelompoks as $kelompok)
                         <x-modal name="edit-kelompok-{{ $kelompok->id }}">
@@ -97,9 +221,9 @@
                                     </div>
 
                                     <div>
-                                        <x-input-label for="edit_kampus_id_{{ $kelompok->id }}" value="{{ __('Kampus') }}" />
-                                        <select id="edit_kampus_id_{{ $kelompok->id }}" name="kampus_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                            <option value="">{{ __('- Pilih Kampus -') }}</option>
+                                        <x-input-label for="edit_kampus_id_{{ $kelompok->id }}" value="{{ __('Instansi Pendidikan') }}" />
+                                        <select id="edit_kampus_id_{{ $kelompok->id }}" name="kampus_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400">
+                                            <option value="">{{ __('- Pilih Instansi -') }}</option>
                                             @foreach ($kampuses as $kampus)
                                                 <option value="{{ $kampus->id }}" @selected($kelompok->kampus_id == $kampus->id)>
                                                     {{ $kampus->nama_universitas }}
@@ -109,9 +233,9 @@
                                     </div>
 
                                     <div>
-                                        <x-input-label for="edit_dosen_id_{{ $kelompok->id }}" value="{{ __('Dosen / Guru Pembimbing') }}" />
-                                        <select id="edit_dosen_id_{{ $kelompok->id }}" name="dosen_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                            <option value="">{{ __('- Pilih Dosen -') }}</option>
+                                        <x-input-label for="edit_dosen_id_{{ $kelompok->id }}" value="{{ __('Pembimbing Sekolah/Kampus') }}" />
+                                        <select id="edit_dosen_id_{{ $kelompok->id }}" name="dosen_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400">
+                                            <option value="">{{ __('- Pilih Pembimbing Sekolah/Kampus -') }}</option>
                                             @foreach ($dosens as $dosen)
                                                 <option value="{{ $dosen->id }}" @selected($kelompok->dosen_id == $dosen->id)>
                                                     {{ $dosen->nama }}
@@ -122,8 +246,8 @@
 
                                     <div>
                                         <x-input-label for="edit_pembimbing_id_{{ $kelompok->id }}" value="{{ __('Pembimbing Lapangan') }}" />
-                                        <select id="edit_pembimbing_id_{{ $kelompok->id }}" name="pembimbing_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                            <option value="">{{ __('- Pilih Pembimbing -') }}</option>
+                                        <select id="edit_pembimbing_id_{{ $kelompok->id }}" name="pembimbing_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400">
+                                            <option value="">{{ __('- Pilih Pembimbing Lapangan -') }}</option>
                                             @foreach ($pembimbings as $pembimbing)
                                                 <option value="{{ $pembimbing->id }}" @selected($kelompok->pembimbing_id == $pembimbing->id)>
                                                     {{ $pembimbing->nama }}
@@ -134,7 +258,7 @@
 
                                     <div>
                                         <x-input-label for="edit_departemen_id_{{ $kelompok->id }}" value="{{ __('Departemen') }}" />
-                                        <select id="edit_departemen_id_{{ $kelompok->id }}" name="departemen_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                        <select id="edit_departemen_id_{{ $kelompok->id }}" name="departemen_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400">
                                             <option value="">{{ __('- Pilih Departemen -') }}</option>
                                             @foreach ($departemens as $departemen)
                                                 <option value="{{ $departemen->id }}" @selected($kelompok->departemen_id == $departemen->id)>
@@ -172,7 +296,7 @@
                                         {{ __('Batal') }}
                                     </x-secondary-button>
 
-                                    <form method="post" action="{{ route('kelompok.destroy', $kelompok) }}" class="ms-3">
+                                    <form method="post" action="{{ route('kelompok.destroy', $kelompok->id, false) }}" class="ms-3">
                                         @csrf
                                         @method('delete')
                                         <x-danger-button type="submit">
@@ -206,7 +330,7 @@
                                     @csrf
 
                                     <x-input-label for="mahasiswa_id_{{ $kelompok->id }}" value="{{ __('Tambah dari Data Peserta') }}" />
-                                    <select id="mahasiswa_id_{{ $kelompok->id }}" name="mahasiswa_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                                    <select id="mahasiswa_id_{{ $kelompok->id }}" name="mahasiswa_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400" required>
                                         <option value="">{{ __('- Pilih Peserta -') }}</option>
                                         @foreach ($mahasiswaBebas as $calon)
                                             <option value="{{ $calon->id }}">{{ $calon->name }} ({{ $calon->nim_nip ?? '-' }})</option>
@@ -287,7 +411,7 @@
                             x-on:keydown.enter.prevent="tambah()"
                             autocomplete="off"
                             placeholder="{{ __('Ketik nama peserta, lalu klik + Tambah') }}"
-                            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400"
                         >
                         <x-secondary-button type="button" x-on:click="tambah()">
                             {{ __('+ Tambah') }}
@@ -315,7 +439,7 @@
 
                 <div>
                     <x-input-label for="create_kampus_id" value="{{ __('Kampus') }}" />
-                    <select id="create_kampus_id" name="kampus_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <select id="create_kampus_id" name="kampus_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400">
                         <option value="">{{ __('- Pilih Kampus -') }}</option>
                         @foreach ($kampuses as $kampus)
                             <option value="{{ $kampus->id }}" @selected(old('kampus_id') == $kampus->id)>
@@ -327,9 +451,9 @@
                 </div>
 
                 <div>
-                    <x-input-label for="create_dosen_id" value="{{ __('Dosen / Guru Pembimbing') }}" />
-                    <select id="create_dosen_id" name="dosen_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                        <option value="">{{ __('- Pilih Dosen -') }}</option>
+                    <x-input-label for="create_dosen_id" value="{{ __('Pembimbing Sekolah/Kampus') }}" />
+                    <select id="create_dosen_id" name="dosen_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400">
+                        <option value="">{{ __('- Pilih Pembimbing Sekolah/Kampus -') }}</option>
                         @foreach ($dosens as $dosen)
                             <option value="{{ $dosen->id }}" @selected(old('dosen_id') == $dosen->id)>
                                 {{ $dosen->nama }}
@@ -341,7 +465,7 @@
 
                 <div>
                     <x-input-label for="create_pembimbing_id" value="{{ __('Pembimbing Lapangan') }}" />
-                    <select id="create_pembimbing_id" name="pembimbing_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <select id="create_pembimbing_id" name="pembimbing_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400">
                         <option value="">{{ __('- Pilih Pembimbing -') }}</option>
                         @foreach ($pembimbings as $pembimbing)
                             <option value="{{ $pembimbing->id }}" @selected(old('pembimbing_id') == $pembimbing->id)>
@@ -354,7 +478,7 @@
 
                 <div>
                     <x-input-label for="create_departemen_id" value="{{ __('Departemen') }}" />
-                    <select id="create_departemen_id" name="departemen_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <select id="create_departemen_id" name="departemen_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400">
                         <option value="">{{ __('- Pilih Departemen -') }}</option>
                         @foreach ($departemens as $departemen)
                             <option value="{{ $departemen->id }}" @selected(old('departemen_id') == $departemen->id)>
@@ -377,4 +501,37 @@
             </div>
         </form>
     </x-modal>
+
+    <style>
+        .clickable-row { cursor: pointer; transition: background-color .15s ease; }
+        table td .aksi-ikon[title="Download PDF"] { color: #0f766e; background: #f0fdfa; border: 1px solid #99f6e4; }
+        html.dark table td .aksi-ikon[title="Download PDF"] { color: #5eead4; background: rgba(20, 184, 166, .15); border-color: rgba(94, 234, 212, .3); }
+        .clickable-row:hover,
+        .clickable-row:focus-visible { background-color: #eef4fb !important; outline: none; }
+        html.dark .clickable-row:hover,
+        html.dark .clickable-row:focus-visible { background-color: rgba(148, 177, 211, .14) !important; }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            function bukaDetail(baris) {
+                window.dispatchEvent(new CustomEvent('open-modal', { detail: baris.dataset.modal }));
+            }
+
+            document.addEventListener('click', function (e) {
+                var baris = e.target.closest('tr.clickable-row');
+                if (!baris) return;
+                // klik di kolom Aksi / tombol / link / form: jangan buka detail
+                if (e.target.closest('td.kolom-aksi, a, button, form, input, select, textarea, label')) return;
+                bukaDetail(baris);
+            });
+
+            document.addEventListener('keydown', function (e) {
+                if ((e.key === 'Enter' || e.key === ' ') && e.target.matches && e.target.matches('tr.clickable-row')) {
+                    e.preventDefault();
+                    bukaDetail(e.target);
+                }
+            });
+        });
+    </script>
 </x-app-layout>

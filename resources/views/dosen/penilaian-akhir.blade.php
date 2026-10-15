@@ -11,27 +11,47 @@
             @if (session('status'))
                 <div class="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800" role="status">{{ session('status') }}</div>
             @endif
-            <p class="text-sm text-gray-600">Nilai Mentor Lapangan ditampilkan sebagai pembanding. Nilai akhir berikut merupakan penilaian akademik dari kampus/sekolah.</p>
+            <p class="text-sm text-gray-600">Nilai Pembimbing Lapangan ditampilkan sebagai pembanding. Nilai akhir berikut merupakan penilaian dari pembimbing sekolah/kampus.</p>
 
             @forelse ($pesertas as $peserta)
                 @php($mentor = $nilaiMentor->get($peserta->id))
                 @php($akademik = $peserta->nilaiAkademik)
+                @php($statusLaporanAkhir = $peserta->laporanAkhir?->status ?? 'Belum Diajukan')
+                @php($statusLaporanClass = match ($statusLaporanAkhir) {
+                    'Menunggu Review' => 'bg-amber-50 text-amber-800',
+                    'Revisi' => 'bg-rose-50 text-rose-800',
+                    'Disetujui' => 'bg-emerald-50 text-emerald-800',
+                    default => 'bg-gray-100 text-gray-600',
+                })
+                @php($statusLaporanAkhir = $peserta->laporanAkhir?->status ?? 'Belum Diajukan')
+                @php($statusLaporanClass = match ($statusLaporanAkhir) {
+                    'Menunggu Review' => 'bg-amber-50 text-amber-800',
+                    'Revisi' => 'bg-rose-50 text-rose-800',
+                    'Disetujui' => 'bg-emerald-50 text-emerald-800',
+                    default => 'bg-gray-100 text-gray-600',
+                })
                 <section class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
                     <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 px-5 py-4">
                         <div>
                             <h2 class="font-semibold text-gray-900">{{ $peserta->name }}</h2>
                             <p class="mt-1 text-sm text-gray-500">{{ $peserta->nim_nip ?? 'NIM/NISN tidak tersedia' }} · {{ $peserta->kampus ?? $peserta->instansi ?? '-' }}</p>
                         </div>
-                        @if ($akademik)
-                            <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">Nilai tersimpan</span>
-                        @else
-                            <span class="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-600">Belum dinilai</span>
-                        @endif
+                        <div class="flex flex-wrap gap-2">
+                            <div class="flex flex-wrap gap-2">
+                                @if ($akademik)
+                                    <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">Nilai tersimpan</span>
+                                @else
+                                    <span class="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-600">Belum dinilai</span>
+                                @endif
+                                <span class="rounded-full px-2.5 py-1 text-xs font-semibold {{ $statusLaporanClass }}">Laporan Akhir: {{ $statusLaporanAkhir }}</span>
+                            </div>
+                            <span class="rounded-full px-2.5 py-1 text-xs font-semibold {{ $statusLaporanClass }}">Laporan Akhir: {{ $statusLaporanAkhir }}</span>
+                        </div>
                     </div>
 
                     <div class="grid gap-5 p-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
                         <div class="rounded-lg border border-blue-100 bg-blue-50/60 p-4">
-                            <h3 class="text-sm font-semibold text-gray-900">Nilai Mentor Lapangan</h3>
+                            <h3 class="text-sm font-semibold text-gray-900">Nilai Pembimbing Lapangan</h3>
                             @if ($mentor && ($mentor->nilai_bimbingan !== null || $mentor->nilai_laporan_akhir !== null || $mentor->nilai_presentasi !== null))
                                 <dl class="mt-3 grid grid-cols-2 gap-y-2 text-sm">
                                     <dt class="text-gray-600">Bimbingan</dt><dd class="text-right font-medium text-gray-900">{{ $mentor->nilai_bimbingan ?? '-' }}</dd>
@@ -39,9 +59,9 @@
                                     <dt class="text-gray-600">Presentasi</dt><dd class="text-right font-medium text-gray-900">{{ $mentor->nilai_presentasi ?? '-' }}</dd>
                                 </dl>
                             @else
-                                <p class="mt-2 text-sm text-gray-500">Nilai numerik dari Mentor Lapangan belum tersedia.</p>
+                                <p class="mt-2 text-sm text-gray-500">Nilai numerik dari Pembimbing Lapangan belum tersedia.</p>
                                 @if ($mentor)
-                                    <a href="{{ route('dosen.penilaian.view', $mentor) }}" target="_blank" rel="noopener noreferrer" class="mt-2 inline-flex text-sm font-medium text-blue-700 hover:underline">Lihat dokumen PDF Mentor</a>
+                                    <a href="{{ route('dosen.penilaian.view', $mentor) }}" target="_blank" rel="noopener noreferrer" class="mt-2 inline-flex text-sm font-medium text-blue-700 hover:underline">Lihat dokumen PDF Pembimbing Lapangan</a>
                                 @endif
                             @endif
                         </div>
@@ -49,7 +69,13 @@
                         <form action="{{ route('dosen.penilaian-akhir.update', $peserta) }}" method="POST" class="space-y-4">
                             @csrf
                             @method('PUT')
-                            <h3 class="text-sm font-semibold text-gray-900">Nilai Kampus / Sekolah</h3>
+                            <h3 class="text-sm font-semibold text-gray-900">Nilai Pembimbing Sekolah / Kampus</h3>
+                            @if ($statusLaporanAkhir !== 'Disetujui')
+                                <p class="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">Laporan akhir belum disetujui.</p>
+                            @endif
+                            @if ($statusLaporanAkhir !== 'Disetujui')
+                                <p class="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">Laporan akhir belum disetujui.</p>
+                            @endif
                             <div class="grid gap-3 sm:grid-cols-3">
                                 <div>
                                     <label for="bimbingan-{{ $peserta->id }}" class="mb-1 block text-xs font-medium text-gray-600">Nilai Bimbingan</label>

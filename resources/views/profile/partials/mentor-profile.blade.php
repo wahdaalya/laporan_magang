@@ -21,7 +21,7 @@
                     </span>
                     <div>
                         <h3 class="font-bold text-gray-900">Identitas Pembimbing Lapangan</h3>
-                        <p class="text-xs text-gray-500">Field Mentor · PT Angkasa Pura Aviasi</p>
+                        <p class="text-xs text-gray-500">Pembimbing Lapangan · PT Angkasa Pura Aviasi</p>
                     </div>
                 </div>
                 <span class="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-800">
@@ -38,7 +38,7 @@
 
                     <div>
                         <dt class="text-xs font-semibold uppercase tracking-wider text-gray-400">Jabatan / Peran</dt>
-                        <dd class="mt-1 text-sm font-semibold text-gray-900">Field Mentor / Pembimbing Magang</dd>
+                        <dd class="mt-1 text-sm font-semibold text-gray-900">Pembimbing Lapangan / Mentor</dd>
                     </div>
 
                     <div>
@@ -189,7 +189,7 @@
                             <tr>
                                 <th class="px-4 py-3 text-left">Nama Peserta</th>
                                 <th class="px-4 py-3 text-left">NIM / NISN</th>
-                                <th class="px-4 py-3 text-left">Asal Kampus / Sekolah</th>
+                                <th class="px-4 py-3 text-left">Asal Instansi / Sekolah / Kampus</th>
                                 <th class="px-4 py-3 text-left">Kelompok</th>
                                 <th class="px-4 py-3 text-left">No. Kontak</th>
                             </tr>

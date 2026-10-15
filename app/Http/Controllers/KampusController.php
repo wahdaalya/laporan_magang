@@ -24,7 +24,7 @@ class KampusController extends Controller
         Kampus::create($this->validated($request));
 
         return redirect()->route('kampus.index')
-            ->with('status', 'Data kampus berhasil ditambahkan.');
+            ->with('status', 'Data instansi berhasil ditambahkan.');
     }
 
     public function update(Request $request, Kampus $kampus): RedirectResponse
@@ -32,7 +32,7 @@ class KampusController extends Controller
         $kampus->update($this->validated($request, $kampus));
 
         return redirect()->route('kampus.index')
-            ->with('status', 'Data kampus berhasil diperbarui.');
+            ->with('status', 'Data instansi berhasil diperbarui.');
     }
 
     public function destroy(Kampus $kampus): RedirectResponse
@@ -40,7 +40,7 @@ class KampusController extends Controller
         $kampus->delete();
 
         return redirect()->route('kampus.index')
-            ->with('status', 'Data kampus berhasil dihapus.');
+            ->with('status', 'Data instansi berhasil dihapus.');
     }
 
     /**
@@ -70,8 +70,8 @@ class KampusController extends Controller
             'fakultas' => ['nullable', 'string', 'max:255'],
             'prodi' => ['nullable', 'string', 'max:255'],
         ], [
-            'nama_universitas.required' => 'Nama universitas wajib diisi.',
-            'nama_universitas.unique' => 'Data kampus dengan kombinasi Nama Universitas, Alamat, Fakultas, dan Prodi yang sama sudah ada.',
+            'nama_universitas.required' => 'Nama instansi wajib diisi.',
+            'nama_universitas.unique' => 'Data instansi dengan kombinasi Nama Instansi, Alamat, Fakultas, dan Program Studi yang sama sudah ada.',
         ]);
     }
 }

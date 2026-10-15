@@ -37,7 +37,7 @@
                     <img :src="currentFoto" class="h-20 rounded border border-gray-200 object-cover">
                 </div>
             </template>
-            <input id="foto" name="foto" type="file" accept="image/*" class="mt-1 block w-full text-sm text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+            <input id="foto" name="foto" type="file" accept="image/*" class="mt-1 block w-full text-sm text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400" />
             <x-input-error class="mt-2" :messages="$errors->get('foto')" x-show="showErrors" />
         </div>
 

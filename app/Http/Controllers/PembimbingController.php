@@ -6,22 +6,42 @@ use App\Models\Departemen;
 use App\Models\Pembimbing;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class PembimbingController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View|RedirectResponse
     {
+        $search = trim($request->validate(['q' => ['nullable', 'string', 'max:255']])['q'] ?? '');
         $pembimbings = Pembimbing::with('departemen:id,nama_departemen')
             ->withCount('kelompoks')
+            ->when($search !== '', function (Builder $query) use ($search): void {
+                $pattern = '%'.$search.'%';
+
+                $query->where(function (Builder $query) use ($pattern): void {
+                    $query->where('nama', 'like', $pattern)
+                        ->orWhere('nip', 'like', $pattern)
+                        ->orWhere('email', 'like', $pattern)
+                        ->orWhereHas('departemen', fn (Builder $departemen) => $departemen->where('nama_departemen', 'like', $pattern))
+                        ->orWhereHas('user', fn (Builder $user) => $user->where('email', 'like', $pattern));
+                });
+            })
             ->orderBy('nama')
-            ->get();
+            ->paginate(10)
+            ->withQueryString();
+
+        if ($pembimbings->isEmpty() && $pembimbings->currentPage() > $pembimbings->lastPage()) {
+            return redirect()->route('pembimbing.index', array_merge($request->query(), ['page' => $pembimbings->lastPage()]));
+        }
 
         return view('pembimbing.index', [
             'pembimbings' => $pembimbings,
+            'q' => $search,
             'departemens' => Departemen::orderBy('nama_departemen')->get(['id', 'nama_departemen']),
         ]);
     }
@@ -44,8 +64,8 @@ class PembimbingController extends Controller
 
         Pembimbing::create([...$data, 'user_id' => $user->id]);
 
-        return redirect()->route('pembimbing.index')
-            ->with('status', 'Data pembimbing berhasil ditambahkan.');
+        return back()
+            ->with('status', 'Data pembimbing lapangan berhasil ditambahkan.');
     }
 
     /**
@@ -82,16 +102,16 @@ class PembimbingController extends Controller
             $pembimbing->update(['user_id' => $user->id]);
         }
 
-        return redirect()->route('pembimbing.index')
-            ->with('status', 'Data pembimbing berhasil diperbarui.');
+        return back()
+            ->with('status', 'Data pembimbing lapangan berhasil diperbarui.');
     }
 
     public function destroy(Pembimbing $pembimbing): RedirectResponse
     {
         $pembimbing->delete();
 
-        return redirect()->route('pembimbing.index')
-            ->with('status', 'Data pembimbing berhasil dihapus.');
+        return back()
+            ->with('status', 'Data pembimbing lapangan berhasil dihapus.');
     }
 
     /**
@@ -100,15 +120,15 @@ class PembimbingController extends Controller
     public function resetPassword(Pembimbing $pembimbing): RedirectResponse
     {
         if (! $pembimbing->user_id) {
-            return redirect()->route('pembimbing.index')
+            return back()
                 ->with('status', 'Pembimbing ini belum punya akun login. Isi email & password lewat form Ubah terlebih dahulu.');
         }
 
-        $passwordBaru = \Illuminate\Support\Str::password(10, symbols: false);
+        $passwordBaru = Str::password(10, symbols: false);
 
-        $pembimbing->user->update(['password' => \Illuminate\Support\Facades\Hash::make($passwordBaru)]);
+        $pembimbing->user->update(['password' => Hash::make($passwordBaru)]);
 
-        return redirect()->route('pembimbing.index')
+        return back()
             ->with('status', "Password untuk {$pembimbing->nama} berhasil di-reset.")
             ->with('password_baru', ['nama' => $pembimbing->nama, 'email' => $pembimbing->user->email, 'password' => $passwordBaru]);
     }

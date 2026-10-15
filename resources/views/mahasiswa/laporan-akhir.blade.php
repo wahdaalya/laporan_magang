@@ -1,3 +1,13 @@
+@php
+    $statusBimbingan = $laporanAkhir?->status ?? 'Belum Diajukan';
+    $statusClass = match ($statusBimbingan) {
+        'Menunggu Review' => 'border-amber-200 bg-amber-50 text-amber-900',
+        'Revisi' => 'border-rose-200 bg-rose-50 text-rose-900',
+        'Disetujui' => 'border-emerald-200 bg-emerald-50 text-emerald-900',
+        default => 'border-gray-200 bg-gray-50 text-gray-800',
+    };
+@endphp
+
 <x-app-layout>
     <x-slot name="header">
         <h1 class="text-xl font-semibold text-gray-800">Laporan Akhir Magang / PKL</h1>
@@ -5,6 +15,10 @@
 
     <div class="py-8">
         <div class="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
+            @if (session('status'))
+                <div class="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800" role="status">{{ session('status') }}</div>
+            @endif
+
             @if ($rekap['ringkasan']['belum_disetujui'] > 0)
                 <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900" role="status">
                     Ada {{ $rekap['ringkasan']['belum_disetujui'] }} laporan yang belum disetujui dan belum masuk rekap.
@@ -12,9 +26,48 @@
                 </div>
             @endif
 
+            <section class="flex flex-wrap items-center justify-between gap-4 rounded-xl border p-5 {{ $statusClass }}">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wide">Status Bimbingan</p>
+                    <p class="mt-1 text-lg font-bold">{{ $statusBimbingan }}</p>
+                    @if ($statusBimbingan === 'Revisi' && $laporanAkhir?->catatan_revisi)
+                        <div class="mt-3 rounded-lg border border-rose-200 bg-white/70 p-3 text-sm">
+                            <p class="font-semibold">Catatan Pembimbing Sekolah/Kampus</p>
+                            <p class="mt-1 whitespace-pre-line">{{ $laporanAkhir->catatan_revisi }}</p>
+                        </div>
+                    @elseif ($statusBimbingan === 'Menunggu Review')
+                        <p class="mt-1 text-sm">Pengajuan Anda sedang ditinjau Pembimbing Sekolah/Kampus.</p>
+                    @endif
+                </div>
+
+                <div class="flex flex-wrap gap-2">
+                    @if ($statusBimbingan === 'Disetujui')
+                        <a href="{{ route('mahasiswa.laporan-akhir.cetak') }}" class="inline-flex items-center gap-2 rounded-md bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-800">
+                            <i class="fas fa-download" aria-hidden="true"></i> Unduh Laporan Akhir (PDF)
+                        </a>
+                    @elseif ($statusBimbingan === 'Menunggu Review')
+                        <button type="button" disabled class="cursor-not-allowed rounded-md bg-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-500">Menunggu review Pembimbing Sekolah/Kampus</button>
+                    @elseif ($rekap['siap'])
+                        <form method="POST" action="{{ route('mahasiswa.laporan-akhir.ajukan') }}">
+                            @csrf
+                            <button type="submit" class="inline-flex items-center gap-2 rounded-md bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-800">
+                                <i class="fas fa-paper-plane" aria-hidden="true"></i> {{ $statusBimbingan === 'Revisi' ? 'Ajukan Ulang' : 'Ajukan ke Pembimbing Sekolah/Kampus' }}
+                            </button>
+                        </form>
+                    @else
+                        <button type="button" disabled class="cursor-not-allowed rounded-md bg-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-500">{{ $statusBimbingan === 'Revisi' ? 'Ajukan Ulang' : 'Ajukan ke Pembimbing Sekolah/Kampus' }}</button>
+                    @endif
+                </div>
+            </section>
+
             @if (! $rekap['siap'])
                 <section class="rounded-xl border border-blue-200 bg-blue-50 p-6 text-sm text-blue-900" role="status">
                     Belum ada laporan harian yang disetujui. Laporan akhir akan muncul otomatis setelah laporan harianmu disetujui pembimbing.
+                    @if (! ($rekap['punya_kelompok'] ?? false))
+                        <p class="mt-2">Tombol pengajuan aktif setelah admin menambahkanmu ke kelompok magang.</p>
+                    @elseif ($rekap['ringkasan']['disetujui'] === 0)
+                        <p class="mt-2">Tombol pengajuan aktif setelah minimal satu laporan harian disetujui pembimbing.</p>
+                    @endif
                 </section>
             @else
                 <section class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
@@ -24,9 +77,6 @@
                             <h2 class="mt-1 text-xl font-bold text-gray-900">Laporan Akhir Magang / PKL</h2>
                             <p class="mt-1 text-sm text-gray-500">Dihasilkan otomatis dari laporan harian yang disetujui.</p>
                         </div>
-                        <a href="{{ route('mahasiswa.laporan-akhir.cetak') }}" class="inline-flex items-center gap-2 rounded-md bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-800">
-                            <i class="fas fa-file-pdf" aria-hidden="true"></i> Unduh Laporan Akhir (PDF)
-                        </a>
                     </header>
 
                     <div class="space-y-6 p-5 sm:p-6">
@@ -35,12 +85,12 @@
                             <dl class="mt-3 grid gap-x-8 gap-y-4 sm:grid-cols-2">
                                 <div><dt class="text-xs font-medium uppercase text-gray-500">Nama</dt><dd class="mt-1 font-semibold text-gray-900">{{ $rekap['identitas']['nama'] }}</dd></div>
                                 <div><dt class="text-xs font-medium uppercase text-gray-500">NIM / NISN</dt><dd class="mt-1 font-semibold text-gray-900">{{ $rekap['identitas']['nim'] }}</dd></div>
-                                <div><dt class="text-xs font-medium uppercase text-gray-500">Kampus / Sekolah</dt><dd class="mt-1 font-semibold text-gray-900">{{ $rekap['identitas']['kampus'] }}</dd></div>
+                                <div><dt class="text-xs font-medium uppercase text-gray-500">Instansi / Sekolah / Kampus</dt><dd class="mt-1 font-semibold text-gray-900">{{ $rekap['identitas']['kampus'] }}</dd></div>
                                 <div><dt class="text-xs font-medium uppercase text-gray-500">Fakultas</dt><dd class="mt-1 font-semibold text-gray-900">{{ $rekap['identitas']['fakultas'] }}</dd></div>
-                                <div><dt class="text-xs font-medium uppercase text-gray-500">Prodi / Jurusan</dt><dd class="mt-1 font-semibold text-gray-900">{{ $rekap['identitas']['prodi'] }}</dd></div>
+                                <div><dt class="text-xs font-medium uppercase text-gray-500">Jurusan / Program Studi</dt><dd class="mt-1 font-semibold text-gray-900">{{ $rekap['identitas']['prodi'] }}</dd></div>
                                 <div><dt class="text-xs font-medium uppercase text-gray-500">Departemen Penempatan</dt><dd class="mt-1 font-semibold text-gray-900">{{ $rekap['identitas']['departemen'] }}</dd></div>
                                 <div><dt class="text-xs font-medium uppercase text-gray-500">Periode Magang</dt><dd class="mt-1 font-semibold text-gray-900">{{ $rekap['identitas']['tanggal_mulai'] }} - {{ $rekap['identitas']['tanggal_selesai'] }}</dd></div>
-                                <div><dt class="text-xs font-medium uppercase text-gray-500">Dosen / Guru Pembimbing</dt><dd class="mt-1 font-semibold text-gray-900">{{ $rekap['identitas']['dosen']['nama'] }} <span class="font-normal text-gray-500">(NIDN: {{ $rekap['identitas']['dosen']['nidn'] }})</span></dd></div>
+                                <div><dt class="text-xs font-medium uppercase text-gray-500">Pembimbing Sekolah/Kampus</dt><dd class="mt-1 font-semibold text-gray-900">{{ $rekap['identitas']['dosen']['nama'] }} <span class="font-normal text-gray-500">(NIP / NUPTK / ID Pengajar: {{ $rekap['identitas']['dosen']['nidn'] }})</span></dd></div>
                                 <div class="sm:col-span-2"><dt class="text-xs font-medium uppercase text-gray-500">Pembimbing Lapangan</dt><dd class="mt-1 font-semibold text-gray-900">{{ $rekap['identitas']['pembimbing']['nama'] }} <span class="font-normal text-gray-500">(NIP: {{ $rekap['identitas']['pembimbing']['nip'] }})</span></dd></div>
                             </dl>
                         </section>
@@ -91,7 +141,7 @@
                         </section>
 
                         <section class="grid gap-8 border-t border-gray-300 pt-6 sm:grid-cols-2">
-                            <div class="text-center"><p class="font-semibold text-gray-900">Dosen / Guru Pembimbing</p><div class="h-24"></div><p class="font-semibold underline">{{ $rekap['identitas']['dosen']['nama'] }}</p></div>
+                            <div class="text-center"><p class="font-semibold text-gray-900">Pembimbing Sekolah/Kampus</p><div class="h-24"></div><p class="font-semibold underline">{{ $rekap['identitas']['dosen']['nama'] }}</p></div>
                             <div class="text-center"><p class="font-semibold text-gray-900">Pembimbing Lapangan</p><div class="h-24"></div><p class="font-semibold underline">{{ $rekap['identitas']['pembimbing']['nama'] }}</p></div>
                         </section>
                     </div>

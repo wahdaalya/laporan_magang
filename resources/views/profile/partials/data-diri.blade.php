@@ -6,17 +6,17 @@
         'Nama' => $user->name,
         'Email' => $user->email,
         'NIM / NISN' => $user->nim_nip,
-        'Kampus / Sekolah' => $user->kampus ?? $kelompok?->kampus?->nama_universitas,
-        'Fakultas' => $user->fakultas,
-        'Prodi / Jurusan' => $user->prodi,
+        'Instansi / Sekolah / Kampus' => $user->kampus ?? $kelompok?->kampus?->nama_universitas,
+        'Jurusan' => $user->fakultas,
+        'Jurusan / Program Studi' => $user->prodi,
         'No. HP/WA' => $user->hp_wa,
         'Kode Kelompok' => $kelompok?->nama_kelompok,
         'Periode Magang / PKL' => $kelompok
             ? $kelompok->tanggal_mulai->format('d M Y').' - '.$kelompok->tanggal_selesai->format('d M Y')
             : null,
         'Departemen' => $kelompok?->departemen?->nama_departemen,
-        'Dosen / Guru Pembimbing' => $kelompok?->dosen?->nama ?? $user->dosen?->name,
-        'Pembimbing Lapangan' => $kelompok?->pembimbing?->nama ?? $user->mentor?->name,
+        'Pembimbing Sekolah/Kampus' => $kelompok?->dosen?->nama,
+        'Pembimbing Lapangan' => $kelompok?->pembimbing?->nama,
     ];
 @endphp
 

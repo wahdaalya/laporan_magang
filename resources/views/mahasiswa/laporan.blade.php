@@ -8,17 +8,33 @@
 
     <div class="py-8">
         <div class="mx-auto max-w-7xl space-y-4 sm:px-6 lg:px-8">
-            <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-                <div class="border-b border-gray-100 px-6 py-5">
-                    <h3 class="text-lg font-semibold text-gray-900">Riwayat Laporan Kegiatan</h3>
-                    <p class="mt-1 text-sm text-gray-500">Seluruh laporan Magang / PKL yang telah Anda kirim.</p>
+            <div class="rounded-xl border border-gray-200 bg-white shadow-sm" style="max-width:100%;">
+                <div class="border-b border-gray-100 px-6 py-5"
+                     style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900">Riwayat Laporan Kegiatan</h3>
+                        <p class="mt-1 text-sm text-gray-500">Seluruh laporan Magang / PKL yang telah Anda kirim.</p>
+                    </div>
+
+                    <a href="{{ route('mahasiswa.laporan.download-pdf') }}"
+                            class="inline-flex items-center gap-2 rounded-md bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-800">
+                        <i class="fas fa-file-pdf" aria-hidden="true"></i>
+                        Download Arsip PDF
+                    </a>
                 </div>
 
                 @if ($laporans->isEmpty())
                     <p class="px-6 py-8 text-center text-sm text-gray-500">Belum ada laporan kegiatan.</p>
                 @else
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200 text-sm">
+                    <div style="overflow-x:auto; max-width:100%;">
+                        <table class="divide-y divide-gray-200 text-sm" style="width:100%; min-width:760px; table-layout:fixed;">
+                            <colgroup>
+                                <col style="width:130px;">
+                                <col>
+                                <col style="width:130px;">
+                                <col style="width:200px;">
+                                <col style="width:100px;">
+                            </colgroup>
                             <thead class="bg-gray-50 text-xs font-semibold uppercase tracking-wider text-gray-600">
                                 <tr>
                                     <th class="whitespace-nowrap px-4 py-3 text-left">Tanggal</th>
@@ -32,14 +48,14 @@
                                 @foreach ($laporans as $laporan)
                                     <tr class="align-middle hover:bg-gray-50/70">
                                         <td class="whitespace-nowrap px-4 py-3 align-middle">{{ $laporan->tanggal->format('d M Y') }}</td>
-                                        <td class="max-w-md px-4 py-3 align-middle">
-                                            <p class="break-words font-medium text-gray-900">{{ $laporan->kegiatan }}</p>
+                                        <td class="px-4 py-3 align-middle" style="overflow-wrap:anywhere; word-break:break-word;">
+                                            <p class="font-medium text-gray-900">{{ $laporan->kegiatan }}</p>
                                             @if ($laporan->keterangan)
-                                                <p class="mt-1 break-words text-sm text-gray-500">{{ $laporan->keterangan }}</p>
+                                                <p class="mt-1 text-sm text-gray-500">{{ $laporan->keterangan }}</p>
                                             @endif
                                         </td>
                                         <td class="px-4 py-3 align-middle">{{ $laporan->status }}</td>
-                                        <td class="max-w-sm break-words px-4 py-3 align-middle">{{ $laporan->catatan_pembimbing ?? '-' }}</td>
+                                        <td class="px-4 py-3 align-middle" style="overflow-wrap:anywhere; word-break:break-word;">{{ $laporan->catatan_pembimbing ?? '-' }}</td>
                                         <td class="px-4 py-3 align-middle">
                                             @if ($laporan->foto_url)
                                                 <a href="{{ $laporan->foto_url }}" target="_blank" rel="noopener noreferrer">

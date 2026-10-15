@@ -23,20 +23,20 @@ class StudentAccessTest extends TestCase
         $this->assertTrue(StudentAccess::canView($admin, $student));
     }
 
-    public function test_assigned_dosen_can_view_student_media(): void
+    public function test_legacy_dosen_id_does_not_grant_access_without_a_group(): void
     {
         $dosen = $this->user(2, 'DOSEN');
         $student = $this->user(3, 'MAHASISWA', ['dosen_id' => 2]);
 
-        $this->assertTrue(StudentAccess::canView($dosen, $student));
+        $this->assertFalse(StudentAccess::canView($dosen, $student));
     }
 
-    public function test_assigned_mentor_can_view_student_media(): void
+    public function test_legacy_mentor_id_does_not_grant_access_without_a_group(): void
     {
         $mentor = $this->user(4, 'MENTOR');
         $student = $this->user(3, 'MAHASISWA', ['mentor_id' => 4]);
 
-        $this->assertTrue(StudentAccess::canView($mentor, $student));
+        $this->assertFalse(StudentAccess::canView($mentor, $student));
     }
 
     public function test_unassigned_account_cannot_view_student_media(): void

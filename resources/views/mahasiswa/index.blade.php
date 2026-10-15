@@ -1,14 +1,8 @@
 <x-app-layout>
     <x-slot name="header">
-                <div class="flex items-center gap-6">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Data Peserta Magang / PKL') }}
-            </h2>
-
-            <x-primary-button type="button" x-data="" x-on:click.prevent="$dispatch('open-modal', 'create-mahasiswa')">
-                {{ __('+ Tambah Peserta') }}
-            </x-primary-button>
-        </div>
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Data Peserta Magang / PKL') }}
+        </h2>
     </x-slot>
 
         <div class="py-12">
@@ -20,60 +14,109 @@
             @endif
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
+                <div
+                    class="p-6 text-gray-900"
+                    x-data="{
+                        deleteId: null,
+                        deleteNama: '',
+                        hapus(button) {
+                            this.deleteId = button.dataset.mahasiswaId;
+                            this.deleteNama = button.dataset.mahasiswaName;
+                        },
+                        get deleteAction() {
+                            return this.deleteId ? '{{ url('mahasiswa') }}/' + this.deleteId : '';
+                        },
+                    }"
+                >
+                    <x-search-bar :action="route('mahasiswa.index')" :value="$q" :tahun="$tahun" :daftar-tahun="$daftarTahun" placeholder="Cari nama, NIM, email, kampus, atau kelompok" />
+
+                    <div class="mb-4 flex justify-end">
+                        <button type="button" x-data="" x-on:click.prevent="$dispatch('open-modal', 'create-mahasiswa')" class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700">
+                            <i class="fas fa-plus"></i> Tambah Peserta
+                        </button>
+                    </div>
+
                     @if ($mahasiswas->isEmpty())
-                        <p class="text-gray-500">Belum ada data peserta.</p>
+                        @if ($q !== '')
+                            <div class="text-sm text-gray-600">
+                                <p>Data tidak ditemukan untuk pencarian '{{ $q }}'</p>
+                            </div>
+                        @else
+                            <p class="text-gray-500">Belum ada data peserta.</p>
+                        @endif
                     @else
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full text-sm">
-                                                                <thead class="border-b border-gray-200 text-start text-gray-600">
+                        <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white dark:border-slate-700 dark:bg-slate-800">
+                            <table class="min-w-max w-full text-left text-sm dark:border-slate-700">
+                                <thead class="border-b border-gray-200 bg-gray-100 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-300">
                                     <tr>
-                                        <th class="px-3 py-2 text-start">Nama</th>
-                                        <th class="px-3 py-2 text-start">NIM / NISN</th>
-                                        <th class="px-3 py-2 text-start">Kampus</th>
-                                        <th class="px-3 py-2 text-start">Fakultas / Prodi</th>
-                                        <th class="px-3 py-2 text-start">Kelompok</th>
-                                        <th class="px-3 py-2 text-start">Dosen / Guru Pembimbing</th>
-                                        <th class="px-3 py-2 text-start">Pembimbing Lapangan</th>
-                                        <th class="px-3 py-2 text-start">Laporan</th>
-                                        <th class="px-3 py-2 text-end">Aksi</th>
+                                        <th class="whitespace-nowrap px-4 py-3 align-middle text-left">Nama</th>
+                                        <th class="whitespace-nowrap px-4 py-3 align-middle text-left">NIM / NISN</th>
+                                        <th class="whitespace-nowrap px-4 py-3 align-middle text-left">Instansi Pendidikan</th>
+                                        <th class="whitespace-nowrap px-4 py-3 align-middle text-left">Jurusan / Program Studi</th>
+                                        <th class="whitespace-nowrap px-4 py-3 align-middle text-left">Kelompok</th>
+                                        <th class="whitespace-nowrap px-4 py-3 align-middle text-left">Pembimbing Sekolah/Kampus</th>
+                                        <th class="whitespace-nowrap px-4 py-3 align-middle text-left">Pembimbing Lapangan</th>
+                                        <th class="whitespace-nowrap px-4 py-3 align-middle text-center">Laporan</th>
+                                        <th class="whitespace-nowrap px-4 py-3 align-middle text-right">Aksi</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody class="divide-y divide-gray-100 bg-white text-slate-800 dark:divide-slate-700 dark:bg-slate-800 dark:text-slate-200">
                                     @foreach ($mahasiswas as $mahasiswa)
-                                        <tr class="border-b border-gray-100">
-                                            <td class="px-3 py-2">
-                                                <p class="font-medium">{{ $mahasiswa->name }}</p>
+                                        <tr class="bg-white hover:bg-gray-50 dark:bg-slate-800 dark:hover:bg-slate-700/50">
+                                            <td class="px-4 py-3 align-middle whitespace-nowrap">
+                                                <p class="font-medium text-gray-900">{{ $mahasiswa->name }}</p>
                                                 @if ($mahasiswa->email)
-                                                    <a href="mailto:{{ $mahasiswa->email }}" class="text-gray-500 hover:text-blue-700 hover:underline">{{ $mahasiswa->email }}</a>
+                                                    <a href="mailto:{{ $mahasiswa->email }}" class="text-xs text-gray-500 hover:text-blue-700 hover:underline">{{ $mahasiswa->email }}</a>
                                                 @else
-                                                    <p class="text-gray-500">-</p>
+                                                    <p class="text-xs text-gray-500">-</p>
                                                 @endif
                                             </td>
-                                            <td class="px-3 py-2">{{ $mahasiswa->nim_nip ?? '-' }}</td>
-                                            <td class="px-3 py-2">{{ $mahasiswa->kampus ?? '-' }}</td>
-                                            <td class="px-3 py-2">
+                                            <td class="px-4 py-3 align-middle whitespace-nowrap">{{ $mahasiswa->nim_nip ?? '-' }}</td>
+                                            <td class="px-4 py-3 align-middle whitespace-nowrap">{{ $mahasiswa->kampus ?? '-' }}</td>
+                                            <td class="whitespace-nowrap px-4 py-3 align-middle">
                                                 @if ($mahasiswa->fakultas || $mahasiswa->prodi)
                                                     {{ trim($mahasiswa->fakultas.' / '.$mahasiswa->prodi, ' /') }}
                                                 @else
                                                     -
                                                 @endif
                                             </td>
-                                            <td class="px-3 py-2">{{ $mahasiswa->kelompok?->nama_kelompok ?? '-' }}</td>
-                                            <td class="px-3 py-2">{{ $mahasiswa->dosen?->name ?? '-' }}</td>
-                                            <td class="px-3 py-2">{{ $mahasiswa->mentor?->name ?? '-' }}</td>
-                                                                                        <td class="px-3 py-2">{{ $mahasiswa->laporans_count }}</td>
-                                            <td class="px-3 py-2 text-end">
-                                                <x-secondary-button type="button" x-data="" x-on:click.prevent="$dispatch('open-modal', 'edit-mahasiswa-{{ $mahasiswa->id }}')">
-                                                    {{ __('Edit') }}
-                                                </x-secondary-button>
-                                            </td>
+                                            <td class="px-4 py-3 align-middle whitespace-nowrap">{{ $mahasiswa->kelompok?->nama_kelompok ?? '-' }}</td>
+                                            <td class="whitespace-nowrap px-4 py-3 align-middle">{{ $mahasiswa->dosen?->nama ?? '-' }}</td>
+                                            <td class="max-w-[180px] break-words px-4 py-3 align-middle">{{ $mahasiswa->mentor?->nama ?? '-' }}</td>
+                                            <td class="px-4 py-3 align-middle text-center">{{ $mahasiswa->laporans_count }}</td>
+                                            <td class="px-4 py-3 align-middle whitespace-nowrap text-right">
+    <div class="flex items-center justify-end gap-2">
+        <form method="POST" action="{{ route('mahasiswa.impersonate', $mahasiswa->id) }}">
+            @csrf
+            <x-secondary-button type="submit" title="Masuk sebagai {{ $mahasiswa->name }}">
+                Login sebagai Akun Ini
+            </x-secondary-button>
+        </form>
+        <x-secondary-button type="button" x-data="" x-on:click.prevent="$dispatch('open-modal', 'edit-mahasiswa-{{ $mahasiswa->id }}')">
+            {{ __('Edit') }}
+        </x-secondary-button>
+        <x-danger-button
+            type="button"
+            data-mahasiswa-id="{{ $mahasiswa->id }}"
+            data-mahasiswa-name="{{ $mahasiswa->name }}"
+            x-on:click="hapus($el); $dispatch('open-modal', 'confirm-delete-mahasiswa')"
+            aria-label="Hapus peserta {{ $mahasiswa->name }}"
+        >
+            {{ __('Hapus') }}
+        </x-danger-button>
+    </div>
+</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
                             </table>
                                                 </div>
                     @endif
+
+                    <div class="mt-4 flex flex-col gap-3 border-t border-gray-100 pt-4 text-sm text-gray-600 sm:flex-row sm:items-center sm:justify-between">
+                        <p>Menampilkan {{ $mahasiswas->firstItem() ?? 0 }}-{{ $mahasiswas->lastItem() ?? 0 }} dari {{ $mahasiswas->total() }} data</p>
+                        <div class="self-start sm:self-auto">{{ $mahasiswas->links() }}</div>
+                    </div>
 
                     @foreach ($mahasiswas as $mahasiswa)
                         <x-modal name="edit-mahasiswa-{{ $mahasiswa->id }}">
@@ -139,16 +182,16 @@
                                     </div>
 
                                     <div class="relative" x-on:click.outside="terbuka.kampus = false">
-                                        <x-input-label for="edit_kampus_{{ $mahasiswa->id }}" value="{{ __('Kampus / Sekolah') }}" />
+                                        <x-input-label for="edit_kampus_{{ $mahasiswa->id }}" value="{{ __('Instansi / Sekolah / Kampus') }}" />
                                         <div class="relative mt-1">
-                                            <input id="edit_kampus_{{ $mahasiswa->id }}" name="kampus" type="text" autocomplete="off" placeholder="Ketik atau pilih kampus..." class="block w-full rounded-md border-gray-300 pr-9 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" x-model="nilai.kampus" x-on:input="cari('kampus')" x-on:focus="bukaDropdown('kampus')">
+                                            <input id="edit_kampus_{{ $mahasiswa->id }}" name="kampus" type="text" autocomplete="off" placeholder="Ketik atau pilih instansi..." class="block w-full rounded-md border-gray-300 pr-9 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400" x-model="nilai.kampus" x-on:input="cari('kampus')" x-on:focus="bukaDropdown('kampus')">
                                             <button type="button" x-on:click="terbuka.kampus = !terbuka.kampus; if (terbuka.kampus) bukaDropdown('kampus')" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600">
                                                 <i class="fas fa-chevron-down text-xs"></i>
                                             </button>
                                         </div>
                                         <ul x-show="terbuka.kampus" style="background-color: #ffffff;" class="absolute z-50 mt-1 max-h-48 w-full overflow-auto rounded-md border border-gray-200 bg-white text-sm shadow-lg">
                                             <template x-if="saran.kampus.length === 0">
-                                                <li class="px-3 py-2 text-gray-400">Tidak ada yang cocok — ketik nama kampus baru.</li>
+                                                <li class="px-3 py-2 text-gray-400">Tidak ada yang cocok — ketik nama instansi baru.</li>
                                             </template>
                                             <template x-for="nama in saran.kampus" :key="nama">
                                                 <li x-on:click="pilih('kampus', nama)" x-text="nama" class="cursor-pointer px-3 py-2 hover:bg-indigo-50" :class="nama === nilai.kampus ? 'bg-indigo-50 font-medium text-indigo-700' : 'text-gray-700'"></li>
@@ -159,7 +202,7 @@
                                     <div class="relative" x-on:click.outside="terbuka.fakultas = false">
                                         <x-input-label for="edit_fakultas_{{ $mahasiswa->id }}" value="{{ __('Fakultas') }}" />
                                         <div class="relative mt-1">
-                                            <input id="edit_fakultas_{{ $mahasiswa->id }}" name="fakultas" type="text" autocomplete="off" placeholder="Ketik atau pilih fakultas..." class="block w-full rounded-md border-gray-300 pr-9 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" x-model="nilai.fakultas" x-on:input="cari('fakultas')" x-on:focus="bukaDropdown('fakultas')">
+                                            <input id="edit_fakultas_{{ $mahasiswa->id }}" name="fakultas" type="text" autocomplete="off" placeholder="Ketik atau pilih fakultas..." class="block w-full rounded-md border-gray-300 pr-9 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400" x-model="nilai.fakultas" x-on:input="cari('fakultas')" x-on:focus="bukaDropdown('fakultas')">
                                             <button type="button" x-on:click="terbuka.fakultas = !terbuka.fakultas; if (terbuka.fakultas) bukaDropdown('fakultas')" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600">
                                                 <i class="fas fa-chevron-down text-xs"></i>
                                             </button>
@@ -175,16 +218,16 @@
                                     </div>
 
                                     <div class="relative" x-on:click.outside="terbuka.prodi = false">
-                                        <x-input-label for="edit_prodi_{{ $mahasiswa->id }}" value="{{ __('Prodi') }}" />
+                                        <x-input-label for="edit_prodi_{{ $mahasiswa->id }}" value="{{ __('Program Studi') }}" />
                                         <div class="relative mt-1">
-                                            <input id="edit_prodi_{{ $mahasiswa->id }}" name="prodi" type="text" autocomplete="off" placeholder="Ketik atau pilih prodi..." class="block w-full rounded-md border-gray-300 pr-9 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" x-model="nilai.prodi" x-on:input="cari('prodi')" x-on:focus="bukaDropdown('prodi')">
+                                            <input id="edit_prodi_{{ $mahasiswa->id }}" name="prodi" type="text" autocomplete="off" placeholder="Ketik atau pilih program studi..." class="block w-full rounded-md border-gray-300 pr-9 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400" x-model="nilai.prodi" x-on:input="cari('prodi')" x-on:focus="bukaDropdown('prodi')">
                                             <button type="button" x-on:click="terbuka.prodi = !terbuka.prodi; if (terbuka.prodi) bukaDropdown('prodi')" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600">
                                                 <i class="fas fa-chevron-down text-xs"></i>
                                             </button>
                                         </div>
                                         <ul x-show="terbuka.prodi" style="background-color: #ffffff;" class="absolute z-50 mt-1 max-h-48 w-full overflow-auto rounded-md border border-gray-200 bg-white text-sm shadow-lg">
                                             <template x-if="saran.prodi.length === 0">
-                                                <li class="px-3 py-2 text-gray-400">Tidak ada yang cocok — ketik prodi baru.</li>
+                                                <li class="px-3 py-2 text-gray-400">Tidak ada yang cocok — ketik program studi baru.</li>
                                             </template>
                                             <template x-for="nama in saran.prodi" :key="nama">
                                                 <li x-on:click="pilih('prodi', nama)" x-text="nama" class="cursor-pointer px-3 py-2 hover:bg-indigo-50" :class="nama === nilai.prodi ? 'bg-indigo-50 font-medium text-indigo-700' : 'text-gray-700'"></li>
@@ -194,7 +237,7 @@
 
                                     <div>
                                         <x-input-label for="edit_kelompok_id_{{ $mahasiswa->id }}" value="{{ __('Kelompok') }}" />
-                                        <select id="edit_kelompok_id_{{ $mahasiswa->id }}" name="kelompok_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                        <select id="edit_kelompok_id_{{ $mahasiswa->id }}" name="kelompok_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400">
                                             <option value="">{{ __('- Belum ada kelompok -') }}</option>
                                             @foreach ($kelompoks as $kelompok)
                                                 <option value="{{ $kelompok->id }}" @selected($mahasiswa->kelompok_id == $kelompok->id)>
@@ -217,6 +260,8 @@
                             </form>
                         </x-modal>
                     @endforeach
+
+                    @include('mahasiswa._delete_modal')
                 </div>
             </div>
         </div>
@@ -268,7 +313,7 @@
                     },
                 }">
                     <x-input-label for="create_name" value="{{ __('Nama Peserta') }}" />
-                    <select id="create_name" name="name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" x-on:change="pilih($event.target)" required>
+                    <select id="create_name" name="name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400" x-on:change="pilih($event.target)" required>
                         <option value="">{{ __('- Pilih Nama -') }}</option>
                         @foreach ($calonAnggotas as $calon)
                             <option
@@ -321,16 +366,16 @@
                 </div>
 
                 <div class="relative" x-on:click.outside="terbuka.kampus = false">
-                    <x-input-label for="create_kampus" value="{{ __('Kampus / Sekolah') }}" />
+                    <x-input-label for="create_kampus" value="{{ __('Instansi / Sekolah / Kampus') }}" />
                     <div class="relative mt-1">
-                        <input id="create_kampus" name="kampus" type="text" autocomplete="off" placeholder="Ketik atau pilih kampus..." class="block w-full rounded-md border-gray-300 pr-9 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" x-model="nilai.kampus" x-on:input="cari('kampus')" x-on:focus="bukaDropdown('kampus')">
+                        <input id="create_kampus" name="kampus" type="text" autocomplete="off" placeholder="Ketik atau pilih instansi..." class="block w-full rounded-md border-gray-300 pr-9 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400" x-model="nilai.kampus" x-on:input="cari('kampus')" x-on:focus="bukaDropdown('kampus')">
                         <button type="button" x-on:click="terbuka.kampus = !terbuka.kampus; if (terbuka.kampus) bukaDropdown('kampus')" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600">
                             <i class="fas fa-chevron-down text-xs"></i>
                         </button>
                     </div>
                     <ul x-show="terbuka.kampus" style="background-color: #ffffff;" class="absolute z-50 mt-1 max-h-48 w-full overflow-auto rounded-md border border-gray-200 bg-white text-sm shadow-lg">
                         <template x-if="saran.kampus.length === 0">
-                            <li class="px-3 py-2 text-gray-400">Tidak ada yang cocok — ketik nama kampus baru.</li>
+                            <li class="px-3 py-2 text-gray-400">Tidak ada yang cocok — ketik nama instansi baru.</li>
                         </template>
                         <template x-for="nama in saran.kampus" :key="nama">
                             <li x-on:click="pilih('kampus', nama)" x-text="nama" class="cursor-pointer px-3 py-2 hover:bg-indigo-50" :class="nama === nilai.kampus ? 'bg-indigo-50 font-medium text-indigo-700' : 'text-gray-700'"></li>
@@ -342,7 +387,7 @@
                 <div class="relative" x-on:click.outside="terbuka.fakultas = false">
                     <x-input-label for="create_fakultas" value="{{ __('Fakultas') }}" />
                     <div class="relative mt-1">
-                        <input id="create_fakultas" name="fakultas" type="text" autocomplete="off" placeholder="Ketik atau pilih fakultas..." class="block w-full rounded-md border-gray-300 pr-9 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" x-model="nilai.fakultas" x-on:input="cari('fakultas')" x-on:focus="bukaDropdown('fakultas')">
+                        <input id="create_fakultas" name="fakultas" type="text" autocomplete="off" placeholder="Ketik atau pilih fakultas..." class="block w-full rounded-md border-gray-300 pr-9 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400" x-model="nilai.fakultas" x-on:input="cari('fakultas')" x-on:focus="bukaDropdown('fakultas')">
                         <button type="button" x-on:click="terbuka.fakultas = !terbuka.fakultas; if (terbuka.fakultas) bukaDropdown('fakultas')" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600">
                             <i class="fas fa-chevron-down text-xs"></i>
                         </button>
@@ -359,16 +404,16 @@
                 </div>
 
                 <div class="relative" x-on:click.outside="terbuka.prodi = false">
-                    <x-input-label for="create_prodi" value="{{ __('Prodi') }}" />
+                    <x-input-label for="create_prodi" value="{{ __('Program Studi') }}" />
                     <div class="relative mt-1">
-                        <input id="create_prodi" name="prodi" type="text" autocomplete="off" placeholder="Ketik atau pilih prodi..." class="block w-full rounded-md border-gray-300 pr-9 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" x-model="nilai.prodi" x-on:input="cari('prodi')" x-on:focus="bukaDropdown('prodi')">
+                        <input id="create_prodi" name="prodi" type="text" autocomplete="off" placeholder="Ketik atau pilih program studi..." class="block w-full rounded-md border-gray-300 pr-9 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400" x-model="nilai.prodi" x-on:input="cari('prodi')" x-on:focus="bukaDropdown('prodi')">
                         <button type="button" x-on:click="terbuka.prodi = !terbuka.prodi; if (terbuka.prodi) bukaDropdown('prodi')" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600">
                             <i class="fas fa-chevron-down text-xs"></i>
                         </button>
                     </div>
                     <ul x-show="terbuka.prodi" style="background-color: #ffffff;" class="absolute z-50 mt-1 max-h-48 w-full overflow-auto rounded-md border border-gray-200 bg-white text-sm shadow-lg">
                         <template x-if="saran.prodi.length === 0">
-                            <li class="px-3 py-2 text-gray-400">Tidak ada yang cocok — ketik prodi baru.</li>
+                            <li class="px-3 py-2 text-gray-400">Tidak ada yang cocok — ketik program studi baru.</li>
                         </template>
                         <template x-for="nama in saran.prodi" :key="nama">
                             <li x-on:click="pilih('prodi', nama)" x-text="nama" class="cursor-pointer px-3 py-2 hover:bg-indigo-50" :class="nama === nilai.prodi ? 'bg-indigo-50 font-medium text-indigo-700' : 'text-gray-700'"></li>

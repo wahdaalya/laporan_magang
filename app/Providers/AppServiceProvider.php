@@ -47,10 +47,10 @@ class AppServiceProvider extends ServiceProvider
             };
 
             $view->with('profileSummary', [
-                'name' => $user->name,
+                'name' => $user->display_name,
                 'email' => $user->email,
                 'photo' => $user->foto_url,
-                'initial' => strtoupper(substr($user->name ?? 'U', 0, 1)),
+                'initial' => strtoupper(substr($user->display_name ?: 'U', 0, 1)),
                 'role' => $roleLabel,
             ]);
         });

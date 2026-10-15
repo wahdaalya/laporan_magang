@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Dosen;
+use App\Models\Kelompok;
 use App\Models\Laporan;
 use App\Models\Pembimbing;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -17,6 +18,27 @@ class PembimbinganController extends Controller
     public function index(Request $request): View
     {
         $pembimbing = $request->user();
+        $profilPembimbingId = Pembimbing::query()->where('user_id', $pembimbing->id)->value('id');
+        $kelompoksBimbingan = $profilPembimbingId
+            ? Kelompok::query()
+                ->where('pembimbing_id', $profilPembimbingId)
+                ->with([
+                    'departemen:id,nama_departemen',
+                    'kampus:id,nama_universitas,fakultas,prodi',
+                    'dosen:id,user_id,nama,nidn,email,hp_wa',
+                    'dosen.user:id,name,foto,hp_wa,email',
+                    'mahasiswas' => fn (HasMany $query) => $query
+                        ->where('role', 'MAHASISWA')
+                        ->with('laporanAkhir')
+                        ->withCount([
+                            'laporans as laporan_belum_diperiksa_count' => fn (Builder $laporanQuery) => $laporanQuery->where('status', 'Belum Diperiksa'),
+                            'penilaians',
+                        ]),
+                ])
+                ->withCount(['mahasiswas as mahasiswa_count' => fn (Builder $query) => $query->where('role', 'MAHASISWA')])
+                ->orderBy('nama_kelompok')
+                ->get()
+            : collect();
         $today = today();
         $pesertas = $this->pesertaQuery($pembimbing)
             ->with([
@@ -60,6 +82,9 @@ class PembimbinganController extends Controller
             'totalPeserta' => $pesertas->count(),
             'totalLaporanPending' => $totalLaporanPending,
             'totalBelumLapor' => $belumLaporHariIni->count(),
+            'kelompoksBimbingan' => $kelompoksBimbingan,
+            'jumlahKelompokBimbingan' => $kelompoksBimbingan->count(),
+            'jumlahPesertaKelompok' => $kelompoksBimbingan->sum('mahasiswa_count'),
         ]);
     }
 
@@ -150,19 +175,9 @@ class PembimbinganController extends Controller
 
     private function pesertaQuery(User $pembimbing): Builder
     {
-        $isDosen = $pembimbing->role === 'DOSEN';
-        $profileId = $isDosen
-            ? Dosen::query()->where('user_id', $pembimbing->id)->value('id')
-            : Pembimbing::query()->where('user_id', $pembimbing->id)->value('id');
-        $groupForeignKey = $isDosen ? 'dosen_id' : 'pembimbing_id';
-        $directForeignKey = $isDosen ? 'dosen_id' : 'mentor_id';
-
-        return User::query()
-            ->where('role', 'MAHASISWA')
-            ->where(function (Builder $query) use ($profileId, $groupForeignKey, $directForeignKey, $pembimbing): void {
-                $query->when($profileId, fn (Builder $query) => $query->whereHas('kelompok', fn (Builder $kelompokQuery) => $kelompokQuery->where($groupForeignKey, $profileId)))
-                    ->orWhere($directForeignKey, $pembimbing->id);
-            });
+        return $pembimbing->role === 'DOSEN'
+            ? $pembimbing->mahasiswaBimbinganDosen()
+            : $pembimbing->mahasiswaBimbinganMentor();
     }
 
     private function laporanQuery(User $pembimbing): Builder

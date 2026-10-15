@@ -6,9 +6,9 @@ use App\Models\Dosen;
 use App\Models\Kelompok;
 use App\Models\LaporanAkhir;
 use App\Models\NilaiAkademik;
+use App\Models\Pembimbing;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -28,6 +28,11 @@ class DosenDashboardTest extends TestCase
             'tanggal_selesai' => today()->addWeeks(8),
             'dosen_id' => $dosenProfile->id,
         ]);
+        $mentor = Pembimbing::create([
+            'nama' => 'Mentor Kelompok Saya',
+            'hp_wa' => '081234567890',
+        ]);
+        $kelompok->update(['pembimbing_id' => $mentor->id]);
         $kelompokLain = Kelompok::create([
             'nama_kelompok' => 'KEL-DOSEN-02',
             'tanggal_mulai' => today()->subWeek(),
@@ -38,6 +43,14 @@ class DosenDashboardTest extends TestCase
             'name' => 'Peserta Saya',
             'kelompok_id' => $kelompok->id,
         ]);
+        $peserta->laporans()->create(['tanggal' => today(), 'kegiatan' => 'Laporan disetujui', 'status' => 'Disetujui']);
+        $peserta->laporans()->create(['tanggal' => today()->subDay(), 'kegiatan' => 'Laporan revisi', 'status' => 'Revisi']);
+        LaporanAkhir::create([
+            'mahasiswa_id' => $peserta->id,
+            'judul_laporan' => 'Laporan Akhir Uji',
+            'file_path' => 'laporan-akhir/uji.pdf',
+            'status' => 'Revisi',
+        ]);
         User::factory()->role('MAHASISWA')->create([
             'name' => 'Peserta Dosen Lain',
             'kelompok_id' => $kelompokLain->id,
@@ -47,6 +60,12 @@ class DosenDashboardTest extends TestCase
             ->assertOk()
             ->assertSee('Peserta Saya')
             ->assertDontSee('Peserta Dosen Lain')
+            ->assertSee('Mahasiswa Bimbingan Saya')
+            ->assertSee('KEL-DOSEN-01')
+            ->assertDontSee('KEL-DOSEN-02')
+            ->assertSee('Mentor Kelompok Saya')
+            ->assertSee('Laporan disetujui: 1/2')
+            ->assertSee('Laporan akhir: Revisi')
             ->assertSee('Mahasiswa Aktif Magang');
     }
 
@@ -70,20 +89,34 @@ class DosenDashboardTest extends TestCase
             ->assertDontSee('Logbook masih pending');
     }
 
-    public function test_student_can_upload_a_pdf_final_report_draft(): void
+    public function test_student_can_submit_automatically_generated_final_report(): void
     {
-        Storage::fake('public');
-        $peserta = User::factory()->role('MAHASISWA')->create();
+        Storage::fake('local');
+        $dosen = User::factory()->role('DOSEN')->create();
+        $dosenProfile = Dosen::create(['user_id' => $dosen->id, 'nama' => $dosen->name]);
+        $kelompok = Kelompok::create([
+            'nama_kelompok' => 'KEL-AUTO-01',
+            'tanggal_mulai' => '2026-09-01',
+            'tanggal_selesai' => '2026-12-01',
+            'dosen_id' => $dosenProfile->id,
+        ]);
+        $peserta = User::factory()->role('MAHASISWA')->create([
+            'kelompok_id' => $kelompok->id,
+        ]);
+        $peserta->laporans()->create([
+            'tanggal' => '2026-09-10',
+            'kegiatan' => 'Laporan disetujui',
+            'status' => 'Disetujui',
+        ]);
 
-        $this->actingAs($peserta)->post(route('mahasiswa.laporan-akhir.store'), [
-            'judul_laporan' => 'Draf Laporan Magang',
-            'file' => UploadedFile::fake()->createWithContent('draf-laporan.pdf', "%PDF-1.4\n%%EOF"),
-        ])->assertRedirect();
+        $this->actingAs($peserta)->post(route('mahasiswa.laporan-akhir.ajukan'))
+            ->assertRedirect(route('mahasiswa.laporan-akhir.index'));
 
-        $laporan = LaporanAkhir::query()->where('mahasiswa_id', $peserta->id)->firstOrFail();
-        $this->assertTrue(Storage::disk('public')->exists($laporan->file_path));
-        $this->assertSame('Draf Laporan Magang', $laporan->judul_laporan);
+        $laporan = $peserta->laporanAkhir()->firstOrFail();
+        Storage::disk('local')->assertExists($laporan->file_path);
+        $this->assertSame('Laporan Akhir Magang/PKL - '.$peserta->name, $laporan->judul_laporan);
         $this->assertSame('Menunggu Review', $laporan->status);
+        $this->assertSame($dosen->id, $laporan->dosen_user_id);
     }
 
     public function test_dosen_can_request_revision_for_an_assigned_final_report(): void

@@ -5,14 +5,14 @@
         <input type="hidden" name="_id" x-bind:value="editId">
 
         <div class="flex items-center justify-between">
-            <h2 class="text-lg font-medium text-gray-900" x-text="editId ? 'Ubah Kampus' : 'Tambah Kampus'"></h2>
+            <h2 class="text-lg font-medium text-gray-900" x-text="editId ? 'Edit Instansi' : 'Tambah Instansi'"></h2>
             <button type="button" x-on:click="$dispatch('close')" class="text-gray-400">
                 <i class="fas fa-times"></i>
             </button>
         </div>
 
         <div class="mt-6 relative" x-on:click.outside="terbuka.nama_universitas = false">
-            <x-input-label for="nama_universitas" value="Nama Universitas" />
+            <x-input-label for="nama_universitas" value="Nama Instansi / Sekolah / Kampus" />
 
             <div class="relative mt-1">
                 <input
@@ -20,8 +20,8 @@
                     name="nama_universitas"
                     type="text"
                     autocomplete="off"
-                    placeholder="Ketik atau pilih universitas..."
-                    class="block w-full rounded-md border-gray-300 pr-9 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                    placeholder="Contoh: SMK Negeri 1 Medan / Universitas Sumatera Utara"
+                    class="block w-full rounded-md border-gray-300 pr-9 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400"
                     x-model="f.nama_universitas"
                     x-on:input="cari('nama_universitas')"
                     x-on:focus="bukaDropdown('nama_universitas')"
@@ -31,12 +31,12 @@
                 </button>
             </div>
 
-            <ul x-show="terbuka.nama_universitas" style="background-color: #ffffff;" class="absolute z-50 mt-1 max-h-48 w-full overflow-auto rounded-md border border-gray-200 bg-white text-sm shadow-lg">
+            <ul x-show="terbuka.nama_universitas" class="absolute z-50 mt-1 max-h-48 w-full overflow-auto rounded-md border border-gray-200 bg-white text-sm shadow-lg dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
                 <template x-if="saran.nama_universitas.length === 0">
-                    <li class="px-3 py-2 text-gray-400">Tidak ada yang cocok — ketik nama baru untuk menambahkan.</li>
+                    <li class="px-3 py-2 text-gray-400 dark:text-slate-400">Tidak ada yang cocok — ketik nama instansi baru.</li>
                 </template>
                 <template x-for="nama in saran.nama_universitas" :key="nama">
-                    <li x-on:click="pilih('nama_universitas', nama)" x-text="nama" class="cursor-pointer px-3 py-2 hover:bg-indigo-50" :class="nama === f.nama_universitas ? 'bg-indigo-50 font-medium text-indigo-700' : 'text-gray-700'"></li>
+                    <li x-on:click="pilih('nama_universitas', nama)" x-text="nama" class="cursor-pointer px-3 py-2 text-gray-700 hover:bg-indigo-50 dark:text-slate-100 dark:hover:bg-slate-700" :class="nama === f.nama_universitas ? 'bg-indigo-50 font-medium text-indigo-700 dark:bg-slate-700 dark:text-slate-100' : 'text-gray-700 dark:text-slate-100'"></li>
                 </template>
             </ul>
 
@@ -53,7 +53,7 @@
                     type="text"
                     autocomplete="off"
                     placeholder="Ketik atau pilih alamat..."
-                    class="block w-full rounded-md border-gray-300 pr-9 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                    class="block w-full rounded-md border-gray-300 pr-9 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400"
                     x-model="f.alamat"
                     x-on:input="cari('alamat')"
                     x-on:focus="bukaDropdown('alamat')"
@@ -63,12 +63,12 @@
                 </button>
             </div>
 
-            <ul x-show="terbuka.alamat" style="background-color: #ffffff;" class="absolute z-50 mt-1 max-h-48 w-full overflow-auto rounded-md border border-gray-200 bg-white text-sm shadow-lg">
+            <ul x-show="terbuka.alamat" class="absolute z-50 mt-1 max-h-48 w-full overflow-auto rounded-md border border-gray-200 bg-white text-sm shadow-lg dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
                 <template x-if="saran.alamat.length === 0">
-                    <li class="px-3 py-2 text-gray-400">Tidak ada yang cocok — ketik alamat baru.</li>
+                    <li class="px-3 py-2 text-gray-400 dark:text-slate-400">Tidak ada yang cocok — ketik alamat baru.</li>
                 </template>
                 <template x-for="nama in saran.alamat" :key="nama">
-                    <li x-on:click="pilih('alamat', nama)" x-text="nama" class="cursor-pointer px-3 py-2 hover:bg-indigo-50" :class="nama === f.alamat ? 'bg-indigo-50 font-medium text-indigo-700' : 'text-gray-700'"></li>
+                    <li x-on:click="pilih('alamat', nama)" x-text="nama" class="cursor-pointer px-3 py-2 text-gray-700 hover:bg-indigo-50 dark:text-slate-100 dark:hover:bg-slate-700" :class="nama === f.alamat ? 'bg-indigo-50 font-medium text-indigo-700 dark:bg-slate-700 dark:text-slate-100' : 'text-gray-700 dark:text-slate-100'"></li>
                 </template>
             </ul>
 
@@ -84,8 +84,8 @@
                     name="fakultas"
                     type="text"
                     autocomplete="off"
-                    placeholder="Ketik atau pilih fakultas..."
-                    class="block w-full rounded-md border-gray-300 pr-9 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                    placeholder="Contoh: Teknik Komputer dan Jaringan / Sistem Informasi"
+                    class="block w-full rounded-md border-gray-300 pr-9 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400"
                     x-model="f.fakultas"
                     x-on:input="cari('fakultas')"
                     x-on:focus="bukaDropdown('fakultas')"
@@ -95,12 +95,12 @@
                 </button>
             </div>
 
-            <ul x-show="terbuka.fakultas" style="background-color: #ffffff;" class="absolute z-50 mt-1 max-h-48 w-full overflow-auto rounded-md border border-gray-200 bg-white text-sm shadow-lg">
+            <ul x-show="terbuka.fakultas" class="absolute z-50 mt-1 max-h-48 w-full overflow-auto rounded-md border border-gray-200 bg-white text-sm shadow-lg dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
                 <template x-if="saran.fakultas.length === 0">
-                    <li class="px-3 py-2 text-gray-400">Tidak ada yang cocok — ketik fakultas baru.</li>
+                    <li class="px-3 py-2 text-gray-400 dark:text-slate-400">Tidak ada yang cocok — ketik fakultas baru.</li>
                 </template>
                 <template x-for="nama in saran.fakultas" :key="nama">
-                    <li x-on:click="pilih('fakultas', nama)" x-text="nama" class="cursor-pointer px-3 py-2 hover:bg-indigo-50" :class="nama === f.fakultas ? 'bg-indigo-50 font-medium text-indigo-700' : 'text-gray-700'"></li>
+                    <li x-on:click="pilih('fakultas', nama)" x-text="nama" class="cursor-pointer px-3 py-2 text-gray-700 hover:bg-indigo-50 dark:text-slate-100 dark:hover:bg-slate-700" :class="nama === f.fakultas ? 'bg-indigo-50 font-medium text-indigo-700 dark:bg-slate-700 dark:text-slate-100' : 'text-gray-700 dark:text-slate-100'"></li>
                 </template>
             </ul>
 
@@ -108,7 +108,7 @@
         </div>
 
         <div class="mt-4 relative" x-on:click.outside="terbuka.prodi = false">
-            <x-input-label for="prodi" value="Prodi" />
+            <x-input-label for="prodi" value="Program Studi (opsional, jika berbeda)" />
 
             <div class="relative mt-1">
                 <input
@@ -116,8 +116,8 @@
                     name="prodi"
                     type="text"
                     autocomplete="off"
-                    placeholder="Ketik atau pilih prodi..."
-                    class="block w-full rounded-md border-gray-300 pr-9 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                    placeholder="Contoh: Sistem Informasi"
+                    class="block w-full rounded-md border-gray-300 pr-9 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400"
                     x-model="f.prodi"
                     x-on:input="cari('prodi')"
                     x-on:focus="bukaDropdown('prodi')"
@@ -127,12 +127,12 @@
                 </button>
             </div>
 
-            <ul x-show="terbuka.prodi" style="background-color: #ffffff;" class="absolute z-50 mt-1 max-h-48 w-full overflow-auto rounded-md border border-gray-200 bg-white text-sm shadow-lg">
+            <ul x-show="terbuka.prodi" class="absolute z-50 mt-1 max-h-48 w-full overflow-auto rounded-md border border-gray-200 bg-white text-sm shadow-lg dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
                 <template x-if="saran.prodi.length === 0">
-                    <li class="px-3 py-2 text-gray-400">Tidak ada yang cocok — ketik prodi baru.</li>
+                    <li class="px-3 py-2 text-gray-400 dark:text-slate-400">Tidak ada yang cocok — ketik program studi baru.</li>
                 </template>
                 <template x-for="nama in saran.prodi" :key="nama">
-                    <li x-on:click="pilih('prodi', nama)" x-text="nama" class="cursor-pointer px-3 py-2 hover:bg-indigo-50" :class="nama === f.prodi ? 'bg-indigo-50 font-medium text-indigo-700' : 'text-gray-700'"></li>
+                    <li x-on:click="pilih('prodi', nama)" x-text="nama" class="cursor-pointer px-3 py-2 text-gray-700 hover:bg-indigo-50 dark:text-slate-100 dark:hover:bg-slate-700" :class="nama === f.prodi ? 'bg-indigo-50 font-medium text-indigo-700 dark:bg-slate-700 dark:text-slate-100' : 'text-gray-700 dark:text-slate-100'"></li>
                 </template>
             </ul>
 

@@ -5,10 +5,14 @@ namespace Tests\Feature;
 use App\Models\Kelompok;
 use App\Models\Laporan;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class LaporanAkhirRekapTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_empty_state_is_shown_without_a_group_or_approved_reports(): void
     {
         $mahasiswa = User::factory()->role('MAHASISWA')->create();
@@ -43,8 +47,9 @@ class LaporanAkhirRekapTest extends TestCase
             ->assertSee('Ada 2 laporan yang belum disetujui dan belum masuk rekap.');
     }
 
-    public function test_pdf_route_generates_the_current_students_report(): void
+    public function test_student_submission_creates_private_pdf_and_downloads_after_approval(): void
     {
+        Storage::fake('local');
         $mahasiswa = User::factory()->role('MAHASISWA')->create();
         $kelompok = Kelompok::query()->create([
             'nama_kelompok' => 'KEL-2026-002',
@@ -54,10 +59,30 @@ class LaporanAkhirRekapTest extends TestCase
         $mahasiswa->kelompok()->associate($kelompok)->save();
         $this->createReport($mahasiswa, '2026-09-01', 'Kegiatan Milik Mahasiswa', 'Disetujui');
 
-        $response = $this->actingAs($mahasiswa)->get(route('mahasiswa.laporan-akhir.cetak'));
+        $this->actingAs($mahasiswa)
+            ->post(route('mahasiswa.laporan-akhir.ajukan'))
+            ->assertRedirect(route('mahasiswa.laporan-akhir.index'));
 
-        $response->assertOk()->assertHeader('Content-Type', 'application/pdf');
-        $this->assertStringStartsWith('%PDF', $response->getContent());
+        $laporanAkhir = $mahasiswa->laporanAkhir()->firstOrFail();
+        $this->assertSame('Menunggu Review', $laporanAkhir->status);
+        $this->assertSame('Laporan Akhir Magang/PKL - '.$mahasiswa->name, $laporanAkhir->judul_laporan);
+        Storage::disk('local')->assertExists($laporanAkhir->file_path);
+        $this->assertStringStartsWith('%PDF', Storage::disk('local')->get($laporanAkhir->file_path));
+
+        $laporanAkhir->update(['status' => 'Disetujui']);
+
+        $response = $this->get(route('mahasiswa.laporan-akhir.cetak'));
+
+        $response->assertDownload(basename($laporanAkhir->file_path));
+    }
+
+    public function test_student_cannot_submit_without_group_or_approved_reports(): void
+    {
+        $mahasiswa = User::factory()->role('MAHASISWA')->create();
+
+        $this->actingAs($mahasiswa)
+            ->post(route('mahasiswa.laporan-akhir.ajukan'))
+            ->assertUnprocessable();
     }
 
     private function createReport(User $mahasiswa, string $tanggal, string $kegiatan, string $status): void

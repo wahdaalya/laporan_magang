@@ -1,5 +1,7 @@
 @php
     $namaBulan = [1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'];
+    $logoFile = public_path('images/logo_aviasi.png');
+    $logoSrc = file_exists($logoFile) ? 'data:image/png;base64,'.base64_encode(file_get_contents($logoFile)) : null;
 @endphp
 <!DOCTYPE html>
 <html lang="id">
@@ -10,8 +12,8 @@
         * { box-sizing: border-box; }
         @page { size: A4 portrait; margin: 8mm; }
         body { margin: 0; color: #111; font-family: "DejaVu Sans", Arial, sans-serif; font-size: 8px; }
-        .header { position: relative; min-height: 19mm; padding: 0 28mm 2mm; text-align: center; }
-        .logo { position: absolute; top: 0; right: 0; width: 22mm; height: 17mm; object-fit: contain; }
+        .header { position: relative; min-height: 19mm; padding: 0 38mm 2mm; text-align: center; }
+        .logo { position: absolute; top: 0; right: 0; height: 45px; }
         h1 { margin: 0 0 1.5mm; font-size: 15px; font-weight: 700; }
         .subtitle { margin: 0; font-size: 9px; font-weight: 600; }
         .metadata { width: 100%; margin: 0 0 2mm; border-collapse: collapse; }
@@ -34,7 +36,9 @@
 </head>
 <body>
     <header class="header">
-        <img src="{{ $logoPath }}" alt="Logo PT Angkasa Pura Aviasi" class="logo">
+        @if ($logoSrc)
+    <img src="{{ $logoSrc }}" alt="" class="logo">
+@endif
         <h1>LEMBAR PRESENSI MAGANG / PKL</h1>
         <p class="subtitle">PT Angkasa Pura Aviasi - Bandara Kualanamu</p>
     </header>
@@ -82,7 +86,7 @@
         <div class="space"></div>
         <p class="name">{{ $namaPembimbing }}</p>
         @if ($nomorPembimbing)
-            <p>NIP/NIDN. {{ $nomorPembimbing }}</p>
+            <p>ID Pembimbing. {{ $nomorPembimbing }}</p>
         @endif
     </footer>
 </body>

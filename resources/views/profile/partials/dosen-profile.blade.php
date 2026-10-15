@@ -9,9 +9,9 @@
 @endphp
 
 <div class="space-y-6">
-    {{-- Grid 2 Kolom: Info Akademik Dosen & Ringkasan Penugasan --}}
+    {{-- Grid 2 Kolom: Info Pembimbing Sekolah/Kampus & Ringkasan Penugasan --}}
     <div class="grid gap-6 lg:grid-cols-2">
-        {{-- Card 1: Identitas Akademik Dosen --}}
+        {{-- Card 1: Identitas Pembimbing Sekolah/Kampus --}}
         <section class="overflow-hidden rounded-2xl border border-gray-200/80 bg-white shadow-sm transition hover:shadow-md">
             <header class="flex items-center justify-between border-b border-gray-100 bg-gradient-to-r from-indigo-50/60 to-slate-50 px-5 py-4 sm:px-6">
                 <div class="flex items-center gap-3">
@@ -19,25 +19,25 @@
                         <i class="fas fa-chalkboard-teacher text-sm"></i>
                     </span>
                     <div>
-                        <h3 class="font-bold text-gray-900">Identitas Dosen / Guru Pembimbing</h3>
-                        <p class="text-xs text-gray-500">Profil akademisi dari perguruan tinggi / sekolah mitra</p>
+                        <h3 class="font-bold text-gray-900">Pembimbing Sekolah/Kampus</h3>
+                        <p class="text-xs text-gray-500">Guru atau dosen pembimbing dari instansi pendidikan</p>
                     </div>
                 </div>
                 <span class="inline-flex items-center rounded-full border border-indigo-200 bg-indigo-50 px-2.5 py-0.5 text-xs font-semibold text-indigo-700">
-                    Pembimbing Akademik
+                    Pembimbing Sekolah/Kampus
                 </span>
             </header>
 
             <div class="p-5 sm:p-6">
                 <dl class="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
                     <div>
-                        <dt class="text-xs font-semibold uppercase tracking-wider text-gray-400">NIDN / NIP</dt>
+                        <dt class="text-xs font-semibold uppercase tracking-wider text-gray-400">NIP / NUPTK / ID Pengajar</dt>
                         <dd class="mt-1 font-mono text-sm font-bold text-gray-900">{{ $nidn }}</dd>
                     </div>
 
                     <div>
                         <dt class="text-xs font-semibold uppercase tracking-wider text-gray-400">Jabatan Fungsional / Peran</dt>
-                        <dd class="mt-1 text-sm font-semibold text-gray-900">Dosen / Guru Pembimbing</dd>
+                        <dd class="mt-1 text-sm font-semibold text-gray-900">Guru / Dosen Pembimbing</dd>
                     </div>
 
                     <div>
@@ -52,7 +52,7 @@
                     </div>
 
                     <div class="sm:col-span-2">
-                        <dt class="text-xs font-semibold uppercase tracking-wider text-gray-400">Asal Kampus / Sekolah</dt>
+                        <dt class="text-xs font-semibold uppercase tracking-wider text-gray-400">Asal Instansi / Sekolah / Kampus</dt>
                         <dd class="mt-1 text-sm font-semibold text-indigo-900">{{ $kampus }}</dd>
                     </div>
 
@@ -85,7 +85,7 @@
                     </div>
                 </div>
                 <span class="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 border border-blue-200">
-                    {{ $totalBimbingan ?? $pesertaList->count() }} Mahasiswa
+                    {{ $totalBimbingan ?? $pesertaList->count() }} Peserta
                 </span>
             </header>
 
@@ -104,7 +104,7 @@
                     <div class="sm:col-span-2">
                         <dt class="text-xs font-semibold uppercase tracking-wider text-gray-400">Kewenangan Sistem</dt>
                         <dd class="mt-1 text-xs text-gray-600 leading-relaxed">
-                            Memantau logbook harian mahasiswa, mereview draf laporan akhir magang, berkoordinasi dengan mentor lapangan PT Angkasa Pura Aviasi, serta memberikan penilaian akademik akhir.
+                            Memantau logbook harian peserta, mereview draf laporan akhir magang/PKL, berkoordinasi dengan pembimbing lapangan, serta memberikan penilaian akhir.
                         </dd>
                     </div>
                 </dl>
@@ -112,7 +112,7 @@
                 <div class="rounded-xl border border-blue-100 bg-blue-50/50 p-4">
                     <div class="flex flex-wrap items-baseline justify-between gap-2">
                         <h4 class="text-xs font-bold uppercase tracking-wider text-blue-900">Kelompok Bimbingan</h4>
-                        <span class="text-xs font-semibold text-blue-700">{{ $totalKelompokBimbingan ?? $kelompokList->count() }} kelompok · {{ $totalBimbingan ?? $pesertaList->count() }} mahasiswa</span>
+                        <span class="text-xs font-semibold text-blue-700">{{ $totalKelompokBimbingan ?? $kelompokList->count() }} kelompok · {{ $totalBimbingan ?? $pesertaList->count() }} peserta</span>
                     </div>
                     @if ($kelompokList->isNotEmpty())
                         <ul class="mt-3 grid gap-2 sm:grid-cols-2">

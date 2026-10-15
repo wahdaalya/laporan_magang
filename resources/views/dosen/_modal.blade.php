@@ -5,26 +5,26 @@
         <input type="hidden" name="_id" x-bind:value="editId">
 
         <div class="flex items-center justify-between">
-            <h2 class="text-lg font-medium text-gray-900" x-text="editId ? 'Ubah Dosen' : 'Tambah Dosen'"></h2>
+            <h2 class="text-lg font-medium text-gray-900" x-text="editId ? 'Edit Pembimbing Sekolah/Kampus' : 'Tambah Pembimbing Sekolah/Kampus'"></h2>
             <button type="button" x-on:click="$dispatch('close')" class="text-gray-400">
                 <i class="fas fa-times"></i>
             </button>
         </div>
 
         <div class="mt-6">
-            <x-input-label for="nama" value="Nama Dosen" />
+            <x-input-label for="nama" value="Nama Guru / Dosen Pembimbing" />
             <x-text-input id="nama" name="nama" type="text" class="mt-1 block w-full" x-model="f.nama" />
             <x-input-error class="mt-2" :messages="$errors->get('nama')" x-show="showErrors" />
         </div>
 
         <div class="mt-4">
-            <x-input-label for="nidn" value="NIDN" />
-            <x-text-input id="nidn" name="nidn" type="text" inputmode="numeric" maxlength="10" placeholder="10 angka" class="mt-1 block w-full" x-model="f.nidn" />
+            <x-input-label for="nidn" value="NIP / NUPTK / ID Pengajar" />
+            <x-text-input id="nidn" name="nidn" type="text" placeholder="Masukkan nomor identitas pengajar" class="mt-1 block w-full" x-model="f.nidn" />
             <x-input-error class="mt-2" :messages="$errors->get('nidn')" x-show="showErrors" />
         </div>
 
         <div class="mt-4 relative" x-on:click.outside="terbuka.kampus = false">
-            <x-input-label for="kampus" value="Kampus" />
+            <x-input-label for="kampus" value="Pilih Instansi / Sekolah / Kampus" />
 
             <div class="relative mt-1">
                 <input
@@ -32,8 +32,8 @@
                     name="kampus"
                     type="text"
                     autocomplete="off"
-                    placeholder="Ketik atau pilih kampus..."
-                    class="block w-full rounded-md border-gray-300 pr-9 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                    placeholder="Ketik atau pilih instansi..."
+                    class="block w-full rounded-md border-gray-300 pr-9 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400"
                     x-model="f.kampus"
                     x-on:input="cari('kampus')"
                     x-on:focus="bukaDropdown('kampus')"
@@ -45,7 +45,7 @@
 
             <ul x-show="terbuka.kampus" style="background-color: #ffffff;" class="absolute z-50 mt-1 max-h-48 w-full overflow-auto rounded-md border border-gray-200 bg-white text-sm shadow-lg">
                 <template x-if="saran.kampus.length === 0">
-                    <li class="px-3 py-2 text-gray-400">Tidak ada yang cocok — ketik nama kampus baru.</li>
+                    <li class="px-3 py-2 text-gray-400">Tidak ada yang cocok — ketik nama instansi baru.</li>
                 </template>
                 <template x-for="nama in saran.kampus" :key="nama">
                     <li x-on:click="pilih('kampus', nama)" x-text="nama" class="cursor-pointer px-3 py-2 hover:bg-indigo-50" :class="nama === f.kampus ? 'bg-indigo-50 font-medium text-indigo-700' : 'text-gray-700'"></li>
@@ -57,7 +57,7 @@
 
         <div class="mt-4">
             <x-input-label for="email" value="Email" />
-            <x-text-input id="email" name="email" type="email" placeholder="nama@kampus.ac.id" class="mt-1 block w-full" x-model="f.email" />
+            <x-text-input id="email" name="email" type="email" placeholder="nama@instansi.id" class="mt-1 block w-full" x-model="f.email" />
             <x-input-error class="mt-2" :messages="$errors->get('email')" x-show="showErrors" />
         </div>
 

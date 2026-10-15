@@ -2,7 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\Departemen;
+use App\Models\Dosen;
 use App\Models\Kelompok;
+use App\Models\Pembimbing;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -68,7 +71,52 @@ class DashboardTest extends TestCase
         $this->actingAs($user)->get('/mahasiswa/dashboard')
             ->assertOk()
             ->assertSee('Dashboard Peserta Magang / PKL')
+            ->assertSee('Pembimbing Saya')
+            ->assertSee('Belum ada pembimbing yang ditetapkan. Hubungi admin.')
             ->assertSee('Lihat Semua Laporan');
+    }
+
+    public function test_mahasiswa_dashboard_shows_supervisors_from_its_assigned_group(): void
+    {
+        $departemen = Departemen::create(['nama_departemen' => 'Operasional']);
+        $dosenUser = User::factory()->role('DOSEN')->create();
+        $dosen = Dosen::create([
+            'user_id' => $dosenUser->id,
+            'nama' => 'Dosen Dashboard',
+            'nidn' => '1234567890',
+            'kampus' => 'Kampus Uji',
+            'email' => 'dosen-dashboard@example.test',
+            'hp_wa' => '081234567890',
+        ]);
+        $mentorUser = User::factory()->role('MENTOR')->create();
+        $mentor = Pembimbing::create([
+            'user_id' => $mentorUser->id,
+            'departemen_id' => $departemen->id,
+            'nama' => 'Mentor Dashboard',
+            'nip' => 'NIP-100',
+            'email' => 'mentor-dashboard@example.test',
+            'hp_wa' => '089988776655',
+        ]);
+        $kelompok = Kelompok::create([
+            'nama_kelompok' => 'KEL-DASHBOARD-01',
+            'tanggal_mulai' => '2026-09-01',
+            'tanggal_selesai' => '2026-09-30',
+            'dosen_id' => $dosen->id,
+            'pembimbing_id' => $mentor->id,
+            'departemen_id' => $departemen->id,
+        ]);
+        $mahasiswa = User::factory()->role('MAHASISWA')->create(['kelompok_id' => $kelompok->id]);
+
+        $this->actingAs($mahasiswa)->get('/mahasiswa/dashboard')
+            ->assertOk()
+            ->assertSee('KEL-DASHBOARD-01')
+            ->assertSee('Operasional')
+            ->assertSee('Dosen Dashboard')
+            ->assertSee('Mentor Dashboard')
+            ->assertSee('dosen-dashboard@example.test')
+            ->assertSee('mentor-dashboard@example.test')
+            ->assertSee('href="https://wa.me/6281234567890"', false)
+            ->assertSee('href="https://wa.me/6289988776655"', false);
     }
 
     public function test_dashboard_welcome_banner_shows_participant_name_and_group_duration_progress(): void
@@ -92,7 +140,7 @@ class DashboardTest extends TestCase
             ->assertSee('Masa Magang / PKL Berakhir')
             ->assertSee('83%')
             ->assertSee('Dari total durasi 6 hari')
-            ->assertDontSee('KEL-2026-002')
+            ->assertSee('KEL-2026-002')
             ->assertDontSee('Status Periode Selesai')
             ->assertDontSee('Hari 12 dari 12');
     }

@@ -49,7 +49,11 @@ class LaporanController extends Controller
     public function destroy(Laporan $laporan): RedirectResponse
     {
         abort_if($laporan->user_id !== auth()->id(), 403);
-        abort_if($laporan->status !== 'Belum Diperiksa', 403, 'Kegiatan yang sudah diperiksa tidak bisa dihapus.');
+        if ($laporan->status !== 'Belum Diperiksa') {
+            return redirect()->route('mahasiswa.dashboard')->with('error', $laporan->isTerkunci()
+                ? 'Laporan yang sudah di-ACC pembimbing terkunci dan tidak bisa dihapus.'
+                : 'Kegiatan yang sudah diperiksa tidak bisa dihapus.');
+        }
 
         if ($laporan->foto) {
             Storage::disk('local')->delete($laporan->foto);
@@ -60,4 +64,33 @@ class LaporanController extends Controller
         return redirect()->route('mahasiswa.dashboard')
             ->with('status', 'Laporan kegiatan Magang / PKL berhasil dihapus.');
     }
+    
+public function downloadPdf()
+{
+    $mahasiswa = auth()->user();
+
+    // Ambil laporan milik mahasiswa yang sedang login.
+    $laporans = \App\Models\Laporan::where('user_id', $mahasiswa->id)
+        ->orderBy('tanggal')
+->orderBy('id')
+        ->get();
+
+    if ($laporans->isEmpty()) {
+        return redirect()
+            ->route('mahasiswa.laporan.index')
+            ->with('error', 'Belum ada laporan untuk diunduh.');
+    }
+
+    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView(
+        'mahasiswa.laporan-arsip-pdf',
+        [
+            'mahasiswa' => $mahasiswa,
+            'laporans' => $laporans,
+            'tanggalCetak' => now()->format('d/m/Y H:i'),
+        ]
+    );
+
+    return $pdf->download('arsip-laporan-magang.pdf');
+}
+
 }

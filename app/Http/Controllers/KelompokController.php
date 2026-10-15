@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-
 use App\Http\Requests\StoreKelompokRequest;
 use App\Http\Requests\UpdateKelompokRequest;
 use App\Models\CalonAnggotaKelompok;
@@ -12,34 +11,87 @@ use App\Models\Kampus;
 use App\Models\Kelompok;
 use App\Models\Pembimbing;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use App\Http\Requests\AddAnggotaKelompokRequest;
 
 class KelompokController extends Controller
 {
-    public function index(): View
+        public function index(Request $request): View|RedirectResponse
     {
-                $kelompoks = Kelompok::with([
+        $validated = $request->validate([
+            'q' => ['nullable', 'string', 'max:255'],
+            'bulan' => ['nullable', 'integer', 'between:1,12'],
+        ]);
+        $search = trim($validated['q'] ?? '');
+        $tahun = $validated['tahun'] ?? null;
+                $bulan = $validated['bulan'] ?? null;
+        $daftarBulan = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember',
+        ];
+
+        $query = Kelompok::query()
+            ->with([
                 'kampus:id,nama_universitas',
                 'dosen:id,nama',
                 'pembimbing:id,nama',
                 'departemen:id,nama_departemen',
                 'mahasiswas:id,name,nim_nip,kelompok_id',
             ])
-            ->withCount('mahasiswas')
+            ->withCount('mahasiswas');
+
+        if ($search !== '') {
+            $pattern = '%'.$search.'%';
+
+            $query->where(function (Builder $q) use ($pattern): void {
+                $q->where('nama_kelompok', 'like', $pattern)
+                    ->orWhereHas('kampus', fn (Builder $kampus) => $kampus->where('nama_universitas', 'like', $pattern))
+                    ->orWhereHas('dosen', fn (Builder $dosen) => $dosen->where('nama', 'like', $pattern))
+                    ->orWhereHas('pembimbing', fn (Builder $pembimbing) => $pembimbing->where('nama', 'like', $pattern))
+                    ->orWhereHas('departemen', fn (Builder $departemen) => $departemen->where('nama_departemen', 'like', $pattern));
+            });
+        }
+
+        if ($tahun !== null) {
+            $query->whereYear('tanggal_mulai', $tahun);
+        }
+        
+        if ($bulan !== null) {
+            $query->whereMonth('tanggal_mulai', $bulan);
+        }
+
+        $kelompoks = $query
             ->orderBy('nama_kelompok')
-            ->get();
+            ->paginate(10)
+            ->withQueryString();
+
+        if ($kelompoks->isEmpty() && $kelompoks->currentPage() > $kelompoks->lastPage()) {
+            return redirect()->route('kelompok.index', array_merge($request->query(), ['page' => $kelompoks->lastPage()]));
+        }
 
         return view('kelompok.index', [
+            'bulan' => $bulan,
+            'daftarBulan' => $daftarBulan,
             'kelompoks' => $kelompoks,
-                        'kampuses' => Kampus::orderBy('nama_universitas')->get(['id', 'nama_universitas']),
+            'q' => $search,
+            'tahun' => $tahun,
+            'daftarTahun' => Kelompok::daftarTahunMagang(),
+            'kampuses' => Kampus::orderBy('nama_universitas')->get(['id', 'nama_universitas']),
             'dosens' => Dosen::orderBy('nama')->get(['id', 'nama']),
             'pembimbings' => Pembimbing::orderBy('nama')->get(['id', 'nama']),
             'departemens' => Departemen::orderBy('nama_departemen')->get(['id', 'nama_departemen']),
-            'mahasiswaBebas' => User::where('role', 'MAHASISWA')->whereNull('kelompok_id')->orderBy('name')->get(['id', 'name', 'nim_nip']),
+            'mahasiswaBebas' => User::where('role', 'MAHASISWA')->whereNull('kelompok_id')->orderBy('name')->get(['id', 'name', 'nim_nip'
+            ]),
         ]);
     }
 
@@ -87,7 +139,7 @@ class KelompokController extends Controller
             }
         });
 
-        return redirect()->route('kelompok.index')->with('status', 'Kelompok berhasil ditambahkan.');
+        return back()->with('status', 'Kelompok berhasil ditambahkan.');
     }
 
     /**
@@ -95,7 +147,7 @@ class KelompokController extends Controller
      */
     private function generateKodeKelompok(string $tanggalMulai): string
     {
-        $tahun = \Carbon\Carbon::parse($tanggalMulai)->format('Y');
+        $tahun = Carbon::parse($tanggalMulai)->format('Y');
 
         $urutan = Kelompok::where('nama_kelompok', 'like', "KEL-{$tahun}-%")->count() + 1;
 
@@ -109,16 +161,65 @@ class KelompokController extends Controller
     {
         $kelompok->update($request->validated());
 
-        return redirect()->route('kelompok.index')->with('status', 'Kelompok berhasil diperbarui.');
+        return back()->with('status', 'Kelompok berhasil diperbarui.');
     }
 
     /**
      * Hapus data kelompok.
      */
-    public function destroy(Kelompok $kelompok): RedirectResponse
+    public function destroy(int $kelompok): RedirectResponse
     {
-        $kelompok->delete();
+        $deleted = Kelompok::whereKey($kelompok)->delete();
 
-        return redirect()->route('kelompok.index')->with('status', 'Kelompok berhasil dihapus.');
+        return redirect()->route('kelompok.index')->with(
+            'status',
+            $deleted ? 'Kelompok berhasil dihapus.' : 'Kelompok sudah tidak ada.'
+        );
+    }
+
+    /**
+     * Tambahkan mahasiswa yang belum punya kelompok ke kelompok ini.
+     */
+    public function addAnggota(AddAnggotaKelompokRequest $request, Kelompok $kelompok): RedirectResponse
+    {
+        $mahasiswa = User::findOrFail($request->validated('mahasiswa_id'));
+
+        DB::transaction(function () use ($mahasiswa, $kelompok) {
+            $mahasiswa->update(['kelompok_id' => $kelompok->id]);
+
+            CalonAnggotaKelompok::updateOrCreate(
+                ['kelompok_id' => $kelompok->id, 'user_id' => $mahasiswa->id],
+                ['nama' => $mahasiswa->name]
+            );
+        });
+
+        return back()->with('status', 'Anggota berhasil ditambahkan.');
+    }
+    
+    /**
+     * Unduh detail kelompok magang sebagai file PDF.
+     */
+    public function exportPdf(Kelompok $kelompok): Response
+    {
+        $kelompok->load([
+            'kampus',
+            'dosen',
+            'pembimbing',
+            'departemen',
+            'mahasiswas' => fn ($query) => $query->orderBy('name'),
+        ]);
+
+        // pakai logo yang tersedia di public/images (urutan prioritas)
+        $logoPath = collect(['logo_bandara.png', 'logo_bandara.jpg', 'logo-bintang-kualanamu.png'])
+            ->map(fn (string $file) => public_path('images/'.$file))
+            ->first(fn (string $path) => is_file($path));
+
+        return Pdf::loadView('kelompok.pdf', [
+            'kelompok' => $kelompok,
+            'logoPath' => $logoPath,
+            'dicetakPada' => now(),
+        ])
+            ->setPaper('a4', 'portrait')
+            ->download('kelompok-'.Str::slug($kelompok->nama_kelompok).'.pdf');
     }
 }

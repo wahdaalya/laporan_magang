@@ -29,12 +29,12 @@
     <table class="identity">
         <tr><th>Nama</th><td>{{ $rekap['identitas']['nama'] }}</td></tr>
         <tr><th>NIM / NISN</th><td>{{ $rekap['identitas']['nim'] }}</td></tr>
-        <tr><th>Kampus / Sekolah</th><td>{{ $rekap['identitas']['kampus'] }}</td></tr>
+        <tr><th>Instansi / Sekolah / Kampus</th><td>{{ $rekap['identitas']['kampus'] }}</td></tr>
         <tr><th>Fakultas</th><td>{{ $rekap['identitas']['fakultas'] }}</td></tr>
-        <tr><th>Prodi / Jurusan</th><td>{{ $rekap['identitas']['prodi'] }}</td></tr>
+        <tr><th>Jurusan / Program Studi</th><td>{{ $rekap['identitas']['prodi'] }}</td></tr>
         <tr><th>Departemen Penempatan</th><td>{{ $rekap['identitas']['departemen'] }}</td></tr>
         <tr><th>Periode Magang</th><td>{{ $rekap['identitas']['tanggal_mulai'] }} - {{ $rekap['identitas']['tanggal_selesai'] }}</td></tr>
-        <tr><th>Dosen / Guru Pembimbing</th><td>{{ $rekap['identitas']['dosen']['nama'] }} (NIDN: {{ $rekap['identitas']['dosen']['nidn'] }})</td></tr>
+        <tr><th>Pembimbing Sekolah/Kampus</th><td>{{ $rekap['identitas']['dosen']['nama'] }} (NIP / NUPTK / ID Pengajar: {{ $rekap['identitas']['dosen']['nidn'] }})</td></tr>
         <tr><th>Pembimbing Lapangan</th><td>{{ $rekap['identitas']['pembimbing']['nama'] }} (NIP: {{ $rekap['identitas']['pembimbing']['nip'] }})</td></tr>
     </table>
 
@@ -68,7 +68,7 @@
     <table class="signature">
         <tr>
             <td>
-                <p>Dosen / Guru Pembimbing</p>
+                <p>Pembimbing Sekolah/Kampus</p>
                 <div class="signature-space"></div>
                 <p><strong><u>{{ $rekap['identitas']['dosen']['nama'] }}</u></strong></p>
             </td>

@@ -12,7 +12,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class LaporanAkhirController extends Controller
@@ -29,7 +28,7 @@ class LaporanAkhirController extends Controller
 
     public function cetak(Request $request): StreamedResponse
     {
-        $laporanAkhir = $request->user()->laporanAkhir;
+        $laporanAkhir = $request->user()->laporanAkhir()->first();
         abort_unless($laporanAkhir?->status === 'Disetujui', 404);
 
         $disk = Storage::disk('local');
@@ -103,8 +102,6 @@ class LaporanAkhirController extends Controller
             'kelompok.departemen',
             'kelompok.dosen',
             'kelompok.pembimbing.departemen',
-            'dosen',
-            'mentor',
         ]);
 
         $kelompok = $mahasiswa->kelompok;
@@ -152,6 +149,7 @@ class LaporanAkhirController extends Controller
 
         return [
             'siap' => $kelompok !== null && $laporanDisetujui->isNotEmpty(),
+            'punya_kelompok' => $kelompok !== null,
             'identitas' => [
                 'nama' => $mahasiswa->name,
                 'nim' => $mahasiswa->nim_nip ?: '-',
@@ -162,12 +160,12 @@ class LaporanAkhirController extends Controller
                 'tanggal_mulai' => $kelompok?->tanggal_mulai?->format('d/m/Y') ?: '-',
                 'tanggal_selesai' => $kelompok?->tanggal_selesai?->format('d/m/Y') ?: '-',
                 'dosen' => [
-                    'nama' => $dosen?->nama ?: ($mahasiswa->dosen?->name ?: '-'),
+                    'nama' => $dosen?->nama ?: '-',
                     'nidn' => $dosen?->nidn ?: '-',
                 ],
                 'dosen_user_id' => $dosen?->user_id,
                 'pembimbing' => [
-                    'nama' => $pembimbing?->nama ?: ($mahasiswa->mentor?->name ?: '-'),
+                    'nama' => $pembimbing?->nama ?: '-',
                     'nip' => $pembimbing?->nip ?: '-',
                 ],
             ],

@@ -1,3 +1,158 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@media (prefers-reduced-motion: no-preference) {
+    .flux-page-enter {
+        animation: flux-page-enter 360ms cubic-bezier(0.2, 0.7, 0.2, 1)
+            backwards;
+    }
+}
+
+@keyframes flux-page-enter {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+html {
+    color-scheme: light;
+}
+
+html.dark {
+    color-scheme: dark;
+}
+
+html.dark body {
+    background-color: #0f172a;
+    color: #f1f5f9;
+}
+
+:where(html.dark) .bg-white {
+    background-color: #1e293b;
+}
+
+:where(html.dark) .bg-slate-50,
+:where(html.dark) .bg-gray-50,
+:where(html.dark) [class*="bg-slate-50/"],
+:where(html.dark) [class*="bg-gray-50/"] {
+    background-color: #0f172a;
+}
+
+:where(html.dark) .bg-slate-100,
+:where(html.dark) .bg-gray-100,
+:where(html.dark) .bg-gray-200 {
+    background-color: #334155;
+}
+
+:where(html.dark) [class*="bg-white/70"],
+:where(html.dark) [class*="bg-white/80"] {
+    background-color: rgb(30 41 59 / 80%);
+}
+
+:where(html.dark) .text-slate-900,
+:where(html.dark) .text-gray-900,
+:where(html.dark) .text-gray-800 {
+    color: #f1f5f9;
+}
+
+:where(html.dark) .text-gray-700,
+:where(html.dark) .text-gray-600 {
+    color: #cbd5e1;
+}
+
+:where(html.dark) .text-gray-500 {
+    color: #94a3b8;
+}
+
+:where(html.dark) .text-gray-400 {
+    color: #64748b;
+}
+
+:where(html.dark) .border-slate-100,
+:where(html.dark) .border-slate-200,
+:where(html.dark) .border-gray-100,
+:where(html.dark) .border-gray-200,
+:where(html.dark) .border-gray-300 {
+    border-color: #334155;
+}
+
+html.dark .quick-links-divider > :not([hidden]) ~ :not([hidden]) {
+    border-color: #334155;
+}
+
+:where(html.dark) [class~="divide-gray-100"] > :not([hidden]) ~ :not([hidden]),
+:where(html.dark) [class~="divide-gray-200"] > :not([hidden]) ~ :not([hidden]) {
+    border-color: #334155;
+}
+
+:where(html.dark) .bg-blue-50,
+:where(html.dark) .bg-indigo-50 {
+    background-color: rgb(30 64 175 / 20%);
+}
+
+:where(html.dark) .bg-green-50,
+:where(html.dark) .bg-green-100,
+:where(html.dark) .bg-emerald-50 {
+    background-color: rgb(6 78 59 / 35%);
+}
+
+:where(html.dark) .bg-red-50,
+:where(html.dark) .bg-red-100,
+:where(html.dark) .bg-rose-50 {
+    background-color: rgb(136 19 55 / 35%);
+}
+
+:where(html.dark) .bg-amber-50,
+:where(html.dark) .bg-amber-100 {
+    background-color: rgb(120 53 15 / 35%);
+}
+
+:where(html.dark) .text-blue-700,
+:where(html.dark) .text-blue-800,
+:where(html.dark) .text-indigo-700 {
+    color: #bfdbfe;
+}
+
+:where(html.dark) .text-green-800,
+:where(html.dark) .text-emerald-700 {
+    color: #a7f3d0;
+}
+
+:where(html.dark) .text-red-800,
+:where(html.dark) .text-rose-700 {
+    color: #fecdd3;
+}
+
+:where(html.dark) .text-amber-700,
+:where(html.dark) .text-amber-800 {
+    color: #fde68a;
+}
+
+.dark
+    :where(
+        input:not([type="checkbox"]):not([type="radio"]):not(
+                [type="hidden"]
+            ):not([type="submit"]):not([type="button"]),
+        select,
+        textarea
+    ) {
+    border-color: #475569;
+    background-color: #334155;
+    color: #f8fafc;
+}
+
+.dark :where(input::placeholder, textarea::placeholder) {
+    color: #94a3b8;
+}
+
+.dark :where(select option) {
+    background-color: #1e293b;
+    color: #f1f5f9;
+}

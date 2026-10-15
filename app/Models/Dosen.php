@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Dosen extends Model
 {
@@ -28,5 +29,11 @@ class Dosen extends Model
     public function kelompoks()
     {
         return $this->hasMany(Kelompok::class);
+    }
+
+    public function mahasiswas(): HasManyThrough
+    {
+        return $this->hasManyThrough(User::class, Kelompok::class, 'dosen_id', 'kelompok_id', 'id', 'id')
+            ->where('users.role', 'MAHASISWA');
     }
 }

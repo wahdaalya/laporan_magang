@@ -1,3 +1,4 @@
+@php($isAdmin = $user->role === 'ADMIN')
 <section class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm" x-data="{ preview: @js($user->foto_url) }">
     <form id="send-verification" method="POST" action="{{ route('verification.send') }}">
         @csrf
@@ -17,7 +18,7 @@
                 <div class="relative h-20 w-20 shrink-0">
                     <img x-show="preview" x-bind:src="preview" alt="Foto profil {{ $user->name }}" class="h-20 w-20 rounded-full border border-gray-200 object-cover">
                     <div x-show="!preview" class="flex h-20 w-20 items-center justify-center rounded-full bg-blue-700 text-2xl font-semibold text-white">
-                        {{ strtoupper(substr($user->name ?? 'U', 0, 1)) }}
+                        {{ strtoupper(substr($user->display_name ?: 'U', 0, 1)) }}
                     </div>
                 </div>
                 <div class="min-w-0">
@@ -30,7 +31,12 @@
             <div class="grid gap-4 md:grid-cols-2">
                 <div>
                     <label for="profile-name" class="mb-1 block text-sm font-medium text-gray-700">Nama Lengkap</label>
-                    <input id="profile-name" name="name" type="text" value="{{ old('name', $user->name) }}" required autocomplete="name" class="block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    @if ($isAdmin)
+    <input id="profile-name" type="text" value="{{ $user->display_name }}" disabled readonly class="block w-full cursor-not-allowed rounded-md border-gray-300 bg-gray-100 text-sm text-gray-500 shadow-sm">
+    <p class="mt-1 text-xs text-gray-500">Nama akun Administrator tidak dapat diubah.</p>
+@else
+    <input id="profile-name" name="name" type="text" value="{{ old('name', $user->name) }}" required autocomplete="name" class="block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500">
+@endif
                     @error('name')<p class="mt-1 text-sm text-rose-700">{{ $message }}</p>@enderror
                 </div>
                 <div>

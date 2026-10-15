@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -21,8 +22,6 @@ class User extends Authenticatable
         'instansi',
         'unit',
         'foto',
-        'dosen_id',
-        'mentor_id',
         'kelompok_id',
         'hp_wa',
         'kampus',
@@ -52,9 +51,32 @@ class User extends Authenticatable
             : null;
     }
 
+        /** Nama admin yang selalu ditampilkan di seluruh tampilan. */
+    public const ADMIN_DISPLAY_NAME = 'Admin Kualanamu';
+
+    public function getDisplayNameAttribute(): string
+    {
+        return $this->role === 'ADMIN'
+            ? self::ADMIN_DISPLAY_NAME
+            : (string) $this->name;
+    }
     public function kelompok()
     {
         return $this->belongsTo(Kelompok::class, 'kelompok_id');
+    }
+
+    public function mahasiswaBimbinganDosen(): Builder
+    {
+        return self::query()
+            ->where('role', 'MAHASISWA')
+            ->whereHas('kelompok.dosen', fn (Builder $query) => $query->where('user_id', $this->id));
+    }
+
+    public function mahasiswaBimbinganMentor(): Builder
+    {
+        return self::query()
+            ->where('role', 'MAHASISWA')
+            ->whereHas('kelompok.pembimbing', fn (Builder $query) => $query->where('user_id', $this->id));
     }
 
     public function laporans()
@@ -62,24 +84,20 @@ class User extends Authenticatable
         return $this->hasMany(Laporan::class);
     }
 
-    public function dosen()
+    /** Jalur lama, tidak dipakai lagi; sumber data = kelompok. */
+    public function getDosenAttribute(): ?Dosen
     {
-        return $this->belongsTo(User::class, 'dosen_id');
+        $this->loadMissing('kelompok.dosen');
+
+        return $this->kelompok?->dosen;
     }
 
-    public function mentor()
+    /** Jalur lama, tidak dipakai lagi; sumber data = kelompok. */
+    public function getMentorAttribute(): ?Pembimbing
     {
-        return $this->belongsTo(User::class, 'mentor_id');
-    }
+        $this->loadMissing('kelompok.pembimbing');
 
-    public function mahasiswaBimbinganDosen()
-    {
-        return $this->hasMany(User::class, 'dosen_id');
-    }
-
-    public function mahasiswaBimbinganMentor()
-    {
-        return $this->hasMany(User::class, 'mentor_id');
+        return $this->kelompok?->pembimbing;
     }
 
     public function penilaians()

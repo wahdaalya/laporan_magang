@@ -16,8 +16,12 @@ class ProfileUpdateRequest extends FormRequest
      */
     public function rules(): array
     {
+        $isAdmin = $this->user()?->role === 'ADMIN';
+
         return [
-            'name' => ['required', 'string', 'max:255'],
+            'name' => $isAdmin
+                ? ['prohibited']
+                : ['required', 'string', 'max:255'],
             'email' => [
                 'required',
                 'string',
@@ -37,6 +41,7 @@ class ProfileUpdateRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'name.prohibited' => 'Nama akun Administrator tidak dapat diubah.',
             'foto.image' => 'File harus berupa gambar.',
             'foto.mimes' => 'Foto harus berformat JPG, PNG, atau WEBP.',
             'foto.max' => 'Ukuran foto maksimal 2 MB.',

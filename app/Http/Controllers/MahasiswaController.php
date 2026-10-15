@@ -10,6 +10,7 @@ use App\Models\Kelompok;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -21,18 +22,47 @@ class MahasiswaController extends Controller
     /**
      * Daftar seluruh mahasiswa magang (halaman admin).
      */
-    public function index(): View
+    public function index(Request $request): View|RedirectResponse
     {
+        $validated = $request->validate([
+            'q' => ['nullable', 'string', 'max:255'],
+            'tahun' => ['nullable', 'integer', 'between:2000,2100'],
+        ]);
+        $search = trim($validated['q'] ?? '');
+        $tahun = $validated['tahun'] ?? null;
         $mahasiswas = User::where('role', 'MAHASISWA')
-            ->with(['kelompok:id,nama_kelompok', 'dosen:id,name', 'mentor:id,name'])
+            ->with(['kelompok.dosen', 'kelompok.pembimbing'])
             ->withCount('laporans')
+            ->when($search !== '', function (Builder $query) use ($search): void {
+                $pattern = '%'.$search.'%';
+
+                $query->where(function (Builder $query) use ($pattern): void {
+                    $query->where('name', 'like', $pattern)
+                        ->orWhere('email', 'like', $pattern)
+                        ->orWhere('nim_nip', 'like', $pattern)
+                        ->orWhere('kampus', 'like', $pattern)
+                        ->orWhere('fakultas', 'like', $pattern)
+                        ->orWhere('prodi', 'like', $pattern)
+                        ->orWhereHas('kelompok', fn (Builder $kelompok) => $kelompok->where('nama_kelompok', 'like', $pattern))
+                        ->orWhereHas('kelompok.kampus', fn (Builder $kampus) => $kampus->where('nama_universitas', 'like', $pattern));
+                });
+            })
+                        ->when($tahun, fn (Builder $query) => $query->whereHas('kelompok', fn (Builder $kelompok) => $kelompok->whereYear('tanggal_mulai', $tahun)))
             ->orderBy('name')
-            ->get();
+            ->paginate(10)
+            ->withQueryString();
+
+        if ($mahasiswas->isEmpty() && $mahasiswas->currentPage() > $mahasiswas->lastPage()) {
+            return redirect()->route('mahasiswa.index', array_merge($request->query(), ['page' => $mahasiswas->lastPage()]));
+        }
 
         $kelompoks = Kelompok::orderBy('nama_kelompok')->get(['id', 'nama_kelompok']);
 
         return view('mahasiswa.index', [
             'mahasiswas' => $mahasiswas,
+            'q' => $search,
+            'tahun' => $tahun,
+            'daftarTahun' => Kelompok::daftarTahunMagang(),
             'kelompoks' => $kelompoks,
             'kampuses' => Kampus::orderBy('nama_universitas')->get(['nama_universitas', 'fakultas', 'prodi']),
             'calonAnggotas' => CalonAnggotaKelompok::with('kelompok:id,nama_kelompok')
@@ -47,7 +77,12 @@ class MahasiswaController extends Controller
      */
     public function dashboard(Request $request): View
     {
-        $user = $request->user()->load('kelompok');
+        $user = $request->user()->load([
+            'kelompok.kampus',
+            'kelompok.departemen',
+            'kelompok.dosen.user',
+            'kelompok.pembimbing.user',
+        ]);
         $today = today();
         $kelompok = $user->kelompok;
         $progressMagang = 0;
@@ -181,11 +216,9 @@ class MahasiswaController extends Controller
             }
         });
 
-        if ($request->boolean('from_kelompok')) {
-            return redirect()->route('kelompok.index')->with('status', 'Anggota berhasil ditambahkan ke kelompok.');
-        }
-
-        return redirect()->route('mahasiswa.index')->with('status', 'Peserta berhasil ditambahkan.');
+        return back()->with('status', $request->boolean('from_kelompok')
+            ? 'Anggota berhasil ditambahkan ke kelompok.'
+            : 'Peserta berhasil ditambahkan.');
     }
 
     /**
@@ -211,7 +244,7 @@ class MahasiswaController extends Controller
 
         $mahasiswa->update($data);
 
-        return redirect()->route('mahasiswa.index')->with('status', 'Data peserta berhasil diperbarui.');
+        return back()->with('status', 'Data peserta berhasil diperbarui.');
     }
 
     /**
@@ -219,12 +252,27 @@ class MahasiswaController extends Controller
      */
     public function destroy(User $mahasiswa): RedirectResponse
     {
-        if ($mahasiswa->foto) {
-            Storage::disk('local')->delete($mahasiswa->foto);
-        }
+        abort_unless($mahasiswa->role === 'MAHASISWA', 404);
 
-        $mahasiswa->delete();
+        $filePaths = DB::transaction(function () use ($mahasiswa): array {
+            $filePaths = collect([
+                $mahasiswa->foto,
+                $mahasiswa->laporanAkhir()->value('file_path'),
+            ])
+                ->merge($mahasiswa->laporans()->whereNotNull('foto')->pluck('foto'))
+                ->merge($mahasiswa->penilaians()->pluck('file'))
+                ->filter()
+                ->unique()
+                ->values()
+                ->all();
 
-        return redirect()->route('mahasiswa.index')->with('status', 'Peserta berhasil dihapus.');
+            $mahasiswa->delete();
+
+            return $filePaths;
+        });
+
+        Storage::disk('local')->delete($filePaths);
+
+        return back()->with('status', 'Peserta berhasil dihapus.');
     }
 }

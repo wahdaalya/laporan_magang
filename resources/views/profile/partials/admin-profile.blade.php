@@ -71,7 +71,7 @@
 
             <div class="p-5 sm:p-6 space-y-4">
                 <p class="text-xs text-gray-600 leading-relaxed">
-                    Sebagai administrator, Anda memiliki wewenang untuk menambah, mengubah, serta memverifikasi data kampus, dosen pembimbing, pembimbing lapangan bandara, departemen, kelompok magang, dan akun mahasiswa.
+                    Sebagai administrator, Anda memiliki wewenang untuk menambah, mengubah, serta memverifikasi data instansi, pembimbing sekolah/kampus, pembimbing lapangan, departemen, kelompok magang/PKL, dan akun peserta.
                 </p>
 
                 <div class="pt-2">

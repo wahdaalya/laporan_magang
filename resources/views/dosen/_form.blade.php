@@ -1,18 +1,18 @@
 <div>
-    <x-input-label for="nama" value="Nama Dosen" />
+    <x-input-label for="nama" value="Nama Guru / Dosen Pembimbing" />
     <x-text-input id="nama" name="nama" type="text" class="mt-1 block w-full" :value="old('nama', $dosen->nama ?? '')" autofocus />
     <x-input-error class="mt-2" :messages="$errors->get('nama')" />
 </div>
 
 <div class="mt-4">
-    <x-input-label for="nidn" value="NIDN (opsional)" />
-    <x-text-input id="nidn" name="nidn" type="text" inputmode="numeric" maxlength="10" placeholder="10 angka" class="mt-1 block w-full" :value="old('nidn', $dosen->nidn ?? '')" />
+    <x-input-label for="nidn" value="NIP / NUPTK / ID Pengajar (opsional)" />
+    <x-text-input id="nidn" name="nidn" type="text" placeholder="Masukkan nomor identitas pengajar" class="mt-1 block w-full" :value="old('nidn', $dosen->nidn ?? '')" />
     <x-input-error class="mt-2" :messages="$errors->get('nidn')" />
 </div>
 
 <div class="mt-4">
     <x-input-label for="email" value="Email (opsional)" />
-    <x-text-input id="email" name="email" type="email" placeholder="nama@kampus.ac.id" class="mt-1 block w-full" :value="old('email', $dosen->email ?? '')" />
+    <x-text-input id="email" name="email" type="email" placeholder="nama@instansi.id" class="mt-1 block w-full" :value="old('email', $dosen->email ?? '')" />
     <x-input-error class="mt-2" :messages="$errors->get('email')" />
 </div>
 

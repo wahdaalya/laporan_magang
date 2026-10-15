@@ -39,8 +39,14 @@
                     {{ session('status') }}
                 </div>
             @endif
+            
+            @if (session('error'))
+                <div class="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
+                    {{ session('error') }}
+                </div>
+            @endif
 
-            <div class="mb-8 overflow-hidden rounded-2xl bg-gradient-to-r from-blue-700 via-blue-700 to-indigo-800 text-white shadow-lg">
+            <div class="banner-hero mb-8 overflow-hidden rounded-2xl text-white shadow-lg">
                 <div class="grid gap-6 p-6 sm:p-8 lg:grid-cols-[minmax(0,1fr)_17rem] lg:items-center">
                     <div class="min-w-0">
                         <p class="text-sm font-semibold text-blue-100">Informasi Magang / PKL</p>
@@ -68,7 +74,93 @@
                 </div>
             </div>
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+            <section class="card-grad mb-8 overflow-hidden rounded-xl border border-gray-200 shadow-sm">
+                <header class="border-b border-gray-100 px-5 py-4">
+                    <h2 class="font-semibold text-gray-900">Pembimbing Saya</h2>
+                    @if ($user->kelompok)
+                        <p class="mt-1 text-sm text-gray-500">
+                            {{ $user->kelompok->nama_kelompok ?: 'Kelompok' }}
+                            <span aria-hidden="true">·</span>
+                            {{ $user->kelompok->departemen?->nama_departemen ?: '-' }}
+                        </p>
+                    @endif
+                </header>
+
+                @if (! $user->kelompok)
+                    <p class="px-5 py-6 text-sm text-gray-600">Belum ada pembimbing yang ditetapkan. Hubungi admin.</p>
+                @else
+                    <div class="grid gap-4 p-5 md:grid-cols-2">
+                        @php
+                            $dosen = $user->kelompok->dosen;
+                            $dosenUser = $dosen?->user;
+                            $mentor = $user->kelompok->pembimbing;
+                            $mentorUser = $mentor?->user;
+                            $dosenNama = $dosen?->nama ?: ($dosenUser?->name ?: null);
+                            $mentorNama = $mentor?->nama ?: ($mentorUser?->name ?: null);
+                            $dosenEmail = $dosen?->email ?: ($dosenUser?->email ?: null);
+                            $dosenTelepon = $dosen?->hp_wa ?: ($dosenUser?->hp_wa ?: null);
+                            $mentorEmail = $mentor?->email ?: ($mentorUser?->email ?: null);
+                            $mentorTelepon = $mentor?->hp_wa ?: ($mentorUser?->hp_wa ?: null);
+                        @endphp
+
+                        @if ($dosenNama)
+                            <article class="rounded-lg border border-blue-100 bg-blue-50/40 p-4">
+                                <div class="flex items-center gap-3">
+                                    @if ($dosenUser?->foto_url)
+                                        <img src="{{ $dosenUser->foto_url }}" alt="Foto {{ $dosenNama }}" class="h-12 w-12 rounded-full border border-white object-cover shadow-sm">
+                                    @else
+                                        <span class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-700 text-lg font-semibold text-white">{{ strtoupper(substr($dosenNama, 0, 1)) }}</span>
+                                    @endif
+                                    <div class="min-w-0">
+                                        <p class="text-xs font-semibold uppercase tracking-wide text-blue-800">Pembimbing Sekolah/Kampus</p>
+                                        <h3 class="break-words font-semibold text-gray-900">{{ $dosenNama }}</h3>
+                                    </div>
+                                </div>
+                                <dl class="mt-4 grid gap-2 text-sm">
+                                    <div class="flex flex-wrap gap-x-2"><dt class="text-gray-500">NIP / NUPTK / ID Pengajar</dt><dd class="font-medium text-gray-900">{{ $dosen?->nidn ?: '-' }}</dd></div>
+                                    <div class="flex flex-wrap gap-x-2"><dt class="text-gray-500">Asal Instansi Pendidikan</dt><dd class="font-medium text-gray-900">{{ $dosen?->kampus ?: '-' }}</dd></div>
+                                    <div class="flex flex-wrap gap-x-2"><dt class="text-gray-500">Email</dt><dd class="break-all font-medium text-gray-900">@if ($dosenEmail)<a href="mailto:{{ $dosenEmail }}" class="text-blue-700 hover:underline">{{ $dosenEmail }}</a>@else-@endif</dd></div>
+                                    <div class="flex flex-wrap gap-x-2"><dt class="text-gray-500">WhatsApp</dt><dd class="font-medium text-gray-900">
+                                        @php($dosenWhatsappUrl = \App\Support\ContactLink::whatsappUrl($dosenTelepon))
+                                        @if ($dosenWhatsappUrl)<a href="{{ $dosenWhatsappUrl }}" target="_blank" rel="noopener noreferrer" class="text-emerald-700 hover:underline">{{ $dosenTelepon }}</a>@else-@endif
+                                    </dd></div>
+                                </dl>
+                            </article>
+                        @else
+                            <p class="rounded-lg border border-blue-100 bg-blue-50/40 p-4 text-sm text-gray-600">Belum ada pembimbing yang ditetapkan. Hubungi admin.</p>
+                        @endif
+
+                        @if ($mentorNama)
+                            <article class="rounded-lg border border-amber-100 bg-amber-50/40 p-4">
+                                <div class="flex items-center gap-3">
+                                    @if ($mentorUser?->foto_url)
+                                        <img src="{{ $mentorUser->foto_url }}" alt="Foto {{ $mentorNama }}" class="h-12 w-12 rounded-full border border-white object-cover shadow-sm">
+                                    @else
+                                        <span class="flex h-12 w-12 items-center justify-center rounded-full bg-amber-700 text-lg font-semibold text-white">{{ strtoupper(substr($mentorNama, 0, 1)) }}</span>
+                                    @endif
+                                    <div class="min-w-0">
+                                        <p class="text-xs font-semibold uppercase tracking-wide text-amber-800">Pembimbing Lapangan</p>
+                                        <h3 class="break-words font-semibold text-gray-900">{{ $mentorNama }}</h3>
+                                    </div>
+                                </div>
+                                <dl class="mt-4 grid gap-2 text-sm">
+                                    <div class="flex flex-wrap gap-x-2"><dt class="text-gray-500">NIP</dt><dd class="font-medium text-gray-900">{{ $mentor?->nip ?: '-' }}</dd></div>
+                                    <div class="flex flex-wrap gap-x-2"><dt class="text-gray-500">Departemen</dt><dd class="font-medium text-gray-900">{{ $mentor?->departemen?->nama_departemen ?: '-' }}</dd></div>
+                                    <div class="flex flex-wrap gap-x-2"><dt class="text-gray-500">Email</dt><dd class="break-all font-medium text-gray-900">@if ($mentorEmail)<a href="mailto:{{ $mentorEmail }}" class="text-blue-700 hover:underline">{{ $mentorEmail }}</a>@else-@endif</dd></div>
+                                    <div class="flex flex-wrap gap-x-2"><dt class="text-gray-500">WhatsApp</dt><dd class="font-medium text-gray-900">
+                                        @php($mentorWhatsappUrl = \App\Support\ContactLink::whatsappUrl($mentorTelepon))
+                                        @if ($mentorWhatsappUrl)<a href="{{ $mentorWhatsappUrl }}" target="_blank" rel="noopener noreferrer" class="text-emerald-700 hover:underline">{{ $mentorTelepon }}</a>@else-@endif
+                                    </dd></div>
+                                </dl>
+                            </article>
+                        @else
+                            <p class="rounded-lg border border-amber-100 bg-amber-50/40 p-4 text-sm text-gray-600">Belum ada pembimbing yang ditetapkan. Hubungi admin.</p>
+                        @endif
+                    </div>
+                @endif
+            </section>
+
+            <div class="card-grad overflow-hidden rounded-xl border border-gray-200 shadow-sm">
                 <div class="p-6 text-gray-900">
                     <div class="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
@@ -104,7 +196,8 @@
                     @if ($laporans->isEmpty())
                         <p class="text-gray-500">Belum ada laporan kegiatan pada minggu ini.</p>
                     @else
-                        <div class="w-full overflow-hidden rounded-xl border border-gray-200">
+                        <div class="w-full overflow-x-auto rounded-xl border border-gray-200">
+    <table class="w-full min-w-[40rem] table-fixed text-xs sm:text-sm">
                             <table class="w-full table-fixed text-xs sm:text-sm">
                                 <thead class="bg-gray-50 text-gray-600">
                                     <tr class="align-middle">
@@ -167,6 +260,10 @@
                                                         </button>
                                                     </form>
                                                     </div>
+                                                                                                @elseif ($laporan->isTerkunci())
+                                                    <span class="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-emerald-50 px-2 py-1 text-[11px] font-semibold text-emerald-700" title="Sudah di-ACC pembimbing, tidak bisa diubah atau dihapus">
+                                                        <i class="fas fa-lock" aria-hidden="true"></i> Sudah di-ACC (Terkunci)
+                                                    </span>
                                                 @else
                                                     <span class="text-gray-400">-</span>
                                                 @endif
