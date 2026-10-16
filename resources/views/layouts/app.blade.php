@@ -526,6 +526,90 @@ html.dark ::-webkit-scrollbar-thumb:horizontal { background: #4b5563; }
                             <path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42" />
                         </svg>
                     </button>
+
+                    @if (isset($notifikasiAdmin) && $notifikasiAdmin)
+                        <div x-data="{ notifOpen: false }" x-on:click.outside="notifOpen = false" x-on:keydown.escape.window="notifOpen = false" class="relative">
+                            <button
+                                type="button"
+                                x-on:click="notifOpen = !notifOpen"
+                                aria-label="Notifikasi & Pantau Data"
+                                title="Notifikasi Data Masuk"
+                                class="relative inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600"
+                            >
+                                <i class="fas fa-bell text-base" aria-hidden="true"></i>
+                                @if ($notifikasiAdmin['totalPending'] > 0)
+                                    <span class="absolute -top-1 -right-1 flex h-5 min-w-5 px-1 items-center justify-center rounded-full bg-rose-600 text-[10px] font-bold text-white shadow-xs animate-pulse">
+                                        {{ $notifikasiAdmin['totalPending'] > 99 ? '99+' : $notifikasiAdmin['totalPending'] }}
+                                    </span>
+                                @endif
+                            </button>
+
+                            <section
+                                x-cloak
+                                x-show="notifOpen"
+                                x-transition.origin.top.right
+                                class="absolute right-0 top-full z-50 mt-3 w-80 sm:w-96 max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-slate-200 bg-white text-slate-900 shadow-xl dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                                role="dialog"
+                                aria-label="Notifikasi Data Masuk"
+                            >
+                                <div class="flex items-center justify-between border-b border-slate-100 bg-slate-50/80 px-4 py-3 dark:border-slate-700 dark:bg-slate-900">
+                                    <div class="flex items-center gap-2">
+                                        <i class="fas fa-bell text-blue-600 dark:text-blue-400"></i>
+                                        <h2 class="text-sm font-bold text-slate-900 dark:text-white">Pusat Notifikasi Data</h2>
+                                    </div>
+                                    @if ($notifikasiAdmin['totalPending'] > 0)
+                                        <span class="rounded-full bg-amber-100 px-2.5 py-0.5 text-[11px] font-semibold text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
+                                            {{ $notifikasiAdmin['totalPending'] }} Perlu Dicek
+                                        </span>
+                                    @else
+                                        <span class="rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">
+                                            Semua Bersih
+                                        </span>
+                                    @endif
+                                </div>
+
+                                <div class="p-3 bg-slate-50/40 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-700 grid grid-cols-2 gap-2 text-xs">
+                                    <div class="rounded-lg bg-white dark:bg-slate-700 p-2 border border-slate-100 dark:border-slate-600">
+                                        <div class="text-slate-400 dark:text-slate-400 text-[10px] uppercase font-bold">Laporan Harian</div>
+                                        <div class="text-base font-bold text-amber-600 dark:text-amber-400">{{ $notifikasiAdmin['pendingLaporan'] }} pending</div>
+                                    </div>
+                                    <div class="rounded-lg bg-white dark:bg-slate-700 p-2 border border-slate-100 dark:border-slate-600">
+                                        <div class="text-slate-400 dark:text-slate-400 text-[10px] uppercase font-bold">Laporan Akhir</div>
+                                        <div class="text-base font-bold text-rose-600 dark:text-rose-400">{{ $notifikasiAdmin['pendingLaporanAkhir'] }} pending</div>
+                                    </div>
+                                </div>
+
+                                <div class="max-h-64 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700 text-xs">
+                                    @forelse ($notifikasiAdmin['daftar'] as $item)
+                                        <a href="{{ route('admin.index') }}" class="flex items-start gap-3 p-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
+                                            <span class="mt-0.5 shrink-0 text-sm">
+                                                <i class="{{ $item['ikon'] }}"></i>
+                                            </span>
+                                            <div class="min-w-0 flex-1">
+                                                <p class="font-semibold text-slate-800 dark:text-slate-200 truncate">{{ $item['judul'] }}</p>
+                                                <p class="text-[11px] text-slate-500 dark:text-slate-400 truncate">{{ $item['keterangan'] }}</p>
+                                                <div class="mt-1 flex items-center justify-between text-[10px] text-slate-400">
+                                                    <span>{{ $item['waktu'] }}</span>
+                                                    <span class="rounded bg-slate-100 dark:bg-slate-600 px-1.5 py-0.5 font-medium text-slate-600 dark:text-slate-300">{{ $item['status'] }}</span>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    @empty
+                                        <div class="p-6 text-center text-xs text-slate-500">
+                                            Belum ada aktivitas laporan baru yang masuk.
+                                        </div>
+                                    @endforelse
+                                </div>
+
+                                <div class="border-t border-slate-100 bg-slate-50 p-2.5 text-center dark:border-slate-700 dark:bg-slate-900">
+                                    <a href="{{ route('admin.index') }}" class="text-xs font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 hover:underline">
+                                        Buka Dashboard Monitoring Lengkap &rarr;
+                                    </a>
+                                </div>
+                            </section>
+                        </div>
+                    @endif
+
                     @if ($profileSummary)
                         <div x-data="{ open: false }" x-on:click.outside="open = false" x-on:keydown.escape.window="open = false" class="relative">
                             <button type="button" x-on:click="open = !open" x-bind:aria-expanded="open.toString()" aria-haspopup="dialog" aria-label="Buka detail profil" class="flex items-center gap-2 rounded-full p-1 pr-2 transition hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:hover:bg-slate-700">

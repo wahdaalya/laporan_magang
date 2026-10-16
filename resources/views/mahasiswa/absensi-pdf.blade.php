@@ -40,7 +40,7 @@
     <img src="{{ $logoSrc }}" alt="" class="logo">
 @endif
         <h1>LEMBAR PRESENSI MAGANG / PKL</h1>
-        <p class="subtitle">PT Angkasa Pura Aviasi - Bandara Kualanamu</p>
+        <p class="subtitle">Bandara Internasional Kualanamu (KNO)</p>
     </header>
 
     <table class="metadata">
