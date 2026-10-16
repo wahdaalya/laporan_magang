@@ -29,7 +29,7 @@
                 </div>
                 <div>
                     <label for="filter-status" class="mb-1 block text-xs font-medium text-gray-600">Status</label>
-                    <select id="filter-status" name="status" class="block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    <select id="filter-status" name="status" class="block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400">
                         <option value="">Semua status</option>
                         @foreach (['Belum Diperiksa', 'Disetujui', 'Revisi', 'Ditolak'] as $status)
                             <option value="{{ $status }}" @selected(($filters['status'] ?? '') === $status)>{{ $status }}</option>

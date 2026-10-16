@@ -186,17 +186,65 @@
 
                                     <div class="min-w-0 w-full">
                                         <x-input-label for="edit_kampus_{{ $mahasiswa->id }}" value="{{ __('Instansi / Sekolah / Kampus') }}" />
-                                        <x-text-input id="edit_kampus_{{ $mahasiswa->id }}" name="kampus" type="text" list="datalist_kampus" placeholder="Ketik atau pilih instansi..." class="mt-1 block w-full" :value="$mahasiswa->kampus" />
+                                        <select
+                                            id="edit_kampus_{{ $mahasiswa->id }}"
+                                            name="kampus"
+                                            class="mt-1 block w-full max-w-full min-w-0 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400 text-sm truncate"
+                                            style="width: 100%; max-width: 100%; box-sizing: border-box;"
+                                        >
+                                            <option value="">{{ __('- Pilih Instansi / Sekolah / Kampus -') }}</option>
+                                            @php
+                                                $daftarKampus = $kampuses->pluck('nama_universitas')->filter()->unique();
+                                                if ($mahasiswa->kampus && ! $daftarKampus->contains($mahasiswa->kampus)) {
+                                                    $daftarKampus->push($mahasiswa->kampus);
+                                                }
+                                            @endphp
+                                            @foreach ($daftarKampus as $item)
+                                                <option value="{{ $item }}" @selected($mahasiswa->kampus === $item)>{{ $item }}</option>
+                                            @endforeach
+                                        </select>
                                     </div>
 
                                     <div class="min-w-0 w-full">
                                         <x-input-label for="edit_fakultas_{{ $mahasiswa->id }}" value="{{ __('Fakultas') }}" />
-                                        <x-text-input id="edit_fakultas_{{ $mahasiswa->id }}" name="fakultas" type="text" list="datalist_fakultas" placeholder="Ketik atau pilih fakultas..." class="mt-1 block w-full" :value="$mahasiswa->fakultas" />
+                                        <select
+                                            id="edit_fakultas_{{ $mahasiswa->id }}"
+                                            name="fakultas"
+                                            class="mt-1 block w-full max-w-full min-w-0 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400 text-sm truncate"
+                                            style="width: 100%; max-width: 100%; box-sizing: border-box;"
+                                        >
+                                            <option value="">{{ __('- Pilih Fakultas -') }}</option>
+                                            @php
+                                                $daftarFakultas = $kampuses->pluck('fakultas')->filter()->unique();
+                                                if ($mahasiswa->fakultas && ! $daftarFakultas->contains($mahasiswa->fakultas)) {
+                                                    $daftarFakultas->push($mahasiswa->fakultas);
+                                                }
+                                            @endphp
+                                            @foreach ($daftarFakultas as $item)
+                                                <option value="{{ $item }}" @selected($mahasiswa->fakultas === $item)>{{ $item }}</option>
+                                            @endforeach
+                                        </select>
                                     </div>
 
                                     <div class="min-w-0 w-full">
                                         <x-input-label for="edit_prodi_{{ $mahasiswa->id }}" value="{{ __('Program Studi') }}" />
-                                        <x-text-input id="edit_prodi_{{ $mahasiswa->id }}" name="prodi" type="text" list="datalist_prodi" placeholder="Ketik atau pilih program studi..." class="mt-1 block w-full" :value="$mahasiswa->prodi" />
+                                        <select
+                                            id="edit_prodi_{{ $mahasiswa->id }}"
+                                            name="prodi"
+                                            class="mt-1 block w-full max-w-full min-w-0 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400 text-sm truncate"
+                                            style="width: 100%; max-width: 100%; box-sizing: border-box;"
+                                        >
+                                            <option value="">{{ __('- Pilih Program Studi -') }}</option>
+                                            @php
+                                                $daftarProdi = $kampuses->pluck('prodi')->filter()->unique();
+                                                if ($mahasiswa->prodi && ! $daftarProdi->contains($mahasiswa->prodi)) {
+                                                    $daftarProdi->push($mahasiswa->prodi);
+                                                }
+                                            @endphp
+                                            @foreach ($daftarProdi as $item)
+                                                <option value="{{ $item }}" @selected($mahasiswa->prodi === $item)>{{ $item }}</option>
+                                            @endforeach
+                                        </select>
                                     </div>
 
 
@@ -330,19 +378,49 @@
 
                 <div class="min-w-0 w-full">
                     <x-input-label for="create_kampus" value="{{ __('Instansi / Sekolah / Kampus') }}" />
-                    <x-text-input id="create_kampus" name="kampus" type="text" list="datalist_kampus" placeholder="Ketik atau pilih instansi..." class="mt-1 block w-full min-w-0 max-w-full" :value="old('kampus')" />
+                    <select
+                        id="create_kampus"
+                        name="kampus"
+                        class="mt-1 block w-full max-w-full min-w-0 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400 text-sm truncate"
+                        style="width: 100%; max-width: 100%; box-sizing: border-box;"
+                    >
+                        <option value="">{{ __('- Pilih Instansi / Sekolah / Kampus -') }}</option>
+                        @foreach ($kampuses->pluck('nama_universitas')->filter()->unique() as $item)
+                            <option value="{{ $item }}" @selected(old('kampus') === $item)>{{ $item }}</option>
+                        @endforeach
+                    </select>
                     <x-input-error :messages="$errors->get('kampus')" class="mt-2" />
                 </div>
 
                 <div class="min-w-0 w-full">
                     <x-input-label for="create_fakultas" value="{{ __('Fakultas') }}" />
-                    <x-text-input id="create_fakultas" name="fakultas" type="text" list="datalist_fakultas" placeholder="Ketik atau pilih fakultas..." class="mt-1 block w-full min-w-0 max-w-full" :value="old('fakultas')" />
+                    <select
+                        id="create_fakultas"
+                        name="fakultas"
+                        class="mt-1 block w-full max-w-full min-w-0 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400 text-sm truncate"
+                        style="width: 100%; max-width: 100%; box-sizing: border-box;"
+                    >
+                        <option value="">{{ __('- Pilih Fakultas -') }}</option>
+                        @foreach ($kampuses->pluck('fakultas')->filter()->unique() as $item)
+                            <option value="{{ $item }}" @selected(old('fakultas') === $item)>{{ $item }}</option>
+                        @endforeach
+                    </select>
                     <x-input-error :messages="$errors->get('fakultas')" class="mt-2" />
                 </div>
 
                 <div class="min-w-0 sm:col-span-2 w-full">
                     <x-input-label for="create_prodi" value="{{ __('Program Studi') }}" />
-                    <x-text-input id="create_prodi" name="prodi" type="text" list="datalist_prodi" placeholder="Ketik atau pilih program studi..." class="mt-1 block w-full min-w-0 max-w-full" :value="old('prodi')" />
+                    <select
+                        id="create_prodi"
+                        name="prodi"
+                        class="mt-1 block w-full max-w-full min-w-0 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400 text-sm truncate"
+                        style="width: 100%; max-width: 100%; box-sizing: border-box;"
+                    >
+                        <option value="">{{ __('- Pilih Program Studi -') }}</option>
+                        @foreach ($kampuses->pluck('prodi')->filter()->unique() as $item)
+                            <option value="{{ $item }}" @selected(old('prodi') === $item)>{{ $item }}</option>
+                        @endforeach
+                    </select>
                     <x-input-error :messages="$errors->get('prodi')" class="mt-2" />
                 </div>
 
@@ -365,22 +443,4 @@
             </div>
         </form>
     </x-modal>
-
-    <datalist id="datalist_kampus">
-        @foreach ($kampuses->pluck('nama_universitas')->filter()->unique()->values() as $item)
-            <option value="{{ $item }}"></option>
-        @endforeach
-    </datalist>
-
-    <datalist id="datalist_fakultas">
-        @foreach ($kampuses->pluck('fakultas')->filter()->unique()->values() as $item)
-            <option value="{{ $item }}"></option>
-        @endforeach
-    </datalist>
-
-    <datalist id="datalist_prodi">
-        @foreach ($kampuses->pluck('prodi')->filter()->unique()->values() as $item)
-            <option value="{{ $item }}"></option>
-        @endforeach
-    </datalist>
 </x-app-layout>

@@ -44,7 +44,7 @@
 
 <div class="mt-4">
     <x-input-label for="departemen_id" value="Pilih Departemen / Unit Kerja" />
-            <select id="departemen_id" name="departemen_id" x-model="f.departemen_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400">
+            <select id="departemen_id" name="departemen_id" x-model="f.departemen_id" class="mt-1 block w-full max-w-full min-w-0 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400 text-sm truncate" style="width: 100%; max-width: 100%; box-sizing: border-box;">
                 <option value="">-- Pilih Departemen / Unit Kerja --</option>
                 @foreach ($departemens as $departemen)
                     <option value="{{ $departemen->id }}">{{ $departemen->nama_departemen }}</option>

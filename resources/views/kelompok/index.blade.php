@@ -38,11 +38,11 @@
                             </div>
 
                             <!-- Dropdown Filter Bulan -->
+                            <!-- Dropdown Filter Bulan -->
                             <select
                                 name="bulan"
                                 onchange="this.form.submit()"
-                                style="height:40px;"
-                                class="rounded-lg border-gray-200 bg-gray-50/50 py-2 pl-3 pr-8 text-sm text-gray-700 focus:border-blue-500 focus:bg-white focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                                class="rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400"
                             >
                                 <option value="">Semua Bulan</option>
                                 @foreach ($daftarBulan as $key => $namaBulan)
@@ -54,8 +54,7 @@
                             <select
                                 name="tahun"
                                 onchange="this.form.submit()"
-                                style="height:40px;"
-                                class="rounded-lg border-gray-200 bg-gray-50/50 py-2 pl-3 pr-8 text-sm text-gray-700 focus:border-blue-500 focus:bg-white focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                                class="rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400"
                             >
                                 <option value="">Semua Tahun</option>
                                 @foreach ($daftarTahun as $thn)
@@ -249,8 +248,9 @@
                                     </div>
 
                                     <div>
+                                    <div>
                                         <x-input-label for="edit_kampus_id_{{ $kelompok->id }}" value="{{ __('Instansi Pendidikan') }}" />
-                                        <select id="edit_kampus_id_{{ $kelompok->id }}" name="kampus_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400">
+                                        <select id="edit_kampus_id_{{ $kelompok->id }}" name="kampus_id" class="mt-1 block w-full max-w-full min-w-0 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400 text-sm truncate" style="width: 100%; max-width: 100%; box-sizing: border-box;">
                                             <option value="">{{ __('- Pilih Instansi -') }}</option>
                                             @foreach ($kampuses as $kampus)
                                                 <option value="{{ $kampus->id }}" @selected($kelompok->kampus_id == $kampus->id)>
@@ -262,7 +262,7 @@
 
                                     <div>
                                         <x-input-label for="edit_departemen_id_{{ $kelompok->id }}" value="{{ __('Departemen Instansi') }}" />
-                                        <select id="edit_departemen_id_{{ $kelompok->id }}" name="departemen_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400">
+                                        <select id="edit_departemen_id_{{ $kelompok->id }}" name="departemen_id" class="mt-1 block w-full max-w-full min-w-0 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400 text-sm truncate" style="width: 100%; max-width: 100%; box-sizing: border-box;">
                                             <option value="">{{ __('- Pilih Departemen -') }}</option>
                                             @foreach ($departemens as $departemen)
                                                 <option value="{{ $departemen->id }}" @selected($kelompok->departemen_id == $departemen->id)>
@@ -274,7 +274,7 @@
 
                                     <div>
                                         <x-input-label for="edit_dosen_id_{{ $kelompok->id }}" value="{{ __('Pembimbing Sekolah/Kampus') }}" />
-                                        <select id="edit_dosen_id_{{ $kelompok->id }}" name="dosen_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400">
+                                        <select id="edit_dosen_id_{{ $kelompok->id }}" name="dosen_id" class="mt-1 block w-full max-w-full min-w-0 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400 text-sm truncate" style="width: 100%; max-width: 100%; box-sizing: border-box;">
                                             <option value="">{{ __('- Pilih Pembimbing Sekolah/Kampus -') }}</option>
                                             @foreach ($dosens as $dosen)
                                                 <option value="{{ $dosen->id }}" @selected($kelompok->dosen_id == $dosen->id)>
@@ -286,7 +286,7 @@
 
                                     <div>
                                         <x-input-label for="edit_pembimbing_id_{{ $kelompok->id }}" value="{{ __('Pembimbing Lapangan') }}" />
-                                        <select id="edit_pembimbing_id_{{ $kelompok->id }}" name="pembimbing_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400">
+                                        <select id="edit_pembimbing_id_{{ $kelompok->id }}" name="pembimbing_id" class="mt-1 block w-full max-w-full min-w-0 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400 text-sm truncate" style="width: 100%; max-width: 100%; box-sizing: border-box;">
                                             <option value="">{{ __('- Pilih Pembimbing Lapangan -') }}</option>
                                             @foreach ($pembimbings as $pembimbing)
                                                 <option value="{{ $pembimbing->id }}" @selected($kelompok->pembimbing_id == $pembimbing->id)>
@@ -360,7 +360,7 @@
                                     @csrf
 
                                     <x-input-label for="mahasiswa_id_{{ $kelompok->id }}" value="{{ __('Tambah dari Data Peserta') }}" />
-                                    <select id="mahasiswa_id_{{ $kelompok->id }}" name="mahasiswa_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400" required>
+                                    <select id="mahasiswa_id_{{ $kelompok->id }}" name="mahasiswa_id" class="mt-1 block w-full max-w-full min-w-0 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400 text-sm truncate" style="width: 100%; max-width: 100%; box-sizing: border-box;" required>
                                         <option value="">{{ __('- Pilih Peserta -') }}</option>
                                         @foreach ($mahasiswaBebas as $calon)
                                             <option value="{{ $calon->id }}">{{ $calon->name }} ({{ $calon->nim_nip ?? '-' }})</option>
@@ -469,7 +469,7 @@
 
                 <div>
                     <x-input-label for="create_kampus_id" value="{{ __('Kampus / Instansi') }}" />
-                    <select id="create_kampus_id" name="kampus_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400">
+                    <select id="create_kampus_id" name="kampus_id" class="mt-1 block w-full max-w-full min-w-0 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400 text-sm truncate" style="width: 100%; max-width: 100%; box-sizing: border-box;">
                         <option value="">{{ __('- Pilih Kampus / Instansi -') }}</option>
                         @foreach ($kampuses as $kampus)
                             <option value="{{ $kampus->id }}" @selected(old('kampus_id') == $kampus->id)>
@@ -482,7 +482,7 @@
 
                 <div>
                     <x-input-label for="create_departemen_id" value="{{ __('Departemen') }}" />
-                    <select id="create_departemen_id" name="departemen_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400">
+                    <select id="create_departemen_id" name="departemen_id" class="mt-1 block w-full max-w-full min-w-0 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400 text-sm truncate" style="width: 100%; max-width: 100%; box-sizing: border-box;">
                         <option value="">{{ __('- Pilih Departemen -') }}</option>
                         @foreach ($departemens as $departemen)
                             <option value="{{ $departemen->id }}" @selected(old('departemen_id') == $departemen->id)>
@@ -495,7 +495,7 @@
 
                 <div>
                     <x-input-label for="create_dosen_id" value="{{ __('Pembimbing Sekolah/Kampus') }}" />
-                    <select id="create_dosen_id" name="dosen_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400">
+                    <select id="create_dosen_id" name="dosen_id" class="mt-1 block w-full max-w-full min-w-0 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400 text-sm truncate" style="width: 100%; max-width: 100%; box-sizing: border-box;">
                         <option value="">{{ __('- Pilih Pembimbing Sekolah/Kampus -') }}</option>
                         @foreach ($dosens as $dosen)
                             <option value="{{ $dosen->id }}" @selected(old('dosen_id') == $dosen->id)>
@@ -508,7 +508,7 @@
 
                 <div>
                     <x-input-label for="create_pembimbing_id" value="{{ __('Pembimbing Lapangan') }}" />
-                    <select id="create_pembimbing_id" name="pembimbing_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400">
+                    <select id="create_pembimbing_id" name="pembimbing_id" class="mt-1 block w-full max-w-full min-w-0 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400 text-sm truncate" style="width: 100%; max-width: 100%; box-sizing: border-box;">
                         <option value="">{{ __('- Pilih Pembimbing Lapangan -') }}</option>
                         @foreach ($pembimbings as $pembimbing)
                             <option value="{{ $pembimbing->id }}" @selected(old('pembimbing_id') == $pembimbing->id)>

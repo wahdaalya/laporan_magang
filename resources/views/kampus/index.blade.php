@@ -11,29 +11,6 @@
                 <div
                     class="p-6 text-gray-900"
                     x-data="{
-                        sumber: {
-                            nama_universitas: @js($kampuses->pluck('nama_universitas')->filter()->unique()->values()),
-                            alamat: @js($kampuses->pluck('alamat')->filter()->unique()->values()),
-                            fakultas: @js($kampuses->pluck('fakultas')->filter()->unique()->values()),
-                            prodi: @js($kampuses->pluck('prodi')->filter()->unique()->values()),
-                        },
-                        saran: { nama_universitas: [], alamat: [], fakultas: [], prodi: [] },
-                        terbuka: { nama_universitas: false, alamat: false, fakultas: false, prodi: false },
-                        cari(field) {
-                            const q = (this.f[field] ?? '').trim().toLowerCase();
-                            this.saran[field] = q === ''
-                                ? this.sumber[field]
-                                : this.sumber[field].filter(n => n.toLowerCase().includes(q));
-                            this.terbuka[field] = true;
-                        },
-                        bukaDropdown(field) {
-                            this.saran[field] = this.sumber[field];
-                            this.terbuka[field] = true;
-                        },
-                        pilih(field, nilai) {
-                            this.f[field] = nilai;
-                            this.terbuka[field] = false;
-                        },
                         editId: @js(old('_id') ?: null),
                         showErrors: @js($errors->any()),
                         f: {

@@ -172,7 +172,7 @@
                         <form method="GET" action="{{ route('mahasiswa.dashboard') }}" class="flex items-end gap-2">
                             <div>
                                 <label for="week" class="mb-1 block text-xs font-medium text-gray-600">Pilih Minggu</label>
-                                <select id="week" name="week" class="rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <select id="week" name="week" class="rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400">
                                     @foreach ($weekOptions as $weekNumber => $week)
                                         <option value="{{ $weekNumber }}" @selected($selectedWeek === $weekNumber)>
                                             Minggu {{ $weekNumber }}

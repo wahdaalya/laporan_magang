@@ -23,7 +23,7 @@
                     name="tahun"
                     title="Pilih Tahun Magang"
                     onchange="this.form.submit()"
-                    class="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                    class="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400"
                 >
                     <option value="">Semua Tahun</option>
                     @foreach ($daftarTahun as $th)

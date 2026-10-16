@@ -14,7 +14,7 @@
                 <form method="GET" action="{{ route('dosen.logbook.index') }}" class="mt-4 grid gap-3 sm:grid-cols-[minmax(0,1fr)_12rem_auto_auto] sm:items-end">
                     <div>
                         <label for="nama" class="mb-1 block text-xs font-medium text-gray-600">Mahasiswa</label>
-                        <select id="nama" name="nama" class="block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <select id="nama" name="nama" class="block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400">
                             <option value="">Semua mahasiswa bimbingan</option>
                             @foreach ($pesertas as $peserta)
                                 <option value="{{ $peserta->name }}" @selected(($filters['nama'] ?? '') === $peserta->name)>{{ $peserta->name }}</option>

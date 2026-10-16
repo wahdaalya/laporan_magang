@@ -9,7 +9,7 @@
                 <input type="text" name="q" value="{{ $q }}" placeholder="Cari nama / NIM / email..."
                        class="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
 
-                <select name="tahun" class="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <select name="tahun" class="rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400">
                     <option value="">Semua Tahun Magang</option>
                     @foreach ($daftarTahun as $t)
                         <option value="{{ $t }}" @selected((int)$tahun === (int)$t)>Tahun {{ $t }}</option>

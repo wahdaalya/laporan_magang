@@ -13,7 +13,7 @@
                 <form action="{{ route('mahasiswa.absensi.cetak', [], false) }}" method="GET" target="_blank" class="flex flex-wrap items-end gap-4">
                     <div>
                         <x-input-label for="bulan" value="Bulan" />
-                        <select id="bulan" name="bulan" class="mt-1 block w-40 rounded-md border-gray-300 shadow-sm">
+                        <select id="bulan" name="bulan" class="mt-1 block w-40 rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400">
                             @foreach (['1'=>'Januari','2'=>'Februari','3'=>'Maret','4'=>'April','5'=>'Mei','6'=>'Juni','7'=>'Juli','8'=>'Agustus','9'=>'September','10'=>'Oktober','11'=>'November','12'=>'Desember'] as $value => $label)
                                 <option value="{{ $value }}" @selected($bulan == $value)>{{ $label }}</option>
                             @endforeach
@@ -22,7 +22,7 @@
 
                     <div>
                         <x-input-label for="tahun" value="Tahun" />
-                        <select id="tahun" name="tahun" class="mt-1 block w-32 rounded-md border-gray-300 shadow-sm">
+                        <select id="tahun" name="tahun" class="mt-1 block w-32 rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400">
                             @for ($t = now()->year; $t >= now()->year - 2; $t--)
                                 <option value="{{ $t }}" @selected($tahun == $t)>{{ $t }}</option>
                             @endfor
