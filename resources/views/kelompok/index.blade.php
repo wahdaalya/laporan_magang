@@ -95,7 +95,7 @@
                                 <thead class="border-b border-gray-200 bg-gray-100 text-gray-600 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-300">
                                     <tr>
                                         <th class="px-5 py-3 text-center align-middle whitespace-nowrap">ID</th>
-                                        <th class="px-5 py-3 text-left align-middle whitespace-nowrap">Kelompok & Logo</th>
+                                        <th class="px-5 py-3 text-left align-middle whitespace-nowrap">Kelompok</th>
                                         <th class="px-5 py-3 text-left align-middle whitespace-nowrap">Instansi & Departemen</th>
                                         <th class="px-5 py-3 text-center align-middle whitespace-nowrap">Aksi</th>
                                     </tr>
@@ -109,13 +109,9 @@
                                             <td class="px-5 py-4 align-middle whitespace-nowrap text-center text-gray-500 font-mono text-xs">#{{ $kelompok->id }}</td>
                                             <td class="px-5 py-4 align-middle whitespace-nowrap">
                                                 <div class="flex items-center gap-3">
-                                                    @if ($kelompok->logo_url)
-                                                        <img src="{{ $kelompok->logo_url }}" alt="Logo {{ $kelompok->nama_kelompok }}" class="h-9 w-9 shrink-0 rounded-lg object-contain border border-slate-200 bg-white p-0.5 shadow-xs">
-                                                    @else
-                                                        <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-100 text-sm">
-                                                            <i class="fas fa-users"></i>
-                                                        </span>
-                                                    @endif
+                                                    <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-100 text-sm">
+                                                        <i class="fas fa-users"></i>
+                                                    </span>
                                                     <div>
                                                         <div class="font-semibold text-slate-900 dark:text-white">{{ $kelompok->nama_kelompok }}</div>
                                                         <div class="text-xs text-slate-500">
@@ -159,13 +155,9 @@
                             <div class="p-6">
                                 <div class="flex items-start justify-between gap-4 border-b border-gray-100 pb-4">
                                     <div class="flex items-center gap-3">
-                                        @if ($kelompok->logo_url)
-                                            <img src="{{ $kelompok->logo_url }}" alt="Logo {{ $kelompok->nama_kelompok }}" class="h-12 w-12 rounded-xl object-contain border border-slate-200 bg-white p-1 shadow-xs">
-                                        @else
-                                            <span class="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-100 text-lg">
-                                                <i class="fas fa-users"></i>
-                                            </span>
-                                        @endif
+                                        <span class="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-100 text-lg">
+                                            <i class="fas fa-users"></i>
+                                        </span>
                                         <div>
                                             <h2 class="text-lg font-bold text-gray-900">{{ $kelompok->nama_kelompok }}</h2>
                                             <p class="text-xs text-gray-500">ID Kelompok: #{{ $kelompok->id }} &middot; {{ $kelompok->kampus?->nama_universitas ?? 'Instansi Umum' }}</p>
@@ -231,7 +223,7 @@
 
                     @foreach ($kelompoks as $kelompok)
                         <x-modal name="edit-kelompok-{{ $kelompok->id }}">
-                            <form method="POST" action="{{ route('kelompok.update', $kelompok->id, false) }}" enctype="multipart/form-data" class="p-6">
+                            <form method="POST" action="{{ route('kelompok.update', $kelompok->id, false) }}" class="p-6">
                                 @csrf
                                 @method('PUT')
                                 <input type="hidden" name="nama_kelompok" value="{{ $kelompok->nama_kelompok }}">
@@ -304,19 +296,6 @@
                                         </select>
                                     </div>
 
-                                    <div class="sm:col-span-2 border-t border-gray-100 pt-3">
-                                        <x-input-label for="edit_logo_{{ $kelompok->id }}" value="{{ __('Logo Kelompok / Instansi (Opsional)') }}" />
-                                        @if ($kelompok->logo_url)
-                                            <div class="mt-2 mb-3 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 p-2.5">
-                                                <img src="{{ $kelompok->logo_url }}" alt="Logo {{ $kelompok->nama_kelompok }}" class="h-10 w-10 object-contain rounded border border-white bg-white">
-                                                <label class="inline-flex items-center gap-2 text-xs font-medium text-rose-600 cursor-pointer">
-                                                    <input type="checkbox" name="hapus_logo" value="1" class="rounded border-gray-300 text-rose-600 focus:ring-rose-500">
-                                                    Hapus logo ini
-                                                </label>
-                                            </div>
-                                        @endif
-                                        <input id="edit_logo_{{ $kelompok->id }}" name="logo" type="file" accept="image/*" class="mt-1 block w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
-                                        <p class="mt-1 text-xs text-gray-500">Format: PNG, JPG, JPEG, WEBP. Maks 2 MB. Digunakan pada dokumen & lembar pengesahan kelompok.</p>
                                     </div>
                                 </div>
 
@@ -414,7 +393,6 @@
         <form
             method="post"
             action="{{ route('kelompok.store') }}"
-            enctype="multipart/form-data"
             class="p-6"
             x-data="{
                 namaBaru: '',
@@ -541,12 +519,6 @@
                     <x-input-error :messages="$errors->get('pembimbing_id')" class="mt-2" />
                 </div>
 
-                <div class="sm:col-span-2 border-t border-gray-100 pt-3">
-                    <x-input-label for="create_logo" value="{{ __('Logo Kelompok / Instansi (Opsional)') }}" />
-                    <input id="create_logo" name="logo" type="file" accept="image/*" class="mt-1 block w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
-                    <p class="mt-1 text-xs text-gray-500">Format: PNG, JPG, JPEG, WEBP. Maks 2 MB. Digunakan pada header lembar pengesahan kelompok.</p>
-                    <x-input-error :messages="$errors->get('logo')" class="mt-1" />
-                </div>
             </div>
 
             <div class="mt-6 flex justify-end">

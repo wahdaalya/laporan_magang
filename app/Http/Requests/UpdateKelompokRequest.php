@@ -24,20 +24,6 @@ class UpdateKelompokRequest extends FormRequest
             'dosen_id' => ['nullable', 'exists:dosens,id'],
             'pembimbing_id' => ['nullable', 'exists:pembimbings,id'],
             'departemen_id' => ['nullable', 'exists:departemens,id'],
-            'logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
-            'hapus_logo' => ['nullable', 'boolean'],
-        ];
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    public function messages(): array
-    {
-        return [
-            'logo.image' => 'File logo harus berupa gambar.',
-            'logo.mimes' => 'Format logo harus JPG, JPEG, PNG, atau WEBP.',
-            'logo.max' => 'Ukuran file logo maksimal 2 MB.',
         ];
     }
 }

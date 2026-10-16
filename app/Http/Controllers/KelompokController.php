@@ -129,10 +129,6 @@ class KelompokController extends Controller
 
         $data['nama_kelompok'] = $this->generateKodeKelompok($data['tanggal_mulai']);
 
-        if ($request->hasFile('logo')) {
-            $data['logo'] = $request->file('logo')->store('logos', 'local');
-        }
-
         DB::transaction(function () use ($data, $namaAnggota) {
             $kelompok = Kelompok::create($data);
 
@@ -160,25 +156,11 @@ class KelompokController extends Controller
     }
 
     /**
-     * Perbarui data kelompok beserta logo/periode instansi.
+     * Perbarui data kelompok.
      */
     public function update(UpdateKelompokRequest $request, Kelompok $kelompok): RedirectResponse
     {
-        $data = $request->validated();
-
-        if ($request->boolean('hapus_logo')) {
-            if ($kelompok->logo) {
-                Storage::disk('local')->delete($kelompok->logo);
-            }
-            $data['logo'] = null;
-        } elseif ($request->hasFile('logo')) {
-            if ($kelompok->logo) {
-                Storage::disk('local')->delete($kelompok->logo);
-            }
-            $data['logo'] = $request->file('logo')->store('logos', 'local');
-        }
-
-        $kelompok->update($data);
+        $kelompok->update($request->validated());
 
         return back()->with('status', 'Kelompok berhasil diperbarui.');
     }
