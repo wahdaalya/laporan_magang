@@ -49,7 +49,7 @@
                             <table class="min-w-max w-full text-left text-sm dark:border-slate-700">
                                 <thead class="border-b border-gray-200 bg-gray-100 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-300">
                                     <tr>
-                                        <th class="whitespace-nowrap px-4 py-3 align-middle text-left">Nama</th>
+                                        <th class="whitespace-nowrap px-4 py-3 align-middle text-left td-kiri !text-left">Nama</th>
                                         <th class="whitespace-nowrap px-4 py-3 align-middle text-left">NIM / NISN</th>
                                         <th class="whitespace-nowrap px-4 py-3 align-middle text-left">Instansi Pendidikan</th>
                                         <th class="whitespace-nowrap px-4 py-3 align-middle text-left">Jurusan / Program Studi</th>
@@ -63,21 +63,21 @@
                                 <tbody class="divide-y divide-gray-100 bg-white text-slate-800 dark:divide-slate-700 dark:bg-slate-800 dark:text-slate-200">
                                     @foreach ($mahasiswas as $mahasiswa)
                                         <tr class="bg-white hover:bg-gray-50 dark:bg-slate-800 dark:hover:bg-slate-700/50">
-                                            <td class="px-4 py-3 align-middle whitespace-nowrap">
-                                                <div class="flex items-center gap-3">
+                                            <td class="px-4 py-3 align-middle whitespace-nowrap td-kiri !text-left">
+                                                <div class="flex items-center justify-start !justify-start text-left !text-left gap-3">
                                                     @if ($mahasiswa->foto_url)
-                                                        <img src="{{ $mahasiswa->foto_url }}" alt="Foto {{ $mahasiswa->name }}" class="h-9 w-9 rounded-full object-cover border border-slate-200 shadow-xs">
+                                                        <img src="{{ $mahasiswa->foto_url }}" alt="Foto {{ $mahasiswa->name }}" class="h-9 w-9 rounded-full object-cover border border-slate-200 shadow-xs shrink-0">
                                                     @else
-                                                        <span class="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700">
+                                                        <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700">
                                                             {{ strtoupper(substr($mahasiswa->name, 0, 1)) }}
                                                         </span>
                                                     @endif
-                                                    <div>
-                                                        <p class="font-medium text-gray-900">{{ $mahasiswa->name }}</p>
+                                                    <div class="text-left !text-left">
+                                                        <p class="font-medium text-gray-900 text-left !text-left">{{ $mahasiswa->name }}</p>
                                                         @if ($mahasiswa->email)
-                                                            <a href="mailto:{{ $mahasiswa->email }}" class="text-xs text-gray-500 hover:text-blue-700 hover:underline">{{ $mahasiswa->email }}</a>
+                                                            <a href="mailto:{{ $mahasiswa->email }}" class="text-xs text-gray-500 hover:text-blue-700 hover:underline text-left !text-left">{{ $mahasiswa->email }}</a>
                                                         @else
-                                                            <p class="text-xs text-gray-500">-</p>
+                                                            <p class="text-xs text-gray-500 text-left !text-left">-</p>
                                                         @endif
                                                     </div>
                                                 </div>

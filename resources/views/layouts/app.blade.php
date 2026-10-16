@@ -94,6 +94,7 @@
         table td.td-tengah { text-align: center !important; }
         table td.td-kiri { text-align: left !important; }
         table td.td-tengah > .flex { justify-content: center !important; }
+        table td.td-kiri > .flex { justify-content: flex-start !important; }
         
         /* Tombol aksi berupa ikon */
         table td .aksi-ikon {
