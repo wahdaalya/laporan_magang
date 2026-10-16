@@ -330,13 +330,17 @@ html.dark ::-webkit-scrollbar-thumb:horizontal { background: #4b5563; }
                     @php
                         $role = Auth::user()?->role;
                         $berandaRoute = match ($role) {
+                            'SUPERADMIN' => 'superadmin.index',
                             'ADMIN' => 'admin.index',
+                            'AUDITOR' => 'auditor.index',
                             'DOSEN' => 'dosen.dashboard',
                             'MENTOR' => 'pembimbingan.index',
                             default => 'dashboard',
                         };
                         $berandaAktif = match ($role) {
+                            'SUPERADMIN' => request()->routeIs('superadmin.index'),
                             'ADMIN' => request()->routeIs('admin.index'),
+                            'AUDITOR' => request()->routeIs('auditor.index'),
                             'DOSEN' => request()->routeIs('dosen.dashboard'),
                             'MENTOR' => request()->routeIs('pembimbingan.index'),
                             default => request()->routeIs('dashboard', 'mahasiswa.dashboard'),
@@ -461,6 +465,27 @@ html.dark ::-webkit-scrollbar-thumb:horizontal { background: #4b5563; }
                         <a href="{{ route('mahasiswa.index') }}" @class(['flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors hover:bg-slate-100 dark:hover:bg-slate-700', 'bg-blue-50 text-blue-700 dark:bg-slate-700 dark:text-blue-200' => request()->routeIs('mahasiswa.index'), 'text-slate-600 dark:text-slate-300' => ! request()->routeIs('mahasiswa.index')])>
                             <i class="fas fa-user-graduate w-5 text-center"></i>
                             <span>Data Peserta Magang / PKL</span>
+                        </a>
+                    @endif
+
+                    @if (Auth::user()?->role === 'AUDITOR')
+                        <div class="px-3 pb-1 pt-5 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                            Menu Auditor
+                        </div>
+
+                        <a href="{{ route('auditor.laporan') }}" @class(['flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors hover:bg-slate-100 dark:hover:bg-slate-700', 'bg-blue-50 text-blue-700 dark:bg-slate-700 dark:text-blue-200' => request()->routeIs('auditor.laporan'), 'text-slate-600 dark:text-slate-300' => ! request()->routeIs('auditor.laporan')])>
+                            <i class="fas fa-clipboard-list w-5 text-center"></i>
+                            <span>Rekap Laporan / Peserta</span>
+                        </a>
+
+                        <a href="{{ route('auditor.laporan-akhir') }}" @class(['flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors hover:bg-slate-100 dark:hover:bg-slate-700', 'bg-blue-50 text-blue-700 dark:bg-slate-700 dark:text-blue-200' => request()->routeIs('auditor.laporan-akhir'), 'text-slate-600 dark:text-slate-300' => ! request()->routeIs('auditor.laporan-akhir')])>
+                            <i class="fas fa-file-alt w-5 text-center"></i>
+                            <span>Rekap Laporan Akhir</span>
+                        </a>
+
+                        <a href="{{ route('auditor.mahasiswa') }}" @class(['flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors hover:bg-slate-100 dark:hover:bg-slate-700', 'bg-blue-50 text-blue-700 dark:bg-slate-700 dark:text-blue-200' => request()->routeIs('auditor.mahasiswa'), 'text-slate-600 dark:text-slate-300' => ! request()->routeIs('auditor.mahasiswa')])>
+                            <i class="fas fa-user-graduate w-5 text-center"></i>
+                            <span>Daftar Seluruh Peserta</span>
                         </a>
                     @endif
 

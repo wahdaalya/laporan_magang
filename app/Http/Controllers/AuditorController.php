@@ -66,7 +66,7 @@ class AuditorController extends Controller
     }
 
     /**
-     * Rekapitulasi seluruh laporan harian (read-only) dengan filter tahun magang.
+     * Rekapitulasi seluruh data peserta & laporan (read-only) untuk Auditor.
      */
     public function laporanRekap(Request $request): View
     {
@@ -75,7 +75,12 @@ class AuditorController extends Controller
         $tahun = $request->filled('tahun') ? (int) $request->input('tahun') : null;
         $daftarTahun = Kelompok::daftarTahunMagang();
 
-        $query = Laporan::with(['mahasiswa.kelompok.departemen']);
+        $query = Laporan::with([
+            'mahasiswa.kelompok.kampus',
+            'mahasiswa.kelompok.dosen',
+            'mahasiswa.kelompok.pembimbing',
+            'mahasiswa.kelompok.departemen',
+        ]);
 
         if ($search !== '') {
             $query->whereHas('mahasiswa', function ($q) use ($search) {
