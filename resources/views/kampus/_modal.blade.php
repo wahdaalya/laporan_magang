@@ -13,13 +13,12 @@
 
         <div class="mt-6">
             <x-input-label for="nama_universitas" value="Nama Instansi / Sekolah / Kampus" />
-            <x-text-input
+            <x-combobox
                 id="nama_universitas"
                 name="nama_universitas"
-                type="text"
+                model="f.nama_universitas"
+                :options="$kampuses->pluck('nama_universitas')->filter()->unique()"
                 placeholder="Contoh: SMK Negeri 1 Medan / Universitas Sumatera Utara"
-                class="mt-1 block w-full"
-                x-model="f.nama_universitas"
                 required
             />
             <x-input-error class="mt-2" :messages="$errors->get('nama_universitas')" x-show="showErrors" />
@@ -51,18 +50,13 @@
                     'SMK / Sekolah Menengah Kejuruan',
                 ])->merge($kampuses->pluck('fakultas'))->filter()->unique()->values();
             @endphp
-            <select
+            <x-combobox
                 id="fakultas"
                 name="fakultas"
-                x-model="f.fakultas"
-                class="mt-1 block w-full max-w-full min-w-0 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400 text-sm truncate"
-                style="width: 100%; max-width: 100%; box-sizing: border-box;"
-            >
-                <option value="">{{ __('- Pilih Fakultas -') }}</option>
-                @foreach ($opsiFakultas as $item)
-                    <option value="{{ $item }}">{{ $item }}</option>
-                @endforeach
-            </select>
+                model="f.fakultas"
+                :options="$opsiFakultas"
+                placeholder="Ketik atau pilih fakultas..."
+            />
             <x-input-error class="mt-2" :messages="$errors->get('fakultas')" x-show="showErrors" />
         </div>
 
@@ -83,18 +77,13 @@
                     'Ilmu Komunikasi',
                 ])->merge($kampuses->pluck('prodi'))->filter()->unique()->values();
             @endphp
-            <select
+            <x-combobox
                 id="prodi"
                 name="prodi"
-                x-model="f.prodi"
-                class="mt-1 block w-full max-w-full min-w-0 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400 text-sm truncate"
-                style="width: 100%; max-width: 100%; box-sizing: border-box;"
-            >
-                <option value="">{{ __('- Pilih Program Studi / Jurusan -') }}</option>
-                @foreach ($opsiProdi as $item)
-                    <option value="{{ $item }}">{{ $item }}</option>
-                @endforeach
-            </select>
+                model="f.prodi"
+                :options="$opsiProdi"
+                placeholder="Ketik atau pilih program studi / jurusan..."
+            />
             <x-input-error class="mt-2" :messages="$errors->get('prodi')" x-show="showErrors" />
         </div>
 

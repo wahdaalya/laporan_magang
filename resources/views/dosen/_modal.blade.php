@@ -23,35 +23,15 @@
             <x-input-error class="mt-2" :messages="$errors->get('nidn')" x-show="showErrors" />
         </div>
 
-        <div class="mt-4 relative" x-on:click.outside="terbuka.kampus = false">
+        <div class="mt-4">
             <x-input-label for="kampus" value="Pilih Instansi / Sekolah / Kampus" />
-
-            <div class="relative mt-1">
-                <input
-                    id="kampus"
-                    name="kampus"
-                    type="text"
-                    autocomplete="off"
-                    placeholder="Ketik atau pilih instansi..."
-                    class="block w-full min-w-0 max-w-full rounded-md border-gray-300 pr-9 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400"
-                    x-model="f.kampus"
-                    x-on:input="cari('kampus')"
-                    x-on:focus="bukaDropdown('kampus')"
-                >
-                <button type="button" x-on:click="terbuka.kampus = !terbuka.kampus; if (terbuka.kampus) bukaDropdown('kampus')" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600">
-                    <i class="fas fa-chevron-down text-xs"></i>
-                </button>
-            </div>
-
-            <ul x-show="terbuka.kampus" style="background-color: #ffffff; width: 100%; max-width: 100%; box-sizing: border-box;" class="relative sm:absolute sm:inset-x-0 sm:left-0 sm:right-0 sm:top-full z-50 mt-1 max-h-48 w-full min-w-0 max-w-full overflow-y-auto overflow-x-hidden rounded-md border border-gray-200 bg-white text-sm shadow-md sm:shadow-xl">
-                <template x-if="saran.kampus.length === 0">
-                    <li class="px-3 py-2.5 text-xs sm:text-sm text-gray-500 italic">Tidak ada yang cocok — ketik nama instansi baru.</li>
-                </template>
-                <template x-for="nama in saran.kampus" :key="nama">
-                    <li x-on:click="pilih('kampus', nama)" x-text="nama" class="cursor-pointer px-3 py-2.5 text-left text-sm leading-snug break-words whitespace-normal border-b border-gray-100 last:border-b-0 hover:bg-indigo-50 active:bg-indigo-100 transition-colors" :class="nama === f.kampus ? 'bg-indigo-50 font-medium text-indigo-700' : 'text-gray-700'"></li>
-                </template>
-            </ul>
-
+            <x-combobox
+                id="kampus"
+                name="kampus"
+                model="f.kampus"
+                :options="$kampuses->pluck('nama_universitas')->filter()->unique()"
+                placeholder="Ketik atau pilih instansi..."
+            />
             <x-input-error class="mt-2" :messages="$errors->get('kampus')" x-show="showErrors" />
         </div>
 

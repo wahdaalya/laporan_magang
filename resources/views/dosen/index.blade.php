@@ -10,26 +10,6 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900"
     x-data="{
-        sumber: {
-            kampus: @js($kampuses->pluck('nama_universitas')->filter()->unique()->values()),
-        },
-        saran: { kampus: [] },
-        terbuka: { kampus: false },
-        cari(field) {
-            const q = (this.f[field] ?? '').trim().toLowerCase();
-            this.saran[field] = q === ''
-                ? this.sumber[field]
-                : this.sumber[field].filter(n => n.toLowerCase().includes(q));
-            this.terbuka[field] = true;
-        },
-        bukaDropdown(field) {
-            this.saran[field] = this.sumber[field];
-            this.terbuka[field] = true;
-        },
-        pilih(field, nilai) {
-            this.f[field] = nilai;
-            this.terbuka[field] = false;
-        },
         editId: @js(old('_id') ?: null),
         showErrors: @js($errors->any()),
         f: {

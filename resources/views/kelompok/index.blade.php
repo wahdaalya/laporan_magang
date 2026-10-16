@@ -250,14 +250,13 @@
                                     <div>
                                     <div>
                                         <x-input-label for="edit_kampus_id_{{ $kelompok->id }}" value="{{ __('Instansi Pendidikan') }}" />
-                                        <select id="edit_kampus_id_{{ $kelompok->id }}" name="kampus_id" class="mt-1 block w-full max-w-full min-w-0 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400 text-sm truncate" style="width: 100%; max-width: 100%; box-sizing: border-box;">
-                                            <option value="">{{ __('- Pilih Instansi -') }}</option>
-                                            @foreach ($kampuses as $kampus)
-                                                <option value="{{ $kampus->id }}" @selected($kelompok->kampus_id == $kampus->id)>
-                                                    {{ $kampus->nama_universitas }}
-                                                </option>
-                                            @endforeach
-                                        </select>
+                                        <x-combobox
+                                            id="edit_kampus_id_{{ $kelompok->id }}"
+                                            name="kampus_id"
+                                            :value="$kelompok->kampus?->nama_universitas ?? ''"
+                                            :options="$kampuses->pluck('nama_universitas')->filter()->unique()"
+                                            placeholder="Ketik atau pilih instansi..."
+                                        />
                                     </div>
 
                                     <div>
@@ -469,14 +468,19 @@
 
                 <div>
                     <x-input-label for="create_kampus_id" value="{{ __('Kampus / Instansi') }}" />
-                    <select id="create_kampus_id" name="kampus_id" class="mt-1 block w-full max-w-full min-w-0 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400 text-sm truncate" style="width: 100%; max-width: 100%; box-sizing: border-box;">
-                        <option value="">{{ __('- Pilih Kampus / Instansi -') }}</option>
-                        @foreach ($kampuses as $kampus)
-                            <option value="{{ $kampus->id }}" @selected(old('kampus_id') == $kampus->id)>
-                                {{ $kampus->nama_universitas }}
-                            </option>
-                        @endforeach
-                    </select>
+                    @php
+                        $oldKampusVal = old('kampus_id');
+                        if (is_numeric($oldKampusVal)) {
+                            $oldKampusVal = $kampuses->firstWhere('id', (int) $oldKampusVal)?->nama_universitas ?? $oldKampusVal;
+                        }
+                    @endphp
+                    <x-combobox
+                        id="create_kampus_id"
+                        name="kampus_id"
+                        :value="$oldKampusVal ?? ''"
+                        :options="$kampuses->pluck('nama_universitas')->filter()->unique()"
+                        placeholder="Ketik atau pilih kampus / instansi..."
+                    />
                     <x-input-error :messages="$errors->get('kampus_id')" class="mt-2" />
                 </div>
 

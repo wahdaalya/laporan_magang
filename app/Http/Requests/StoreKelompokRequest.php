@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Kampus;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreKelompokRequest extends FormRequest
@@ -26,6 +27,20 @@ class StoreKelompokRequest extends FormRequest
             'nama_anggota' => ['required', 'array', 'min:1'],
             'nama_anggota.*' => ['required', 'string', 'max:255'],
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        if ($this->filled('kampus_id')) {
+            $val = trim((string) $this->kampus_id);
+            if (! is_numeric($val)) {
+                $kampus = Kampus::firstOrCreate(
+                    ['nama_universitas' => $val],
+                    ['alamat' => '-']
+                );
+                $this->merge(['kampus_id' => $kampus->id]);
+            }
+        }
     }
 
     /**

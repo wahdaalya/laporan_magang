@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Kampus;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateKelompokRequest extends FormRequest
@@ -25,5 +26,19 @@ class UpdateKelompokRequest extends FormRequest
             'pembimbing_id' => ['nullable', 'exists:pembimbings,id'],
             'departemen_id' => ['nullable', 'exists:departemens,id'],
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        if ($this->filled('kampus_id')) {
+            $val = trim((string) $this->kampus_id);
+            if (! is_numeric($val)) {
+                $kampus = Kampus::firstOrCreate(
+                    ['nama_universitas' => $val],
+                    ['alamat' => '-']
+                );
+                $this->merge(['kampus_id' => $kampus->id]);
+            }
+        }
     }
 }
