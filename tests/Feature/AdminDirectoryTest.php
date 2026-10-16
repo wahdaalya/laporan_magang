@@ -9,6 +9,7 @@ use App\Models\Kelompok;
 use App\Models\Pembimbing;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
@@ -227,5 +228,65 @@ class AdminDirectoryTest extends TestCase
             ->assertSee('Yakin ingin menghapus peserta ini?')
             ->assertSee('dan seluruh laporan serta dokumen terkait akan dihapus permanen.')
             ->assertSee('Ya, Hapus');
+    }
+
+    public function test_admin_can_reset_student_password_with_custom_password(): void
+    {
+        $admin = User::factory()->role('ADMIN')->create();
+        $mahasiswa = User::factory()->role('MAHASISWA')->create([
+            'password' => Hash::make('old-password'),
+        ]);
+
+        $this->actingAs($admin)
+            ->from(route('mahasiswa.index'))
+            ->post(route('mahasiswa.reset-password', $mahasiswa), [
+                'password' => 'secret12345',
+            ])
+            ->assertRedirect(route('mahasiswa.index'))
+            ->assertSessionHas('status')
+            ->assertSessionHas('password_baru', [
+                'nama' => $mahasiswa->name,
+                'email' => $mahasiswa->email,
+                'password' => 'secret12345',
+            ]);
+
+        $mahasiswa->refresh();
+        $this->assertTrue(Hash::check('secret12345', $mahasiswa->password));
+    }
+
+    public function test_admin_can_reset_student_password_to_default_nim(): void
+    {
+        $admin = User::factory()->role('ADMIN')->create();
+        $mahasiswa = User::factory()->role('MAHASISWA')->create([
+            'nim_nip' => '21030099',
+            'password' => Hash::make('old-password'),
+        ]);
+
+        $this->actingAs($admin)
+            ->from(route('mahasiswa.index'))
+            ->post(route('mahasiswa.reset-password', $mahasiswa), [
+                'password' => '',
+            ])
+            ->assertRedirect(route('mahasiswa.index'))
+            ->assertSessionHas('password_baru', [
+                'nama' => $mahasiswa->name,
+                'email' => $mahasiswa->email,
+                'password' => '21030099',
+            ]);
+
+        $mahasiswa->refresh();
+        $this->assertTrue(Hash::check('21030099', $mahasiswa->password));
+    }
+
+    public function test_student_rows_display_reset_password_button(): void
+    {
+        $admin = User::factory()->role('ADMIN')->create();
+        $mahasiswa = User::factory()->role('MAHASISWA')->create(['name' => 'Peserta Reset Password']);
+
+        $this->actingAs($admin)
+            ->get(route('mahasiswa.index'))
+            ->assertOk()
+            ->assertSee('Reset Password Peserta')
+            ->assertSee('Reset');
     }
 }

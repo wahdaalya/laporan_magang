@@ -13,18 +13,40 @@
                 </div>
             @endif
 
+            @if (session('password_baru'))
+                <div class="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                    <p class="font-semibold">⚠️ Catat/kirim sekarang — password ini tidak akan ditampilkan lagi setelah halaman ini ditutup/di-refresh.</p>
+                    <p class="mt-1">
+                        Peserta: <strong>{{ session('password_baru')['nama'] }}</strong> ({{ session('password_baru')['email'] ?? '-' }})
+                        — Password Baru: <code class="rounded bg-amber-100 px-2 py-0.5 font-mono font-bold">{{ session('password_baru')['password'] }}</code>
+                    </p>
+                </div>
+            @endif
+
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div
                     class="p-6 text-gray-900"
                     x-data="{
                         deleteId: null,
                         deleteNama: '',
+                        resetId: null,
+                        resetNama: '',
+                        resetNim: '',
                         hapus(button) {
                             this.deleteId = button.dataset.mahasiswaId;
                             this.deleteNama = button.dataset.mahasiswaName;
                         },
                         get deleteAction() {
                             return this.deleteId ? '{{ url('mahasiswa') }}/' + this.deleteId : '';
+                        },
+                        bukaResetPassword(id, nama, nim) {
+                            this.resetId = id;
+                            this.resetNama = nama;
+                            this.resetNim = nim;
+                            $dispatch('open-modal', 'modal-reset-password');
+                        },
+                        get resetPasswordAction() {
+                            return this.resetId ? '{{ url('mahasiswa') }}/' + this.resetId + '/reset-password' : '';
                         },
                     }"
                 >
@@ -120,6 +142,15 @@
                                                     <x-secondary-button type="button" x-data="" x-on:click.prevent="$dispatch('open-modal', 'edit-mahasiswa-{{ $mahasiswa->id }}')">
                                                         {{ __('Edit') }}
                                                     </x-secondary-button>
+                                                    <button
+                                                        type="button"
+                                                        x-on:click="bukaResetPassword({{ $mahasiswa->id }}, @js($mahasiswa->name), @js($mahasiswa->nim_nip))"
+                                                        class="inline-flex items-center gap-1 rounded bg-amber-50 px-2.5 py-1.5 text-xs font-semibold text-amber-700 hover:bg-amber-100 transition"
+                                                        title="Reset Password {{ $mahasiswa->name }}"
+                                                    >
+                                                        <i class="fa-solid fa-key"></i>
+                                                        <span>Reset</span>
+                                                    </button>
                                                     @if (auth()->user()?->role === 'SUPERADMIN')
                                                         <x-danger-button
                                                             type="button"
@@ -279,6 +310,8 @@
                     @if (auth()->user()?->role === 'SUPERADMIN')
                         @include('mahasiswa._delete_modal')
                     @endif
+
+                    @include('mahasiswa._reset_password_modal')
                 </div>
             </div>
         </div>

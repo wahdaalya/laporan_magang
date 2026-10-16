@@ -288,4 +288,36 @@ class MahasiswaController extends Controller
 
         return back()->with('status', 'Peserta berhasil dihapus.');
     }
+
+    /**
+     * Reset password akun mahasiswa (oleh Admin atau SuperAdmin).
+     */
+    public function resetPassword(Request $request, User|int|string $mahasiswa): RedirectResponse
+    {
+        if (! $mahasiswa instanceof User) {
+            $mahasiswa = User::query()->where('role', 'MAHASISWA')->findOrFail($mahasiswa);
+        } else {
+            abort_unless($mahasiswa->role === 'MAHASISWA', 404);
+        }
+
+        $validated = $request->validate([
+            'password' => ['nullable', 'string', 'min:6'],
+        ]);
+
+        $passwordBaru = ! empty($validated['password'])
+            ? $validated['password']
+            : ($mahasiswa->nim_nip ?: 'password123');
+
+        $mahasiswa->update([
+            'password' => Hash::make($passwordBaru),
+        ]);
+
+        return back()
+            ->with('status', "Password untuk peserta {$mahasiswa->name} berhasil di-reset.")
+            ->with('password_baru', [
+                'nama' => $mahasiswa->name,
+                'email' => $mahasiswa->email,
+                'password' => $passwordBaru,
+            ]);
+    }
 }

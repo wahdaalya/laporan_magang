@@ -152,6 +152,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/mahasiswa', [MahasiswaController::class, 'store'])->middleware('throttle:10,1')->name('mahasiswa.store');
         Route::put('/mahasiswa/{mahasiswa}', [MahasiswaController::class, 'update'])->middleware('throttle:10,1')->name('mahasiswa.update');
         Route::delete('/mahasiswa/{mahasiswa}', [MahasiswaController::class, 'destroy'])->middleware('role:SUPERADMIN')->name('mahasiswa.destroy');
+        Route::post('/mahasiswa/{mahasiswa}/reset-password', [MahasiswaController::class, 'resetPassword'])->middleware('throttle:10,1')->name('mahasiswa.reset-password');
         Route::post('/mahasiswa/{user}/impersonate', [AdminController::class, 'impersonate'])
             ->middleware('throttle:10,1')
             ->name('mahasiswa.impersonate');
