@@ -259,6 +259,10 @@ class MahasiswaController extends Controller
      */
     public function destroy(User $mahasiswa): RedirectResponse
     {
+        if (auth()->user()?->role !== 'SUPERADMIN') {
+            abort(403, 'Hanya Super Admin yang diizinkan menghapus akun.');
+        }
+
         abort_unless($mahasiswa->role === 'MAHASISWA', 404);
         // Proteksi ekstra: SuperAdmin tidak pernah bisa dihapus melalui endpoint ini
         abort_if($mahasiswa->role === 'SUPERADMIN', 403, 'Akun Super Admin tidak dapat dihapus.');

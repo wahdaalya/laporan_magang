@@ -49,9 +49,10 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->middleware('throttle:10,1')->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->middleware('throttle:5,1')->name('profile.destroy');
 
-    Route::get('/superadmin', [SuperAdminController::class, 'index'])
-        ->middleware('role:SUPERADMIN')
-        ->name('superadmin.index');
+    Route::middleware('role:SUPERADMIN')->group(function () {
+        Route::get('/superadmin', [SuperAdminController::class, 'index'])->name('superadmin.index');
+        Route::delete('/superadmin/users/{user}', [SuperAdminController::class, 'destroyUser'])->name('superadmin.users.destroy');
+    });
 
     // -------------------------------------------------------
     // Auditor: hanya akses baca (read-only), TANPA aksi tulis
@@ -129,14 +130,16 @@ Route::middleware('auth')->group(function () {
         ->middleware('role:ADMIN,SUPERADMIN,MAHASISWA')
         ->name('mahasiswa.index');
 
-    Route::middleware('role:ADMIN')->group(function () {
+    Route::middleware('role:ADMIN,SUPERADMIN')->group(function () {
         Route::get('/kampus', [KampusController::class, 'index'])->name('kampus.index');
         Route::post('/kampus', [KampusController::class, 'store'])->name('kampus.store');
         Route::put('/kampus/{kampus}', [KampusController::class, 'update'])->name('kampus.update');
         Route::delete('/kampus/{kampus}', [KampusController::class, 'destroy'])->name('kampus.destroy');
-        Route::resource('dosen', DosenController::class)->parameters(['dosen' => 'dosen'])->except('show')->middleware('throttle:60,1');
+        Route::resource('dosen', DosenController::class)->parameters(['dosen' => 'dosen'])->except(['show', 'destroy'])->middleware('throttle:60,1');
+        Route::delete('/dosen/{dosen}', [DosenController::class, 'destroy'])->middleware('role:SUPERADMIN')->name('dosen.destroy');
         Route::post('/dosen/{dosen}/reset-password', [DosenController::class, 'resetPassword'])->middleware('throttle:5,1')->name('dosen.reset-password');
-        Route::resource('pembimbing', PembimbingController::class)->parameters(['pembimbing' => 'pembimbing'])->only(['index', 'store', 'update', 'destroy'])->middleware('throttle:60,1');
+        Route::resource('pembimbing', PembimbingController::class)->parameters(['pembimbing' => 'pembimbing'])->only(['index', 'store', 'update'])->middleware('throttle:60,1');
+        Route::delete('/pembimbing/{pembimbing}', [PembimbingController::class, 'destroy'])->middleware('role:SUPERADMIN')->name('pembimbing.destroy');
         Route::post('/pembimbing/{pembimbing}/reset-password', [PembimbingController::class, 'resetPassword'])->middleware('throttle:5,1')->name('pembimbing.reset-password');
         Route::resource('departemen', DepartemenController::class)->parameters(['departemen' => 'departemen'])->except('show');
         Route::get('/kelompok', [KelompokController::class, 'index'])->name('kelompok.index');
@@ -148,7 +151,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/kelompok/{kelompok}/pdf', [KelompokController::class, 'exportPdf'])->name('kelompok.pdf');
         Route::post('/mahasiswa', [MahasiswaController::class, 'store'])->middleware('throttle:10,1')->name('mahasiswa.store');
         Route::put('/mahasiswa/{mahasiswa}', [MahasiswaController::class, 'update'])->middleware('throttle:10,1')->name('mahasiswa.update');
-        Route::delete('/mahasiswa/{mahasiswa}', [MahasiswaController::class, 'destroy'])->name('mahasiswa.destroy');
+        Route::delete('/mahasiswa/{mahasiswa}', [MahasiswaController::class, 'destroy'])->middleware('role:SUPERADMIN')->name('mahasiswa.destroy');
         Route::post('/mahasiswa/{user}/impersonate', [AdminController::class, 'impersonate'])
             ->middleware('throttle:10,1')
             ->name('mahasiswa.impersonate');

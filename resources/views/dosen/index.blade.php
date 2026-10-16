@@ -120,11 +120,13 @@
                 @csrf
                 <button type="submit" class="inline-flex items-center rounded-md bg-amber-50 px-3 py-1.5 text-sm font-medium text-amber-700 hover:bg-amber-100 transition">Reset Password</button>
             </form>
-            <form method="POST" action="{{ route('dosen.destroy', $dosen) }}" onsubmit="return confirm('Hapus dosen ini?')">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="inline-flex items-center rounded-md border border-transparent bg-red-50 px-3 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-100 dark:border-rose-800/50 dark:bg-rose-950/60 dark:text-rose-300 dark:hover:bg-rose-900">Hapus</button>
-            </form>
+            @if (auth()->user()?->role === 'SUPERADMIN')
+                <form method="POST" action="{{ route('dosen.destroy', $dosen) }}" onsubmit="return confirm('Hapus dosen ini?')">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="inline-flex items-center rounded-md border border-transparent bg-red-50 px-3 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-100 dark:border-rose-800/50 dark:bg-rose-950/60 dark:text-rose-300 dark:hover:bg-rose-900">Hapus</button>
+                </form>
+            @endif
         </div>
     </td>
 </tr>

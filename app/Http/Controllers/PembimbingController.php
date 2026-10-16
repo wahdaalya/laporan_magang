@@ -9,6 +9,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -108,7 +109,16 @@ class PembimbingController extends Controller
 
     public function destroy(Pembimbing $pembimbing): RedirectResponse
     {
-        $pembimbing->delete();
+        if (auth()->user()?->role !== 'SUPERADMIN') {
+            abort(403, 'Hanya Super Admin yang diizinkan menghapus akun.');
+        }
+
+        DB::transaction(function () use ($pembimbing): void {
+            if ($pembimbing->user_id) {
+                User::where('id', $pembimbing->user_id)->delete();
+            }
+            $pembimbing->delete();
+        });
 
         return back()
             ->with('status', 'Data pembimbing lapangan berhasil dihapus.');

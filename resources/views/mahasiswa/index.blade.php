@@ -120,15 +120,17 @@
                                                     <x-secondary-button type="button" x-data="" x-on:click.prevent="$dispatch('open-modal', 'edit-mahasiswa-{{ $mahasiswa->id }}')">
                                                         {{ __('Edit') }}
                                                     </x-secondary-button>
-                                                    <x-danger-button
-                                                        type="button"
-                                                        data-mahasiswa-id="{{ $mahasiswa->id }}"
-                                                        data-mahasiswa-name="{{ $mahasiswa->name }}"
-                                                        x-on:click="hapus($el); $dispatch('open-modal', 'confirm-delete-mahasiswa')"
-                                                        aria-label="Hapus peserta {{ $mahasiswa->name }}"
-                                                    >
-                                                        {{ __('Hapus') }}
-                                                    </x-danger-button>
+                                                    @if (auth()->user()?->role === 'SUPERADMIN')
+                                                        <x-danger-button
+                                                            type="button"
+                                                            data-mahasiswa-id="{{ $mahasiswa->id }}"
+                                                            data-mahasiswa-name="{{ $mahasiswa->name }}"
+                                                            x-on:click="hapus($el); $dispatch('open-modal', 'confirm-delete-mahasiswa')"
+                                                            aria-label="Hapus peserta {{ $mahasiswa->name }}"
+                                                        >
+                                                            {{ __('Hapus') }}
+                                                        </x-danger-button>
+                                                    @endif
                                                 </div>
                                             </td>
                                         </tr>
@@ -274,7 +276,9 @@
                         </x-modal>
                     @endforeach
 
-                    @include('mahasiswa._delete_modal')
+                    @if (auth()->user()?->role === 'SUPERADMIN')
+                        @include('mahasiswa._delete_modal')
+                    @endif
                 </div>
             </div>
         </div>

@@ -109,10 +109,10 @@ class AdminDirectoryTest extends TestCase
             ->assertSee('Pembimbing Contoh');
     }
 
-    public function test_admin_can_hard_delete_a_student_and_their_dependent_data(): void
+    public function test_superadmin_can_hard_delete_a_student_and_their_dependent_data(): void
     {
         Storage::fake('local');
-        $admin = User::factory()->role('ADMIN')->create();
+        $superadmin = User::factory()->role('SUPERADMIN')->create();
         $kelompok = Kelompok::query()->create([
             'nama_kelompok' => 'KEL-HAPUS-01',
             'tanggal_mulai' => '2026-09-01',
@@ -150,7 +150,7 @@ class AdminDirectoryTest extends TestCase
         Storage::disk('local')->put('penilaian/mahasiswa-hapus.pdf', '%PDF-1.4');
         Storage::disk('local')->put('laporan-akhir/mahasiswa-hapus.pdf', '%PDF-1.4');
 
-        $this->actingAs($admin)
+        $this->actingAs($superadmin)
             ->from(route('mahasiswa.index'))
             ->delete(route('mahasiswa.destroy', $mahasiswa))
             ->assertRedirect(route('mahasiswa.index'));
@@ -172,13 +172,25 @@ class AdminDirectoryTest extends TestCase
         ]);
     }
 
-    #[DataProvider('nonMahasiswaRoles')]
-    public function test_admin_cannot_delete_an_account_that_is_not_a_student(string $role): void
+    public function test_admin_cannot_delete_a_student(): void
     {
         $admin = User::factory()->role('ADMIN')->create();
-        $user = User::factory()->role($role)->create();
+        $mahasiswa = User::factory()->role('MAHASISWA')->create();
 
         $this->actingAs($admin)
+            ->delete(route('mahasiswa.destroy', $mahasiswa))
+            ->assertForbidden();
+
+        $this->assertModelExists($mahasiswa);
+    }
+
+    #[DataProvider('nonMahasiswaRoles')]
+    public function test_superadmin_cannot_delete_an_account_that_is_not_a_student_via_mahasiswa_route(string $role): void
+    {
+        $superadmin = User::factory()->role('SUPERADMIN')->create();
+        $user = User::factory()->role($role)->create();
+
+        $this->actingAs($superadmin)
             ->delete(route('mahasiswa.destroy', $user))
             ->assertNotFound();
 
@@ -194,12 +206,21 @@ class AdminDirectoryTest extends TestCase
         ];
     }
 
-    public function test_student_rows_offer_a_confirmed_delete_action(): void
+    public function test_student_rows_offer_delete_action_only_to_superadmin(): void
     {
         $admin = User::factory()->role('ADMIN')->create();
+        $superadmin = User::factory()->role('SUPERADMIN')->create();
         $mahasiswa = User::factory()->role('MAHASISWA')->create(['name' => 'Peserta Siap Hapus']);
 
+        // Admin cannot see delete action
         $this->actingAs($admin)
+            ->get(route('mahasiswa.index'))
+            ->assertOk()
+            ->assertDontSee('Hapus peserta '.$mahasiswa->name)
+            ->assertDontSee('Yakin ingin menghapus peserta ini?');
+
+        // Super Admin can see delete action and confirmation modal
+        $this->actingAs($superadmin)
             ->get(route('mahasiswa.index'))
             ->assertOk()
             ->assertSee('Hapus peserta '.$mahasiswa->name)

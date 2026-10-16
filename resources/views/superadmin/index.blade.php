@@ -51,6 +51,7 @@
                             <th class="px-5 py-3">Email</th>
                             <th class="px-5 py-3">Role</th>
                             <th class="px-5 py-3">Dibuat</th>
+                            <th class="px-5 py-3 text-right">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
@@ -62,9 +63,22 @@
                                     <span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-700">{{ $u->role }}</span>
                                 </td>
                                 <td class="px-5 py-3 text-slate-500">{{ $u->created_at?->format('d M Y') }}</td>
+                                <td class="px-5 py-3 text-right">
+                                    @if ($u->role !== 'SUPERADMIN' && $u->id !== auth()->id())
+                                        <form method="POST" action="{{ route('superadmin.users.destroy', $u) }}" onsubmit="return confirm('Apakah Anda yakin ingin menghapus akun {{ $u->name }} ({{ $u->role }})? Semua data terkait juga akan dibersihkan dan tindakan ini tidak dapat dibatalkan.')" class="inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="inline-flex items-center rounded-md border border-transparent bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-600 transition hover:bg-red-100">
+                                                <i class="fa-solid fa-trash mr-1"></i> Hapus
+                                            </button>
+                                        </form>
+                                    @else
+                                        <span class="text-xs text-slate-400 italic">Terkunci</span>
+                                    @endif
+                                </td>
                             </tr>
                         @empty
-                            <tr><td colspan="4" class="px-5 py-6 text-center text-slate-500">Belum ada akun.</td></tr>
+                            <tr><td colspan="5" class="px-5 py-6 text-center text-slate-500">Belum ada akun.</td></tr>
                         @endforelse
                     </tbody>
                 </table>

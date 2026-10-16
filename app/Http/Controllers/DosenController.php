@@ -9,6 +9,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -121,7 +122,16 @@ class DosenController extends Controller
 
     public function destroy(Dosen $dosen): RedirectResponse
     {
-        $dosen->delete();
+        if (auth()->user()?->role !== 'SUPERADMIN') {
+            abort(403, 'Hanya Super Admin yang diizinkan menghapus akun.');
+        }
+
+        DB::transaction(function () use ($dosen): void {
+            if ($dosen->user_id) {
+                User::where('id', $dosen->user_id)->delete();
+            }
+            $dosen->delete();
+        });
 
         return back()
             ->with('status', 'Data pembimbing sekolah/kampus berhasil dihapus.');
